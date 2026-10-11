@@ -1,0 +1,36 @@
+services:
+  app:
+    image: ghcr.io/alikemaluysal/edutrack:${IMAGE_TAG:-latest}
+    container_name: edutrack
+    restart: unless-stopped
+
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_HTTP_PORTS: "8080"
+      ASPNETCORE_FORWARDEDHEADERS_ENABLED: "true"
+      TZ: Europe/Istanbul
+
+    env_file:
+      - .env
+
+    expose:
+      - "8080"
+
+    volumes:
+      - edutrack-data-protection:/app/data-protection-keys
+
+    networks:
+      - proxy
+
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  edutrack-data-protection:
+
+networks:
+  proxy:
+    external: true

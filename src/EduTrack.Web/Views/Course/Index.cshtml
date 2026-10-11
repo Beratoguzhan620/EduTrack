@@ -1,0 +1,104 @@
+﻿@using EduTrack.Domain.Constants
+@using EduTrack.Web.Models.Course
+@model CourseViewModel
+@{
+    ViewData["Title"] = "Courses";
+}
+
+<partial name="Partials/_ErrorMessageAlert" />
+<partial name="Partials/_SuccessMessageAlert" />
+
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+
+    <div>
+        <h1 class="page-title h2 mb-1">Courses</h1>
+        <p class="text-secondary mb-0">Browse active demo classes.</p>
+    </div>
+
+    <div class="d-flex gap-2">
+        @if (User.IsInRole(RoleConstants.Admin) || User.IsInRole(RoleConstants.Instructor))
+        {
+            <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#createCourse">
+                Create course
+            </button>
+        }
+
+        <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#joinCourse">
+            Join a course
+        </button>
+    </div>
+
+</div>
+<div class="row g-4">
+
+    @foreach (var course in Model.Courses)
+    {
+        <div class="col-md-6 col-xl-4">
+            <partial name="Partials/_CourseCardPartial" model="course" />
+        </div>
+    }
+
+</div>
+
+
+<form asp-action="Create" asp-controller="Course" method="post">
+    <div class="modal fade" id="createCourse" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title h5">
+                        Create course
+                    </h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal">
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <input class="form-control mb-3" placeholder="Course name" asp-for="CreateCourseViewModel.Title" />
+
+                    <input class="form-control mb-3" placeholder="Course description" asp-for="CreateCourseViewModel.Description" />
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                        Cancel
+                    </button>
+                    <button type="submit" class="btn btn-success">
+                        Save course
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</form>
+
+
+<form asp-action="Join" asp-controller="Course" method="get">
+    <div class="modal fade" id="joinCourse" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title h5">
+                        Join a course
+                    </h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal">
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <input class="form-control mb-3" placeholder="Course code" asp-for="JoinCourseViewModel.Code" />
+
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                        Cancel
+                    </button>
+                    <button type="submit" class="btn btn-success">
+                        Save course
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</form>

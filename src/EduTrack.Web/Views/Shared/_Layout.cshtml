@@ -1,0 +1,30 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <partial name="Partials/Layout/_Head" />
+    <title>@ViewData["Title"] - EduTrack</title>
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+<body>
+
+    
+    <partial name="Partials/Layout/_Navbar" />
+
+
+
+    <div class="container-fluid app-shell">
+        <div class="row">
+            <partial name="Partials/Layout/_Sidebar" />
+
+            <main class="col-lg-10 p-4">
+                @RenderBody()
+            </main>
+        </div>
+    </div>
+
+
+ 
+    <partial name="Partials/Layout/_Scripts" />
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

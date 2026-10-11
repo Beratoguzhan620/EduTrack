@@ -1,0 +1,23 @@
+﻿@{
+    var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+    var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
+
+    string ActiveClass(string controller, string action)
+    {
+        return string.Equals(currentController, controller, StringComparison.OrdinalIgnoreCase)
+                ? " active"
+                : string.Empty;
+    }
+}
+
+<aside class="col-lg-2 sidebar p-3">
+    <nav class="nav flex-column">
+
+        @if (User.IsInRole("Admin"))
+        {
+            <a class="nav-link@(ActiveClass("Users", "Index"))" asp-action="Index" asp-controller="Users">Users</a>
+        }
+
+        <a class="nav-link@(ActiveClass("Course", "Index"))" asp-action="Index" asp-controller="Course">Courses</a>
+    </nav>
+</aside>

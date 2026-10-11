@@ -1,0 +1,81 @@
+﻿@using EduTrack.Application.DTOs.Auth
+@model RegisterRequest
+
+@{
+    Layout = null;
+}
+
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Login - EduTrack</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/EduTrack.Web.styles.css" asp-append-version="true" />
+    <script type="importmap"></script>
+</head>
+
+<body>
+    <main class="min-vh-100 d-flex align-items-center py-5">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-md-7 col-lg-5">
+                    <div class="text-center mb-4">
+                        <a class="navbar-brand d-inline-flex align-items-center gap-2" asp-action="Index" asp-controller="Home">
+                            <span class="brand-mark">E</span>EduTrack
+                        </a>
+                    </div>
+                    <div class="card">
+                        <div class="card-body p-4">
+                            <h1 class="h3 page-title mb-2">Sign up</h1>
+
+                            <partial name="Partials/_ErrorMessageAlert" />
+
+
+                            <form method="post">
+
+                                <div class="mb-3">
+                                    <label class="form-label" asp-for="Email">FirstName</label>
+                                    <input class="form-control" asp-for="FirstName">
+                                </div>
+
+                             <div class="mb-3">
+                                    <label class="form-label" asp-for="Email">LastName</label>
+                                    <input class="form-control" asp-for="LastName">
+                                </div>
+
+
+                                <div class="mb-3">
+                                    <label class="form-label" asp-for="Email">Email</label>
+                                    <input class="form-control" asp-for="Email">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label" asp-for="Password">Password</label>
+                                    <input class="form-control" asp-for="Password">
+                                </div>
+
+                                <div class="d-grid gap-2">
+                                    <button type="submit" class="btn btn-success">Register</button>
+                                    <a class="btn btn-outline-secondary" asp-action="Index" asp-controller="Home">Back to home</a>
+                                </div>
+
+
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <partial name="_ValidationScriptsPartial" />
+</body>
+
+</html>

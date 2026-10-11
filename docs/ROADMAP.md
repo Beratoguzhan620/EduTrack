@@ -1,0 +1,37 @@
+# EduTrack — Yol Haritası
+
+Öğretmen ve öğrencilerin ders, duyuru ve materyal paylaştığı sınıf yönetim platformu (Google Classroom benzeri).
+
+- **Önerilen repo adı:** `edutrack`
+- **Teknoloji:** ASP.NET Core MVC (.NET 10), EF Core, SQL Server, Bootstrap 5 + özel SCSS, xUnit
+- **Kurallar:** `CONTRIBUTING.md` · **Tasarım:** `docs/DESIGN.md`
+
+Her aşama ayrı bir branch ve PR olarak yapılır (`stage/<no>-<kisa-ad>`). Bir aşama ancak tüm maddeleri bitince, build/testler geçince ve ekran görüntüleri eklenince tamamlanmış sayılır. Biten maddeler `[x]` yapılır.
+
+## Aşama 1 — Temizlik ve tasarım sistemi
+- [ ] `.gitignore` kontrolü; `appsettings*.json` içinde gerçek değer yok, `.env.example` güncel
+- [ ] `docs/DESIGN.md`'deki token'larla ortak SCSS/CSS dosyası (`wwwroot/css/design.css`): renkler, tipografi (IBM Plex Sans), radius, gölge
+- [ ] `_Layout` baştan: üst bar + sol menü (öğretmen/öğrenci rolüne göre), responsive, aktif menü durumu
+- [ ] Ortak bileşenler (partial): sayfa başlığı, boş durum, onay modalı, toast bildirimi, sayfalama
+- [ ] Login / Register sayfaları yeni tasarımla
+- [ ] CI'ın `main` ve `dev` için çalıştığını doğrula
+
+## Aşama 2 — Eksik özellikler
+- [ ] E-posta doğrulama (kayıt sonrası kod/link; `IsActive=false` ile başla) — SMTP ayarları user-secrets / env üzerinden
+- [ ] `S3FileService` ya tamamlanır ya da kaldırılıp dosyalar FileAPI üzerinden çalışır; `NotImplementedException` kalmaz
+- [ ] Ödevler (Assignments): oluşturma, teslim etme, teslimleri listeleme, puanlama
+- [ ] Kullanıcı listesinde dinamik arama/filtre (TODO: dynamic query)
+- [ ] Deprecated `AddFluentValidationClientsideAdapters` yerine güncel yaklaşım
+
+## Aşama 3 — Sayfaların cilası + test
+- [ ] Kurs listesi (kart grid), kurs detayı (sekme: Akış / Materyaller / Ödevler / Öğrenciler) yeni tasarımla
+- [ ] Tüm formlarda doğrulama mesajları, yükleniyor durumları, boş durumlar
+- [ ] Demo seed verisi: 1 öğretmen, 8 öğrenci, 3 kurs, duyurular, materyaller (demo hesapları README'de)
+- [ ] Unit test kapsamını iş kurallarına (BusinessRules) genişlet; tüm testler yeşil
+- [ ] 404 / 500 hata sayfaları
+
+## Aşama 4 — Yayın ve README
+- [ ] `docker-compose up` ile tek komutta çalışır (Web + FileAPI + SQL Server)
+- [ ] Canlı demo (Azure App Service / Render / Fly.io) — link README'ye
+- [ ] `docs/screenshots/` ekran görüntüleri + kısa GIF
+- [ ] README (TR + EN) — `CONTRIBUTING.md`'deki şablona göre, mimari şeması (Mermaid) dahil

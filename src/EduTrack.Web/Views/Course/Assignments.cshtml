@@ -1,0 +1,54 @@
+﻿@using EduTrack.Web.Models.Course
+@model CourseDetailViewModel
+
+@{
+    ViewData["Title"] = "Assignments";
+}
+
+<main class="py-4">
+    <partial name="Partials/_CourseHeaderPartial" model="Model.CourseDetail" />
+
+    <h1 class="page-title h2">Assignments</h1>
+    <div class="card">
+        <div class="table-responsive">
+            <table class="table mb-0">
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Course</th>
+                        <th>Due date</th>
+                        <th>Status</th>
+                        <th>Points</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Essay: Digital Citizenship</td>
+                        <td>Computer Science 101</td>
+                        <td>Jun 30, 2026</td>
+                        <td><span class="badge text-bg-warning">Open</span></td>
+                        <td>100</td>
+                        <td><a class="btn btn-outline-success btn-sm" href="assignment-detail.html">View</a></td>
+                    </tr>
+                    <tr>
+                        <td>Linear equations practice</td>
+                        <td>Algebra Foundations</td>
+                        <td>Jul 2, 2026</td>
+                        <td><span class="badge text-bg-warning">Open</span></td>
+                        <td>50</td>
+                        <td><a class="btn btn-outline-success btn-sm" href="assignment-detail.html">View</a></td>
+                    </tr>
+                    <tr>
+                        <td>Timeline reflection</td>
+                        <td>World History</td>
+                        <td>Jun 21, 2026</td>
+                        <td><span class="badge text-bg-success">Graded</span></td>
+                        <td>80</td>
+                        <td><a class="btn btn-outline-success btn-sm" href="assignment-detail.html">View</a></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>

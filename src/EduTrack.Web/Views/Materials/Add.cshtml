@@ -1,0 +1,83 @@
+﻿@using EduTrack.Application.DTOs.CourseMaterial
+@using EduTrack.Domain.Enums
+@model CreateCourseMaterialRequest
+
+
+<main class="py-4">
+    <div class="card form-card mx-auto">
+
+
+
+        <div class="card-body p-4">
+
+            
+        <partial name="Partials/_ErrorMessageAlert" />
+        <partial name="Partials/_SuccessMessageAlert" />
+
+            <h1 class="page-title h3">Add material</h1>
+            <form asp-action="Add" asp-controller="Materials" method="post" enctype="multipart/form-data">
+
+                <input type="hidden" asp-for="CourseId" value="@ViewBag.CourseId" />
+
+                <div class="mb-3">
+                    <label asp-for="Title" class="form-label">Title</label>
+                    <input asp-for="Title"  class="form-control">
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Type" class="form-label">Type</label>
+                    <select asp-for="Type" class="form-select" asp-items="Html.GetEnumSelectList<MaterialType>()">
+                        <option value="" selected disabled>Seçiniz</option>
+                    </select>
+                </div>
+                <div class="mb-3 material-input" data-material-type="@((int)MaterialType.Document)">
+                    <label asp-for="File" class="form-label">Document</label>
+                    <input asp-for="File" type="file" class="form-control">
+                    <span asp-validation-for="File" class="text-danger"></span>
+                </div>
+                <div class="mb-3 material-input" data-material-type="@((int)MaterialType.Link)">
+                    <label asp-for="Url" class="form-label">Resource URL</label>
+                    <input asp-for="Url" type="url" class="form-control" placeholder="https://example.com/resource">
+                    <span asp-validation-for="Url" class="text-danger"></span>
+                </div>
+                <div class="mb-3 material-input" data-material-type="@((int)MaterialType.Content)">
+                    <label asp-for="Description" class="form-label">Description</label>
+                    <textarea asp-for="Description" class="form-control" rows="4"></textarea>
+                    <span asp-validation-for="Description" class="text-danger"></span>
+                </div>
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-success">Save material</button>
+                    <a asp-action="Materials" asp-controller="Course" asp-route-id="@ViewBag.CourseId" class="btn btn-outline-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</main>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        (() => {
+            const typeSelect = document.getElementById('@Html.IdFor(model => model.Type)');
+            const materialInputs = document.querySelectorAll('.material-input');
+
+            const updateMaterialInputs = () => {
+                const selectedType = typeSelect.value;
+
+                materialInputs.forEach(group => {
+                    const isActive = group.dataset.materialType === selectedType;
+                    const controls = group.querySelectorAll('input, textarea, select');
+
+                    group.classList.toggle('d-none', !isActive);
+                    controls.forEach(control => {
+                        control.disabled = !isActive;
+                        control.required = isActive;
+                    });
+                });
+            };
+
+            typeSelect.addEventListener('change', updateMaterialInputs);
+            updateMaterialInputs();
+        })();
+    </script>
+}

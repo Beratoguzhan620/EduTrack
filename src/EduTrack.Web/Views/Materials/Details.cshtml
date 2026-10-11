@@ -1,0 +1,40 @@
+﻿@using EduTrack.Application.DTOs.CourseMaterial
+@model CourseMaterialDto
+
+@{
+    ViewData["Title"] = Model.Title;
+}
+
+<main class="py-4">
+    <div class="card mx-auto" style="max-width: 840px;">
+        <div class="card-body p-4">
+            <div class="d-flex justify-content-between align-items-start gap-3 mb-3">
+                <div>
+                    <span class="badge text-bg-primary mb-2">@Model.Type</span>
+
+
+
+                    <h1 class="page-title h3 mb-0">@Model.Title</h1>
+                </div>
+                <a asp-action="Materials" asp-controller="Course" asp-route-id="@Model.CourseId" class="btn btn-outline-secondary btn-sm">Back</a>
+            </div>
+
+            @if (string.IsNullOrWhiteSpace(Model.Description))
+            {
+                <p class="text-secondary mb-0">No description has been added for this material.</p>
+            }
+            else
+            {
+                <div class="border-top pt-3">
+                    <p class="text-secondary mb-2">Description</p>
+                    <p class="mb-0" style="white-space: pre-wrap;">@Model.Description</p>
+                </div>
+            }
+
+            <div class="d-flex flex-row-reverse">
+                <small class="text-secondary">@Model.Date.ToLocalTime().ToString("f")</small>
+
+            </div>
+        </div>
+    </div>
+</main>

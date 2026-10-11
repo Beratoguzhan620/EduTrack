@@ -1,0 +1,81 @@
+﻿@using EduTrack.Application.DTOs.CourseMaterial
+@using EduTrack.Domain.Constants
+@using EduTrack.Domain.Enums
+@using EduTrack.Web.Models.Course
+@model CourseDetailViewModel
+
+@{
+    ViewData["Title"] = "Materials";
+}
+
+@{
+    string getMaterialDescriptionPreview(string? description)
+    {
+        if (!string.IsNullOrWhiteSpace(description) && description.Length > 100)
+        {
+            return description.Substring(0, 100) + "...";
+        }
+        else
+        {
+            return description;
+        }
+    }
+
+
+    string getMaterialTypeBadgeClass(MaterialType type)
+    {
+        switch (type)
+        {
+            case MaterialType.Content:
+                return "text-bg-primary";
+            case MaterialType.Link:
+                return "text-bg-success";
+            case MaterialType.Document:
+                return "text-bg-warning";
+            default:
+                return "text-bg-secondary";
+        }
+    }
+
+}
+
+<main class="py-4">
+    <partial name="Partials/_CourseHeaderPartial" model="Model.CourseDetail" />
+
+
+
+    <h1 class="page-title h2">Materials</h1>
+
+    @if (Model.CourseDetail.IsInstructor)
+    {
+        <a type="submit" class="btn btn-success my-2" asp-action="Add" asp-controller="Materials" asp-route-id="@Model.CourseDetail.Id">Add Material</a>
+
+    }
+
+    <p class="text-secondary">Course resources for Computer Science 101.</p>
+    <div class="row g-4">
+
+        @foreach (var material in Model.Materials)
+        {
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <span class="badge @getMaterialTypeBadgeClass(material.Type) mb-2">@material.Type</span>
+                        <h2 class="h5">@material.Title</h2>
+                        <p class="text-secondary">@getMaterialDescriptionPreview(material.Description)</p>
+                        <a class="btn btn-outline-success btn-sm" asp-action="Details" asp-controller="Materials" asp-route-id="@material.Id" target="_blank">Open resource</a>
+
+                        <div class="d-flex flex-row-reverse">
+                            <small class="text-secondary">@material.Date.ToLocalTime().ToString("dd/MM/yyyy")</small>
+
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        }
+
+    </div>
+</main>
+
+

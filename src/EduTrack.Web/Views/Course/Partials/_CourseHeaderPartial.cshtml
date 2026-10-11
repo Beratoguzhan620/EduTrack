@@ -1,0 +1,34 @@
+﻿@using EduTrack.Application.DTOs.Course
+@model CourseDto
+
+@{
+    var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+    var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
+
+    string ActiveClass(string controller, string action)
+    {
+        return string.Equals(currentController, controller, StringComparison.OrdinalIgnoreCase) &&
+                 string.Equals(currentAction, action, StringComparison.OrdinalIgnoreCase)
+                ? " active"
+                : string.Empty;
+    }
+}
+
+<section class="@(Model.IsInstructor ? "course-banner-instructor" : "course-banner") p-5 mb-4">
+    <h1 class="display-6 fw-bold">@Model.Title</h1>
+    <p class="lead mb-0">@Model.InstructorFullName</p>
+</section>
+<ul class="nav nav-tabs mb-4">
+    <li class="nav-item">
+        <a class="nav-link @ActiveClass("Course", "Detail")" asp-action="Detail" asp-controller="Course" asp-route-id="@Model.Id">Stream</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @ActiveClass("Course", "Materials")" asp-action="Materials" asp-controller="Course" asp-route-id="@Model.Id">Materials</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @ActiveClass("Course", "Assignments")" asp-action="Assignments" asp-controller="Course" asp-route-id="@Model.Id">Assignments</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @ActiveClass("Course", "Students")" asp-action="Students" asp-controller="Course" asp-route-id="@Model.Id">Students</a>
+    </li>
+</ul>

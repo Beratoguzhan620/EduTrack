@@ -1,0 +1,7 @@
+﻿@if (!string.IsNullOrWhiteSpace(ViewBag.ErrorMessage))
+{
+    <div class="alert alert-danger alert-dismissible fade show small" role="alert">
+        <i class="fas fa-circle-exclamation me-2"></i>@ViewBag.ErrorMessage
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}

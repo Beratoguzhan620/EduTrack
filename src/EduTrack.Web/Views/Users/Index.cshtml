@@ -1,0 +1,98 @@
+﻿@using EduTrack.Domain.Constants
+@using EduTrack.Web.Models.Users
+@model GetUsersViewModel
+
+<div class="container py-4">
+    <h1 class="page-title h2">Users</h1>
+
+    <partial name="Partials/_SuccessMessageAlert" />
+    <form asp-action="Index" method="get">
+
+        <div class="row g-3 mb-4">
+
+            <div class="col-md-8">
+                <input class="form-control" placeholder="Search users" asp-for="Query.Search" />
+            </div>
+
+            <div class="col-md-4">
+                <select class="form-select" asp-for="Query.RoleId" onchange="this.form.submit()">
+                    <option value="">All roles</option>
+                    @foreach (var role in RoleConstants.BaseRoles)
+                    {
+                        <option value="@role.Id">@role.Name</option>
+
+                    }
+                </select>
+            </div>
+
+
+        </div>
+    </form>
+
+    <div class="card">
+        <div class="table-responsive">
+            <table class="table mb-0">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Roles</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                    @foreach (var user in Model.Response.Items)
+                    {
+                        <tr>
+                            <td>@user.FirstName @user.LastName</td>
+                            <td>@user.Email</td>
+                            <td>
+                                @foreach (var role in user.UserRoles)
+                                {
+                                    <span class="badge text-bg-primary">@role.RoleName</span>
+
+                                }
+                            </td>
+                            <td>
+                                <span class="badge @(@user.IsActive ? "text-bg-success" : "text-bg-danger")">@user.IsActive</span>
+                            </td>
+                            <td>
+                                <a class="btn btn-warning btn-sm" asp-action="Edit" asp-route-id="@user.Id">Edit</a>
+                            </td>
+                        </tr>
+                    }
+
+                 
+                   
+                </tbody>
+            </table>
+        </div>
+
+        <nav class="mt-2 d-flex justify-content-center">
+            <ul class="pagination">
+                <li class="page-item">
+                    <a class="page-link @(Model.Response.HasPrevious ? "" : "disabled")" asp-route-index="@(Model.Response.Index - 1)" asp-action="Index" aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+
+
+                @for (int i = 0; i < Model.Response.Pages; i++)
+                {
+                    <li class="page-item @(i == Model.Response.Index ? "active" : "")">
+                        <a class="page-link" asp-route-index="@i" asp-action="Index">@(i + 1)</a>
+                    </li>
+                }
+
+                <li class="page-item">
+                    <a class="page-link @(Model.Response.HasNext ? "" : "disabled")" asp-route-index="@(Model.Response.Index + 1)" asp-action="Index" aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</div>
+
