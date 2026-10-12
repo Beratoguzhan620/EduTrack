@@ -1,0 +1,78 @@
+name: UI preview
+
+# Boots the app against a throwaway SQL Server, walks through the main screens
+# with Playwright and uploads screenshots (desktop + mobile) as an artifact.
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  screenshots:
+    runs-on: ubuntu-latest
+
+    services:
+      sqlserver:
+        image: mcr.microsoft.com/mssql/server:2022-latest
+        env:
+          ACCEPT_EULA: "Y"
+          MSSQL_SA_PASSWORD: "Preview#Passw0rd"
+        ports:
+          - 1433:1433
+        options: >-
+          --health-cmd "/opt/mssql-tools18/bin/sqlcmd -C -S localhost -U sa -P 'Preview#Passw0rd' -Q 'SELECT 1' || exit 1"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 12
+
+    env:
+      ConnectionStrings__DefaultConnection: "Server=localhost,1433;Database=EduTrackPreview;User Id=sa;Password=Preview#Passw0rd;TrustServerCertificate=True;"
+      FileApi__BaseUrl: "http://localhost:5099/"
+      FileApi__ApiKey: "preview"
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: "http://localhost:5080"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Start web app
+        run: |
+          dotnet build src/EduTrack.Web/EduTrack.Web.csproj --configuration Release
+          nohup dotnet run --project src/EduTrack.Web/EduTrack.Web.csproj --configuration Release --no-build --no-launch-profile > app.log 2>&1 &
+          for i in $(seq 1 60); do
+            if curl -sf http://localhost:5080/Login > /dev/null; then echo "App is up"; exit 0; fi
+            sleep 2
+          done
+          cat app.log
+          exit 1
+
+      - name: Install Playwright
+        working-directory: tests/ui
+        run: |
+          npm install --no-save --no-audit --no-fund playwright@1.55.0
+          npx playwright install --with-deps chromium
+
+      - name: Capture screenshots
+        working-directory: tests/ui
+        env:
+          BASE_URL: http://localhost:5080
+        run: node screenshots.mjs
+
+      - name: Upload screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ui-screenshots
+          path: tests/ui/output/
+
+      - name: App log
+        if: failure()
+        run: cat app.log
