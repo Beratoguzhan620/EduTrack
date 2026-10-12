@@ -1,23 +1,49 @@
-﻿@{
+@using EduTrack.Domain.Constants
+@{
     var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
-    var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
 
-    string ActiveClass(string controller, string action)
-    {
-        return string.Equals(currentController, controller, StringComparison.OrdinalIgnoreCase)
-                ? " active"
-                : string.Empty;
-    }
+    string Active(params string[] controllers) =>
+        controllers.Any(c => string.Equals(currentController, c, StringComparison.OrdinalIgnoreCase))
+            ? " active"
+            : string.Empty;
+
+    string? Current(params string[] controllers) =>
+        Active(controllers).Length > 0 ? "page" : null;
+
+    var isAdmin = User.IsInRole(RoleConstants.Admin);
+    var isInstructor = User.IsInRole(RoleConstants.Instructor);
 }
 
-<aside class="col-lg-2 sidebar p-3">
-    <nav class="nav flex-column">
+<aside class="app-sidebar offcanvas-lg offcanvas-start" id="appSidebar" tabindex="-1" aria-label="Ana menü">
+    <div class="offcanvas-header border-bottom d-lg-none">
+        <a class="brand" asp-controller="Course" asp-action="Index">
+            <span class="brand-mark">E</span>EduTrack
+        </a>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#appSidebar" aria-label="Kapat"></button>
+    </div>
 
-        @if (User.IsInRole("Admin"))
+    <div class="sidebar-inner">
+        <nav>
+            <div class="nav-section-title">Genel</div>
+            <a class="side-link@(Active("Course", "Materials"))" aria-current="@Current("Course", "Materials")"
+               asp-controller="Course" asp-action="Index">
+                <i class="bi bi-journal-bookmark"></i>@(isInstructor || isAdmin ? "Dersler" : "Derslerim")
+            </a>
+        </nav>
+
+        @if (isAdmin)
         {
-            <a class="nav-link@(ActiveClass("Users", "Index"))" asp-action="Index" asp-controller="Users">Users</a>
+            <nav>
+                <div class="nav-section-title">Yönetim</div>
+                <a class="side-link@(Active("Users"))" aria-current="@Current("Users")"
+                   asp-controller="Users" asp-action="Index">
+                    <i class="bi bi-people"></i>Kullanıcılar
+                </a>
+            </nav>
         }
 
-        <a class="nav-link@(ActiveClass("Course", "Index"))" asp-action="Index" asp-controller="Course">Courses</a>
-    </nav>
+        <div class="sidebar-footer">
+            EduTrack · @DateTime.UtcNow.Year
+        </div>
+    </div>
 </aside>

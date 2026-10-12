@@ -1,172 +1,75 @@
-:root {
-    --edutrack-green: #1e8e3e;
-    --edutrack-green-dark: #176b31;
-    --edutrack-blue: #1a73e8;
-    --edutrack-bg: #f6f8fb;
-    --edutrack-border: #dfe4ea;
-    --edutrack-text: #263238;
-}
-
-body {
-    background: var(--edutrack-bg);
-    color: var(--edutrack-text);
-}
-
-.navbar-brand {
-    font-weight: 700;
-    letter-spacing: .2px;
-}
-
-.brand-mark {
-    width: 34px;
-    height: 34px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 8px;
-    background: var(--edutrack-green);
-    color: #fff;
-    font-weight: 700;
-}
-
-.app-shell {
-    min-height: calc(100vh - 64px);
-}
-
-.sidebar {
-    background: #fff;
-    border-right: 1px solid var(--edutrack-border);
-    min-height: calc(100vh - 64px);
-}
-
-    .sidebar .nav-link {
-        color: #455a64;
-        border-radius: 8px;
-        margin-bottom: 4px;
-    }
-
-        .sidebar .nav-link.active,
-        .sidebar .nav-link:hover {
-            background: #e8f5e9;
-            color: var(--edutrack-green-dark);
-        }
+/*
+ * Page-level styles. Shared tokens and components live in design.css.
+ */
 
 .page-title {
-    font-weight: 700;
+    font-weight: 600;
 }
 
-.hero {
-    background: linear-gradient(120deg, rgba(30, 142, 62, .96), rgba(26, 115, 232, .9)), url("https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=1600&q=80");
-    background-size: cover;
-    background-position: center;
+/* Course banners: flat tint instead of photos and gradients (see docs/DESIGN.md). */
+.course-banner,
+.course-banner-instructor {
+    position: relative;
+    background: var(--et-primary);
     color: #fff;
-    min-height: 520px;
-}
-
-.course-banner {
-    background: linear-gradient(120deg, rgba(30, 142, 62, .94), rgba(26, 115, 232, .88)), url("https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=1400&q=80");
-    background-size: cover;
-    background-position: center;
-    color: #fff;
-    border-radius: 12px;
+    border-radius: var(--et-radius-md) var(--et-radius-md) 0 0;
 }
 
 .course-banner-instructor {
-    background: linear-gradient(120deg, rgba(185, 10, 100, 0.8), rgba(26, 115, 232, .88)), url("https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=1400&q=80");
-    background-size: cover;
-    background-position: center;
+    background: var(--et-accent);
+}
+
+.course-banner h2,
+.course-banner-instructor h2 {
     color: #fff;
-    border-radius: 12px;
 }
 
-.card {
-    border: 1px solid var(--edutrack-border);
-    border-radius: 8px;
-    box-shadow: 0 4px 14px rgba(26, 35, 46, .04);
-}
-
-.btn-success {
-    background: var(--edutrack-green);
-    border-color: var(--edutrack-green);
-}
-
-    .btn-success:hover {
-        background: var(--edutrack-green-dark);
-        border-color: var(--edutrack-green-dark);
-    }
-
-.avatar {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    background: #e8f5e9;
-    color: var(--edutrack-green-dark);
-    font-weight: 700;
-}
-
-.metric {
-    font-size: 2rem;
-    font-weight: 700;
+.course-banner p,
+.course-banner-instructor p {
+    color: rgba(255, 255, 255, .78);
 }
 
 .stream-item {
-    border-left: 4px solid var(--edutrack-green);
+    border-left: 3px solid var(--et-accent);
 }
 
 .form-card {
     max-width: 760px;
 }
 
-.table > :not(caption) > * > * {
-    vertical-align: middle;
-}
-
-@media (max-width: 991.98px) {
-    .sidebar {
-        min-height: auto;
-        border-right: 0;
-        border-bottom: 1px solid var(--edutrack-border);
-    }
-}
-
-
-
 .course-code-box {
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    padding: 6px 10px;
-    border: 1px solid #dee2e6;
-    border-radius: 10px;
-    background-color: #f8f9fa;
-    font-size: 0.875rem;
+    padding: 5px 10px;
+    border: 1px solid var(--et-border);
+    border-radius: var(--et-radius-sm);
+    background-color: var(--et-surface-2);
+    font-size: var(--et-text-xs);
 }
 
 .course-code-label {
-    color: #6c757d;
+    color: var(--et-text-muted);
     font-weight: 500;
 }
 
 .course-code-value {
-    font-family: Consolas, Monaco, monospace;
+    font-family: var(--et-font-mono);
     font-weight: 600;
-    color: #212529;
-    letter-spacing: 0.3px;
+    color: var(--et-text);
+    letter-spacing: .3px;
 }
 
 .course-code-copy-btn {
     border: none;
     background: transparent;
-    color: #198754;
+    color: var(--et-accent);
     padding: 0;
     display: inline-flex;
     align-items: center;
     cursor: pointer;
 }
 
-    .course-code-copy-btn:hover {
-        color: #146c43;
-    }
+.course-code-copy-btn:hover {
+    color: var(--et-primary);
+}

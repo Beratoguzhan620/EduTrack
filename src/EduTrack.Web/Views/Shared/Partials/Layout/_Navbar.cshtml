@@ -1,6 +1,58 @@
-﻿<nav class="navbar bg-white border-bottom sticky-top">
-    <div class="container-fluid px-4">
-        <a class="navbar-brand d-flex align-items-center gap-2"
-           href="dashboard.html"><span class="brand-mark">E</span>EduTrack</a><a class="btn btn-outline-secondary btn-sm ms-auto" href="/Logout">Logout</a>
-    </div>
-</nav>
+@using System.Security.Claims
+@using EduTrack.Domain.Constants
+@{
+    var fullName = User.FindFirst("FullName")?.Value ?? User.Identity?.Name ?? "Kullanıcı";
+    var email = User.FindFirst(ClaimTypes.Email)?.Value;
+    var initials = string.Concat(fullName
+        .Split(' ', StringSplitOptions.RemoveEmptyEntries)
+        .Take(2)
+        .Select(part => char.ToUpperInvariant(part[0])));
+    var roleLabel = User.IsInRole(RoleConstants.Admin) ? "Yönetici"
+        : User.IsInRole(RoleConstants.Instructor) ? "Eğitmen"
+        : "Öğrenci";
+}
+
+<header class="app-topbar">
+    <button class="btn btn-ghost btn-sm d-lg-none" type="button"
+            data-bs-toggle="offcanvas" data-bs-target="#appSidebar"
+            aria-controls="appSidebar" aria-label="Menüyü aç">
+        <i class="bi bi-list fs-5"></i>
+    </button>
+
+    <a class="brand" asp-controller="Course" asp-action="Index">
+        <span class="brand-mark">E</span>EduTrack
+    </a>
+
+    @if (User.Identity?.IsAuthenticated == true)
+    {
+        <div class="dropdown ms-auto">
+            <button class="user-chip" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <span class="avatar">@initials</span>
+                <span class="d-none d-sm-flex flex-column align-items-start lh-sm">
+                    <span class="fw-medium">@fullName</span>
+                    <span class="text-muted small">@roleLabel</span>
+                </span>
+                <i class="bi bi-chevron-down small text-muted ms-1"></i>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end">
+                <li class="px-3 py-2">
+                    <div class="fw-medium">@fullName</div>
+                    @if (!string.IsNullOrEmpty(email))
+                    {
+                        <div class="text-muted small">@email</div>
+                    }
+                </li>
+                <li><hr class="dropdown-divider" /></li>
+                <li>
+                    <a class="dropdown-item d-flex align-items-center gap-2" href="/Logout">
+                        <i class="bi bi-box-arrow-right"></i>Çıkış yap
+                    </a>
+                </li>
+            </ul>
+        </div>
+    }
+    else
+    {
+        <a class="btn btn-outline-secondary btn-sm ms-auto" href="/Login">Giriş yap</a>
+    }
+</header>
