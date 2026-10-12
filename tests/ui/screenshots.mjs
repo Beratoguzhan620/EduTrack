@@ -40,6 +40,9 @@ for (const [device, viewport] of Object.entries(viewports)) {
   await page.goto(`${baseUrl}/Register`);
   await shot(page, `${device}-register`);
 
+  await page.click("button[type=submit]");
+  await shot(page, `${device}-register-validation`);
+
   await login(page);
   await page.goto(`${baseUrl}/Course`);
   await shot(page, `${device}-courses`);
