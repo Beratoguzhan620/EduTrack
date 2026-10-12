@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <partial name="Partials/Layout/_Head" />
+    <title>@ViewData["Title"] · EduTrack</title>
+</head>
+<body>
+    <div class="auth-shell">
+        <aside class="auth-aside">
+            <a class="brand" asp-controller="Course" asp-action="Index">
+                <span class="brand-mark">E</span>EduTrack
+            </a>
+
+            <div>
+                <h2>Dersleriniz, duyurularınız ve materyalleriniz tek yerde.</h2>
+                <p>Eğitmenler ders açar ve içerik paylaşır, öğrenciler bir kodla katılıp her şeyi tek akıştan takip eder.</p>
+                <ul class="auth-points">
+                    <li><i class="bi bi-journal-check"></i><span>Ders kodu ile saniyeler içinde katılım</span></li>
+                    <li><i class="bi bi-megaphone"></i><span>Duyurular ve ders akışı</span></li>
+                    <li><i class="bi bi-folder2-open"></i><span>Doküman, bağlantı ve video materyalleri</span></li>
+                </ul>
+            </div>
+
+            <small class="text-white-50">© @DateTime.UtcNow.Year EduTrack</small>
+        </aside>
+
+        <main class="auth-main">
+            <div class="auth-card">
+                <a class="brand auth-mobile-brand" asp-controller="Course" asp-action="Index">
+                    <span class="brand-mark">E</span>EduTrack
+                </a>
+                @RenderBody()
+            </div>
+        </main>
+    </div>
+
+    <div class="toast-stack" id="toastStack" aria-live="polite" aria-atomic="false"></div>
+
+    <partial name="Partials/Layout/_Scripts" />
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

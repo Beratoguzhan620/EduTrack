@@ -32,6 +32,7 @@ public class AuthController(IAuthService authService) : BaseController
             return View(model);
         }
 
+        TempData["SuccessMessage"] = "Hesabınız oluşturuldu. Şimdi giriş yapabilirsiniz.";
         return RedirectToAction(nameof(Login));
     }
 
@@ -40,6 +41,7 @@ public class AuthController(IAuthService authService) : BaseController
     public IActionResult Login(string? returnUrl = null)
     {
         ViewBag.ReturnUrl = returnUrl;
+        ViewBag.SuccessMessage = TempData["SuccessMessage"];
         return View();
     }
 
