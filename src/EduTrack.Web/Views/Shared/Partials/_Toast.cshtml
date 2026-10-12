@@ -1,0 +1,10 @@
+@using EduTrack.Web.Models.Shared
+@model ToastViewModel
+@{
+    var isError = Model.Type == ToastType.Error;
+}
+<div class="app-toast @(isError ? "app-toast-error" : "app-toast-success")" role="status" data-toast hidden>
+    <i class="bi @(isError ? "bi-exclamation-circle" : "bi-check-circle")"></i>
+    <span>@Model.Message</span>
+    <button type="button" class="btn-close" aria-label="Kapat" data-toast-close></button>
+</div>
