@@ -1,9 +1,7 @@
 name: Deploy EduTrack
 
+# Manual only: requires VPS_* secrets to be configured for the target server.
 on:
-  push:
-    branches:
-      - master
   workflow_dispatch:
 
 concurrency:
@@ -12,7 +10,7 @@ concurrency:
 
 env:
   APP_NAME: edutrack
-  IMAGE_NAME: ghcr.io/alikemaluysal/edutrack
+  IMAGE_NAME: ghcr.io/beratoguzhan620/edutrack
   IMAGE_TAG: ${{ github.sha }}
 
 jobs:

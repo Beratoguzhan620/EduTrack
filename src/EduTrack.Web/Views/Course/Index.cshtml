@@ -1,44 +1,62 @@
 ﻿@using EduTrack.Domain.Constants
 @using EduTrack.Web.Models.Course
+@using EduTrack.Web.Models.Shared
+@using Microsoft.AspNetCore.Html
 @model CourseViewModel
 @{
-    ViewData["Title"] = "Courses";
+    ViewData["Title"] = "Dersler";
+}
+
+@{
+    var canCreate = User.IsInRole(RoleConstants.Admin) || User.IsInRole(RoleConstants.Instructor);
+
+    Func<object?, IHtmlContent> headerActions = @<text>
+        <button class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#joinCourse">
+            <i class="bi bi-box-arrow-in-right"></i>Derse katıl
+        </button>
+        @if (canCreate)
+        {
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createCourse">
+                <i class="bi bi-plus-lg"></i>Ders oluştur
+            </button>
+        }
+    </text>;
 }
 
 <partial name="Partials/_ErrorMessageAlert" />
 <partial name="Partials/_SuccessMessageAlert" />
 
-<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+<partial name="Partials/_PageHeader" model="@(new PageHeaderViewModel(
+    canCreate ? "Dersler" : "Derslerim",
+    canCreate ? "Verdiğiniz ve katıldığınız dersler." : "Katıldığınız dersler. Yeni bir derse ders koduyla katılabilirsiniz.")
+{
+    Actions = headerActions,
+})" />
 
-    <div>
-        <h1 class="page-title h2 mb-1">Courses</h1>
-        <p class="text-secondary mb-0">Browse active demo classes.</p>
-    </div>
-
-    <div class="d-flex gap-2">
-        @if (User.IsInRole(RoleConstants.Admin) || User.IsInRole(RoleConstants.Instructor))
-        {
-            <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#createCourse">
-                Create course
-            </button>
-        }
-
-        <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#joinCourse">
-            Join a course
-        </button>
-    </div>
-
-</div>
-<div class="row g-4">
-
-    @foreach (var course in Model.Courses)
+@if (Model.Courses.Count == 0)
+{
+    <partial name="Partials/_EmptyState" model="@(new EmptyStateViewModel(
+        "Henüz bir dersiniz yok",
+        canCreate
+            ? "İlk dersinizi oluşturun, ardından ders kodunu öğrencilerinizle paylaşın."
+            : "Eğitmeninizden aldığınız ders koduyla bir derse katılın.",
+        "bi-journal-bookmark")
     {
-        <div class="col-md-6 col-xl-4">
-            <partial name="Partials/_CourseCardPartial" model="course" />
-        </div>
-    }
-
-</div>
+        ActionText = canCreate ? "Ders oluştur" : "Derse katıl",
+        ActionModalTarget = canCreate ? "#createCourse" : "#joinCourse",
+    })" />
+}
+else
+{
+    <div class="row g-4">
+        @foreach (var course in Model.Courses)
+        {
+            <div class="col-md-6 col-xl-4">
+                <partial name="Partials/_CourseCardPartial" model="course" />
+            </div>
+        }
+    </div>
+}
 
 
 <form asp-action="Create" asp-controller="Course" method="post">
@@ -46,25 +64,23 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h2 class="modal-title h5">
-                        Create course
-                    </h2>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal">
-                    </button>
+                    <h2 class="modal-title h5">Ders oluştur</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
                 </div>
                 <div class="modal-body">
-                    <input class="form-control mb-3" placeholder="Course name" asp-for="CreateCourseViewModel.Title" />
-
-                    <input class="form-control mb-3" placeholder="Course description" asp-for="CreateCourseViewModel.Description" />
+                    <div class="mb-3">
+                        <label class="form-label" asp-for="CreateCourseViewModel.Title">Ders adı</label>
+                        <input class="form-control" placeholder="Ör. 5-A Matematik" asp-for="CreateCourseViewModel.Title" />
+                    </div>
+                    <div>
+                        <label class="form-label" asp-for="CreateCourseViewModel.Description">Açıklama</label>
+                        <input class="form-control" placeholder="Kısa bir açıklama" asp-for="CreateCourseViewModel.Description" />
+                    </div>
 
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
-                        Cancel
-                    </button>
-                    <button type="submit" class="btn btn-success">
-                        Save course
-                    </button>
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Vazgeç</button>
+                    <button type="submit" class="btn btn-primary">Dersi oluştur</button>
                 </div>
             </div>
         </div>
@@ -78,24 +94,18 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h2 class="modal-title h5">
-                        Join a course
-                    </h2>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal">
-                    </button>
+                    <h2 class="modal-title h5">Derse katıl</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
                 </div>
                 <div class="modal-body">
-                    <input class="form-control mb-3" placeholder="Course code" asp-for="JoinCourseViewModel.Code" />
+                    <label class="form-label" asp-for="JoinCourseViewModel.Code">Ders kodu</label>
+                    <input class="form-control font-mono" placeholder="Eğitmeninizin paylaştığı kod" asp-for="JoinCourseViewModel.Code" />
 
 
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
-                        Cancel
-                    </button>
-                    <button type="submit" class="btn btn-success">
-                        Save course
-                    </button>
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Vazgeç</button>
+                    <button type="submit" class="btn btn-primary">Katıl</button>
                 </div>
             </div>
         </div>

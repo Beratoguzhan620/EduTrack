@@ -1,0 +1,52 @@
+@using EduTrack.Web.Models.Shared
+@using Microsoft.AspNetCore.Http.Extensions
+@model PaginationViewModel
+@{
+    string PageUrl(int index)
+    {
+        var query = new QueryBuilder(
+            Context.Request.Query
+                .Where(q => !string.Equals(q.Key, Model.PageParameter, StringComparison.OrdinalIgnoreCase))
+                .SelectMany(q => q.Value.Select(v => new KeyValuePair<string, string>(q.Key, v ?? string.Empty))));
+        query.Add(Model.PageParameter, index.ToString());
+        return Context.Request.Path + query.ToQueryString();
+    }
+}
+
+@if (Model.TotalCount > 0)
+{
+    <div class="pagination-bar">
+        <span>@Model.TotalCount kayıttan @Model.FirstItem–@Model.LastItem arası</span>
+
+        @if (Model.Pages > 1)
+        {
+            <nav aria-label="Sayfalar">
+                <ul class="pagination pagination-sm">
+                    <li class="page-item @(Model.HasPrevious ? null : "disabled")">
+                        <a class="page-link" href="@(Model.HasPrevious ? PageUrl(Model.Index - 1) : null)" aria-label="Önceki sayfa">
+                            <i class="bi bi-chevron-left"></i>
+                        </a>
+                    </li>
+                    @foreach (var page in Model.VisiblePages())
+                    {
+                        if (page is null)
+                        {
+                            <li class="page-item disabled"><span class="page-link">…</span></li>
+                        }
+                        else
+                        {
+                            <li class="page-item @(page == Model.Index ? "active" : null)">
+                                <a class="page-link" href="@PageUrl(page.Value)" aria-current="@(page == Model.Index ? "page" : null)">@(page + 1)</a>
+                            </li>
+                        }
+                    }
+                    <li class="page-item @(Model.HasNext ? null : "disabled")">
+                        <a class="page-link" href="@(Model.HasNext ? PageUrl(Model.Index + 1) : null)" aria-label="Sonraki sayfa">
+                            <i class="bi bi-chevron-right"></i>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        }
+    </div>
+}

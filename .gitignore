@@ -378,3 +378,6 @@ secrets.json
 CLAUDE.md
 docs/brief/
 desktop.ini
+data-protection-keys/
+tests/ui/node_modules/
+tests/ui/output/

@@ -9,12 +9,14 @@
 Her aşama ayrı bir branch ve PR olarak yapılır (`stage/<no>-<kisa-ad>`). Bir aşama ancak tüm maddeleri bitince, build/testler geçince ve ekran görüntüleri eklenince tamamlanmış sayılır. Biten maddeler `[x]` yapılır.
 
 ## Aşama 1 — Temizlik ve tasarım sistemi
-- [ ] `.gitignore` kontrolü; `appsettings*.json` içinde gerçek değer yok, `.env.example` güncel
-- [ ] `docs/DESIGN.md`'deki token'larla ortak SCSS/CSS dosyası (`wwwroot/css/design.css`): renkler, tipografi (IBM Plex Sans), radius, gölge
-- [ ] `_Layout` baştan: üst bar + sol menü (öğretmen/öğrenci rolüne göre), responsive, aktif menü durumu
-- [ ] Ortak bileşenler (partial): sayfa başlığı, boş durum, onay modalı, toast bildirimi, sayfalama
-- [ ] Login / Register sayfaları yeni tasarımla
-- [ ] CI'ın `main` ve `dev` için çalıştığını doğrula
+- [x] `.gitignore` kontrolü; `appsettings*.json` içinde gerçek değer yok, `.env.example` güncel
+- [x] `docs/DESIGN.md`'deki token'larla ortak SCSS/CSS dosyası (`wwwroot/css/design.css`): renkler, tipografi (IBM Plex Sans), radius, gölge
+- [x] `_Layout` baştan: üst bar + sol menü (öğretmen/öğrenci rolüne göre), responsive, aktif menü durumu
+- [x] Ortak bileşenler (partial): sayfa başlığı, boş durum, onay modalı, toast bildirimi, sayfalama
+- [x] Login / Register sayfaları yeni tasarımla
+- [x] CI'ın `main` ve `dev` için çalıştığını doğrula
+- [x] Deploy ayarları (`deploy.yml`, `docker-compose.yml`) bu repoya ait registry'yi kullanır; deploy yalnızca elle tetiklenir
+- [x] Ekran görüntüleri için "UI preview" workflow'u (SQL Server + Playwright)
 
 ## Aşama 2 — Eksik özellikler
 - [ ] E-posta doğrulama (kayıt sonrası kod/link; `IsActive=false` ile başla) — SMTP ayarları user-secrets / env üzerinden

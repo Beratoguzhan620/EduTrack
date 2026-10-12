@@ -1,7 +1,6 @@
-﻿@if (!string.IsNullOrWhiteSpace(ViewBag.SuccessMessage))
+@using EduTrack.Web.Models.Shared
+@* Rendered as a toast: site.js moves every [data-toast] element into the fixed toast stack. *@
+@if (ViewBag.SuccessMessage is string message && !string.IsNullOrWhiteSpace(message))
 {
-    <div class="alert alert-success alert-dismissible fade show small" role="alert">
-        <i class="fas fa-circle-check me-2"></i>@ViewBag.SuccessMessage
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
+    <partial name="Partials/_Toast" model="new ToastViewModel(message)" />
 }

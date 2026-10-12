@@ -1,0 +1,36 @@
+@using EduTrack.Web.Models.Shared
+@model PageHeaderViewModel
+
+<div class="page-header">
+    <div>
+        @if (Model.Breadcrumbs.Count > 0)
+        {
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    @for (var i = 0; i < Model.Breadcrumbs.Count; i++)
+                    {
+                        var item = Model.Breadcrumbs[i];
+                        var isLast = i == Model.Breadcrumbs.Count - 1;
+                        if (isLast || item.Url is null)
+                        {
+                            <li class="breadcrumb-item active" aria-current="@(isLast ? "page" : null)">@item.Text</li>
+                        }
+                        else
+                        {
+                            <li class="breadcrumb-item"><a href="@item.Url">@item.Text</a></li>
+                        }
+                    }
+                </ol>
+            </nav>
+        }
+        <h1>@Model.Title</h1>
+        @if (!string.IsNullOrWhiteSpace(Model.Subtitle))
+        {
+            <p>@Model.Subtitle</p>
+        }
+    </div>
+    @if (Model.Actions is not null)
+    {
+        <div class="page-header-actions">@Model.Actions(null)</div>
+    }
+</div>

@@ -1,81 +1,54 @@
-﻿@using EduTrack.Application.DTOs.Auth
+@using EduTrack.Application.DTOs.Auth
 @model RegisterRequest
-
 @{
-    Layout = null;
+    Layout = "_AuthLayout";
+    ViewData["Title"] = "Kayıt ol";
 }
 
-<!doctype html>
-<html lang="en">
+<h1>Hesap oluşturun</h1>
+<p class="lead-text">Birkaç bilgiyle kaydolun, ardından ders kodunuzla derslere katılın.</p>
 
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Login - EduTrack</title>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/EduTrack.Web.styles.css" asp-append-version="true" />
-    <script type="importmap"></script>
-</head>
+<partial name="Partials/_ErrorMessageAlert" />
 
-<body>
-    <main class="min-vh-100 d-flex align-items-center py-5">
-        <div class="container">
-            <div class="row justify-content-center">
-                <div class="col-md-7 col-lg-5">
-                    <div class="text-center mb-4">
-                        <a class="navbar-brand d-inline-flex align-items-center gap-2" asp-action="Index" asp-controller="Home">
-                            <span class="brand-mark">E</span>EduTrack
-                        </a>
-                    </div>
-                    <div class="card">
-                        <div class="card-body p-4">
-                            <h1 class="h3 page-title mb-2">Sign up</h1>
-
-                            <partial name="Partials/_ErrorMessageAlert" />
-
-
-                            <form method="post">
-
-                                <div class="mb-3">
-                                    <label class="form-label" asp-for="Email">FirstName</label>
-                                    <input class="form-control" asp-for="FirstName">
-                                </div>
-
-                             <div class="mb-3">
-                                    <label class="form-label" asp-for="Email">LastName</label>
-                                    <input class="form-control" asp-for="LastName">
-                                </div>
-
-
-                                <div class="mb-3">
-                                    <label class="form-label" asp-for="Email">Email</label>
-                                    <input class="form-control" asp-for="Email">
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label" asp-for="Password">Password</label>
-                                    <input class="form-control" asp-for="Password">
-                                </div>
-
-                                <div class="d-grid gap-2">
-                                    <button type="submit" class="btn btn-success">Register</button>
-                                    <a class="btn btn-outline-secondary" asp-action="Index" asp-controller="Home">Back to home</a>
-                                </div>
-
-
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </div>
+<form method="post" asp-action="Register" asp-controller="Auth" novalidate>
+    <div class="row g-3 mb-3">
+        <div class="col-sm-6">
+            <label class="form-label" asp-for="FirstName">Ad</label>
+            <input class="form-control" asp-for="FirstName" autocomplete="given-name" autofocus />
+            <span asp-validation-for="FirstName"></span>
         </div>
-    </main>
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
-    <partial name="_ValidationScriptsPartial" />
-</body>
+        <div class="col-sm-6">
+            <label class="form-label" asp-for="LastName">Soyad</label>
+            <input class="form-control" asp-for="LastName" autocomplete="family-name" />
+            <span asp-validation-for="LastName"></span>
+        </div>
+    </div>
 
-</html>
+    <div class="mb-3">
+        <label class="form-label" asp-for="Email">E-posta</label>
+        <input class="form-control" asp-for="Email" type="email" autocomplete="email" placeholder="ornek@okul.com" />
+        <span asp-validation-for="Email"></span>
+    </div>
+
+    <div class="mb-4">
+        <label class="form-label" asp-for="Password">Şifre</label>
+        <div class="password-field">
+            <input class="form-control" asp-for="Password" id="registerPassword" autocomplete="new-password" aria-describedby="passwordHelp" />
+            <button class="password-toggle" type="button" data-password-toggle="registerPassword" aria-label="Şifreyi göster" tabindex="-1">
+                <i class="bi bi-eye"></i>
+            </button>
+        </div>
+        <div class="form-text" id="passwordHelp">En az 6 karakter.</div>
+        <span asp-validation-for="Password"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary w-100">Kayıt ol</button>
+</form>
+
+<p class="auth-switch">
+    Zaten hesabınız var mı? <a asp-action="Login" asp-controller="Auth">Giriş yapın</a>
+</p>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

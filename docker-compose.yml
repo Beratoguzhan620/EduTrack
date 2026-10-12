@@ -1,6 +1,6 @@
 services:
   app:
-    image: ghcr.io/alikemaluysal/edutrack:${IMAGE_TAG:-latest}
+    image: ghcr.io/beratoguzhan620/edutrack:${IMAGE_TAG:-latest}
     container_name: edutrack
     restart: unless-stopped
 

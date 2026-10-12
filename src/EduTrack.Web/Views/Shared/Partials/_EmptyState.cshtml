@@ -1,0 +1,19 @@
+@using EduTrack.Web.Models.Shared
+@model EmptyStateViewModel
+
+<div class="empty-state">
+    <div class="empty-state-icon"><i class="bi @Model.Icon"></i></div>
+    <h2>@Model.Title</h2>
+    <p>@Model.Description</p>
+    @if (!string.IsNullOrWhiteSpace(Model.ActionText))
+    {
+        if (!string.IsNullOrWhiteSpace(Model.ActionModalTarget))
+        {
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="@Model.ActionModalTarget">@Model.ActionText</button>
+        }
+        else if (!string.IsNullOrWhiteSpace(Model.ActionUrl))
+        {
+            <a class="btn btn-primary" href="@Model.ActionUrl">@Model.ActionText</a>
+        }
+    }
+</div>
