@@ -1,14 +1,17 @@
 using EduTrack.Application;
 using EduTrack.Infrastructure;
 using EduTrack.Persistence;
+using System.Globalization;
 using EduTrack.Web.Extensions;
+using EduTrack.Web.Filters;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.DataProtection;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.WebHost.UseStaticWebAssets();
 builder.Services.AddCookieAuth();
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllersWithViews(options => options.Filters.Add<FluentValidationFilter>());
 builder.Services.AddPersistenceServices(builder.Configuration);
 builder.Services.AddApplicationServices(builder.Configuration);
 builder.Services.AddInfrastructureServices(builder.Configuration);
@@ -32,6 +35,15 @@ if (!app.Environment.IsDevelopment())
     app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
 }
+
+// Turkish formatting for dates and numbers (e.g. "15 Ekim 2026").
+var turkish = new CultureInfo("tr-TR");
+app.UseRequestLocalization(new RequestLocalizationOptions
+{
+    DefaultRequestCulture = new RequestCulture(turkish),
+    SupportedCultures = [turkish],
+    SupportedUICultures = [turkish],
+});
 
 app.UseHttpsRedirection();
 app.UseRouting();

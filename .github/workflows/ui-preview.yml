@@ -67,7 +67,10 @@ jobs:
         working-directory: tests/ui
         env:
           BASE_URL: http://localhost:5080
-        run: node screenshots.mjs
+        run: |
+          set -o pipefail
+          mkdir -p output
+          node screenshots.mjs 2>&1 | tee output/run.log
 
       - name: Upload screenshots
         if: always()
@@ -78,11 +81,14 @@ jobs:
 
       # Artifacts expire; also keep the images on a throwaway branch so they can be
       # browsed on GitHub and linked from the PR. The branch is overwritten on every run.
+      # Published on failure too, with the logs, so a broken run can be inspected.
       - name: Publish screenshots to preview branch
-        if: success()
+        if: always()
         env:
           PREVIEW_BRANCH: ui-preview/${{ github.head_ref || github.ref_name }}
         run: |
+          mkdir -p tests/ui/output
+          cp app.log tests/ui/output/app.log 2>/dev/null || true
           cd tests/ui/output
           git init -q
           git config user.name "github-actions[bot]"

@@ -1,9 +1,9 @@
-﻿@using EduTrack.Application.DTOs.StreamPost
+@using EduTrack.Application.DTOs.StreamPost
 @using EduTrack.Domain.Constants
 @using EduTrack.Domain.Enums
 @using EduTrack.Web.Models.Course
 @{
-    ViewData["Title"] = "Course Detail";
+    ViewData["Title"] = Model.CourseDetail.Title;
 }
 
 @model CourseDetailViewModel
@@ -44,9 +44,15 @@
                                 @if (post.Type == StreamPostType.Material)
                                 {
                                     <p class="mb-1">
-                                        <a asp-route-id="@post.Content" asp-action="Details" asp-controller="Materials">View Material</a>
+                                        <a asp-route-id="@post.Content" asp-action="Details" asp-controller="Materials">Materyali görüntüle</a>
                                     </p>
 
+                                }
+                                else if (post.Type == StreamPostType.Assignment)
+                                {
+                                    <p class="mb-1">
+                                        <a asp-route-id="@post.Content" asp-action="Detail" asp-controller="Assignments"><i class="bi bi-clipboard-check"></i> Ödevi görüntüle</a>
+                                    </p>
                                 }
                                 else
                                 {

@@ -1,34 +1,44 @@
-﻿@using EduTrack.Application.DTOs.Course
+@using EduTrack.Application.DTOs.Course
 @model CourseDto
 
 @{
     var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
     var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
 
-    string ActiveClass(string controller, string action)
+    bool IsActive(string controller, params string[] actions) =>
+        string.Equals(currentController, controller, StringComparison.OrdinalIgnoreCase)
+        && actions.Any(a => string.Equals(currentAction, a, StringComparison.OrdinalIgnoreCase));
+
+    var tabs = new (string Text, string Action, string Icon, bool Active)[]
     {
-        return string.Equals(currentController, controller, StringComparison.OrdinalIgnoreCase) &&
-                 string.Equals(currentAction, action, StringComparison.OrdinalIgnoreCase)
-                ? " active"
-                : string.Empty;
-    }
+        ("Akış", "Detail", "bi-chat-square-text", IsActive("Course", "Detail")),
+        ("Materyaller", "Materials", "bi-folder2-open", IsActive("Course", "Materials") || IsActive("Materials", "Details", "Add")),
+        ("Ödevler", "Assignments", "bi-clipboard-check", IsActive("Course", "Assignments") || IsActive("Assignments", "Detail")),
+        ("Öğrenciler", "Students", "bi-people", IsActive("Course", "Students")),
+    };
 }
 
-<section class="@(Model.IsInstructor ? "course-banner-instructor" : "course-banner") p-5 mb-4">
-    <h1 class="display-6 fw-bold">@Model.Title</h1>
-    <p class="lead mb-0">@Model.InstructorFullName</p>
+<section class="course-hero @(Model.IsInstructor ? "course-banner-instructor" : "course-banner")">
+    <div>
+        <h1>@Model.Title</h1>
+        <p>@Model.InstructorFullName · @Model.StudentCount öğrenci</p>
+    </div>
+    @if (Model.IsInstructor && !string.IsNullOrEmpty(Model.Code))
+    {
+        <div class="course-code-box course-code-box-inverse">
+            <span class="course-code-label">Ders kodu</span>
+            <span class="course-code-value">@Model.Code</span>
+            <button type="button" class="course-code-copy-btn" data-copy-code="@Model.Code" aria-label="Ders kodunu kopyala"><i class="bi bi-copy"></i></button>
+        </div>
+    }
 </section>
-<ul class="nav nav-tabs mb-4">
-    <li class="nav-item">
-        <a class="nav-link @ActiveClass("Course", "Detail")" asp-action="Detail" asp-controller="Course" asp-route-id="@Model.Id">Stream</a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link @ActiveClass("Course", "Materials")" asp-action="Materials" asp-controller="Course" asp-route-id="@Model.Id">Materials</a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link @ActiveClass("Course", "Assignments")" asp-action="Assignments" asp-controller="Course" asp-route-id="@Model.Id">Assignments</a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link @ActiveClass("Course", "Students")" asp-action="Students" asp-controller="Course" asp-route-id="@Model.Id">Students</a>
-    </li>
-</ul>
+
+<nav class="course-tabs" aria-label="Ders bölümleri">
+    @foreach (var tab in tabs)
+    {
+        <a class="course-tab@(tab.Active ? " active" : "")" aria-current="@(tab.Active ? "page" : null)"
+           asp-controller="Course" asp-action="@tab.Action" asp-route-id="@Model.Id">
+            <i class="bi @tab.Icon"></i>@tab.Text
+        </a>
+    }
+</nav>

@@ -70,4 +70,82 @@ for (const [device, viewport] of Object.entries(viewports)) {
   await context.close();
 }
 
+// End-to-end assignment flow: instructor publishes, a new student registers,
+// verifies the e-mail, joins the course and submits; the instructor grades it.
+{
+  const desktop = { viewport: viewports.desktop, locale: "tr-TR" };
+  const teacher = await (await browser.newContext(desktop)).newPage();
+  await login(teacher);
+
+  await teacher.goto(`${baseUrl}/Course`);
+  await Promise.all([teacher.waitForNavigation(), teacher.click("a[href*='/Course/Detail/'] >> nth=0")]);
+  const courseUrl = teacher.url();
+  const courseId = courseUrl.split("/").pop();
+  const courseCode = (await teacher.textContent(".course-code-value")).trim();
+
+  await teacher.goto(`${baseUrl}/Course/Assignments/${courseId}`);
+  await shot(teacher, "desktop-assignments-empty");
+
+  await teacher.click("button[data-bs-target='#createAssignment']");
+  await teacher.waitForTimeout(300);
+  await teacher.fill("#NewAssignment_Title", "Kesirlerle problem çözme");
+  await teacher.fill("#NewAssignment_Instructions", "Ders kitabındaki 4. ünite sonundaki 1-10 arası soruları çözün.\nÇözüm adımlarını açıkça yazın.");
+  await shot(teacher, "desktop-assignment-create");
+  // Publishing opens the new assignment.
+  await Promise.all([teacher.waitForNavigation(), teacher.click("#createAssignment button[type=submit]")]);
+  const assignmentUrl = teacher.url();
+  await teacher.goto(`${baseUrl}/Course/Assignments/${courseId}`);
+  await shot(teacher, "desktop-assignments-instructor");
+
+  const studentContext = await browser.newContext(desktop);
+  const student = await studentContext.newPage();
+  await student.goto(`${baseUrl}/Register`);
+  await student.fill("#FirstName", "Ayşe");
+  await student.fill("#LastName", "Yılmaz");
+  await student.fill("#Email", "ayse.yilmaz@example.com");
+  await student.fill("#registerPassword", "Demo123!");
+  await Promise.all([student.waitForNavigation(), student.click("button[type=submit]")]);
+  await shot(student, "desktop-verify-email");
+
+  const code = (await student.textContent(".alert strong.font-mono")).trim();
+  await student.fill("#Code", code);
+  await Promise.all([student.waitForNavigation(), student.click("form[action$='VerifyEmail'] button[type=submit]")]);
+  await shot(student, "desktop-login-after-verify");
+
+  await student.fill("#Email", "ayse.yilmaz@example.com");
+  await student.fill("#passwordInput", "Demo123!");
+  await Promise.all([student.waitForNavigation(), student.click("button[type=submit]")]);
+  await student.goto(`${baseUrl}/Course/Join?JoinCourseViewModel.Code=${encodeURIComponent(courseCode)}`);
+
+  await student.goto(`${baseUrl}/Course/Detail/${courseId}`);
+  await shot(student, "desktop-course-stream-student");
+  await student.goto(`${baseUrl}/Course/Assignments/${courseId}`);
+  await shot(student, "desktop-assignments-student");
+
+  await student.goto(assignmentUrl);
+  await shot(student, "desktop-assignment-student-open");
+  await student.fill("#Submission_Text", "1) 3/4 + 1/8 = 7/8\n2) 2/3 x 9 = 6\n3) 5/6 - 1/3 = 1/2");
+  await Promise.all([student.waitForNavigation(), student.click("form[action*='Submit'] button[type=submit]")]);
+  await shot(student, "desktop-assignment-student-submitted");
+
+  await teacher.goto(assignmentUrl);
+  await teacher.click("button:has-text('Notlandır')");
+  await teacher.waitForTimeout(400);
+  await teacher.fill("input[name=Grade]", "90");
+  await teacher.fill("textarea[name=Feedback]", "Adımlar düzenli. 3. soruda sadeleştirmeyi unutmayın.");
+  await shot(teacher, "desktop-assignment-grading");
+  await Promise.all([teacher.waitForNavigation(), teacher.click("form[action*='Grade'] button[type=submit]")]);
+  await shot(teacher, "desktop-assignment-instructor");
+
+  await student.goto(assignmentUrl);
+  await shot(student, "desktop-assignment-student-graded");
+
+  const mobile = await browser.newContext({ viewport: viewports.mobile, locale: "tr-TR", deviceScaleFactor: 2, storageState: await studentContext.storageState() });
+  const mobilePage = await mobile.newPage();
+  await mobilePage.goto(assignmentUrl);
+  await shot(mobilePage, "mobile-assignment-student");
+  await mobilePage.goto(`${baseUrl}/Course/Assignments/${courseId}`);
+  await shot(mobilePage, "mobile-assignments-student");
+}
+
 await browser.close();

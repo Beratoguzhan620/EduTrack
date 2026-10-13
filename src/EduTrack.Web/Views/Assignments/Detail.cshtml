@@ -1,0 +1,210 @@
+@using EduTrack.Application.DTOs.Assignment
+@using EduTrack.Web.Models.Assignment
+@using EduTrack.Web.Models.Shared
+@model AssignmentDetailViewModel
+@{
+    var a = Model.Assignment;
+    ViewData["Title"] = a.Title;
+    var due = a.DueDate.ToLocalTime();
+    var submittedCount = a.Students.Count(s => s.Submission is not null);
+    var gradedCount = a.Students.Count(s => s.Submission?.Grade is not null);
+}
+
+<partial name="Partials/_ErrorMessageAlert" />
+<partial name="Partials/_SuccessMessageAlert" />
+
+<partial name="~/Views/Course/Partials/_CourseHeaderPartial.cshtml" model="Model.Course" />
+
+<div class="row g-4">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-body p-4">
+                <a class="small text-muted text-decoration-none" asp-controller="Course" asp-action="Assignments" asp-route-id="@a.CourseId">
+                    <i class="bi bi-arrow-left"></i> Ödevler
+                </a>
+                <h1 class="h4 mt-2 mb-3">@a.Title</h1>
+                <div class="assignment-meta mb-4">
+                    <span><i class="bi bi-calendar-event"></i>Teslim: @due.ToString("d MMMM yyyy, HH:mm")</span>
+                    <span><i class="bi bi-award"></i>@a.MaxPoints puan</span>
+                    @if (a.IsPastDue)
+                    {
+                        <span class="text-danger"><i class="bi bi-clock-history"></i>Süre doldu</span>
+                    }
+                </div>
+                <div class="instructions">@a.Instructions</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        @if (a.IsInstructor)
+        {
+            <div class="card">
+                <div class="card-body p-4">
+                    <h2 class="h6 text-muted mb-3">Özet</h2>
+                    <div class="d-flex justify-content-between mb-2"><span>Teslim eden</span><span class="font-mono">@submittedCount / @a.Students.Count</span></div>
+                    <div class="d-flex justify-content-between"><span>Notlandırılan</span><span class="font-mono">@gradedCount</span></div>
+                </div>
+            </div>
+        }
+        else
+        {
+            var mine = a.MySubmission;
+            <div class="card">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h2 class="h6 mb-0">Teslimim</h2>
+                        <partial name="Partials/_AssignmentStatusBadge" model="a.MyStatus" />
+                    </div>
+
+                    @if (mine?.Grade is not null)
+                    {
+                        <div class="mb-3">
+                            <div class="text-muted small">Not</div>
+                            <div class="grade-display">@mine.Grade<span class="text-muted fs-6"> / @a.MaxPoints</span></div>
+                        </div>
+                        if (!string.IsNullOrWhiteSpace(mine.Feedback))
+                        {
+                            <div class="text-muted small mb-1">Eğitmen geri bildirimi</div>
+                            <div class="submission-text mb-3">@mine.Feedback</div>
+                        }
+                        <div class="text-muted small mb-1">Cevabınız</div>
+                        <div class="submission-text">@mine.Text</div>
+                    }
+                    else
+                    {
+                        if (mine is not null)
+                        {
+                            <p class="small text-muted">
+                                Son teslim: @mine.SubmittedAt.ToLocalTime().ToString("d MMMM, HH:mm")
+                                @(mine.IsLate ? "(geç)" : "") · Not verilene kadar güncelleyebilirsiniz.
+                            </p>
+                        }
+
+                        <form method="post" asp-controller="Assignments" asp-action="Submit" asp-route-id="@a.Id" enctype="multipart/form-data">
+                            <div class="mb-3">
+                                <label class="form-label" asp-for="Submission.Text">Cevabınız</label>
+                                <textarea class="form-control" asp-for="Submission.Text" rows="6" placeholder="Cevabınızı buraya yazın."></textarea>
+                                <span asp-validation-for="Submission.Text"></span>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label" asp-for="Submission.Attachment">Dosya (isteğe bağlı)</label>
+                                <input class="form-control" asp-for="Submission.Attachment" type="file" />
+                                @if (!string.IsNullOrEmpty(mine?.AttachmentUrl))
+                                {
+                                    <div class="form-text"><a href="@mine.AttachmentUrl" target="_blank" rel="noopener">Yüklenen dosya</a> · yeni dosya seçerseniz değiştirilir.</div>
+                                }
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100">@(mine is null ? "Teslim et" : "Teslimi güncelle")</button>
+                            @if (a.IsPastDue)
+                            {
+                                <div class="form-text text-center mt-2">Teslim tarihi geçti; teslim "geç" olarak işaretlenir.</div>
+                            }
+                        </form>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@if (a.IsInstructor)
+{
+    <div class="section-header mt-5">
+        <div>
+            <h2>Teslimler</h2>
+            <p>Teslimi açın, not verin ve geri bildirim yazın.</p>
+        </div>
+    </div>
+
+    if (a.Students.Count == 0)
+    {
+        <partial name="Partials/_EmptyState" model="@(new EmptyStateViewModel("Derste henüz öğrenci yok", "Öğrenciler ders koduyla katıldığında teslimleri burada görünür.", "bi-people"))" />
+    }
+    else
+    {
+        <div class="card">
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Öğrenci</th>
+                            <th>Teslim</th>
+                            <th class="num">Not</th>
+                            <th class="text-end"><span class="visually-hidden">İşlem</span></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var row in a.Students)
+                        {
+                            var s = row.Submission;
+                            var collapseId = $"sub-{row.StudentId:N}";
+                            <tr>
+                                <td>
+                                    <div class="fw-medium">@row.StudentName</div>
+                                    <div class="text-muted small">@row.StudentEmail</div>
+                                </td>
+                                <td>
+                                    @if (s is null)
+                                    {
+                                        <span class="badge @(a.IsPastDue ? "badge-danger" : "badge-neutral")">@(a.IsPastDue ? "Teslim edilmedi" : "Bekleniyor")</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge @(s.IsLate ? "badge-warning" : "badge-success")">@(s.IsLate ? "Geç teslim" : "Teslim edildi")</span>
+                                        <div class="text-muted small mt-1">@s.SubmittedAt.ToLocalTime().ToString("d MMM, HH:mm")</div>
+                                    }
+                                </td>
+                                <td class="num">@(s?.Grade is null ? "—" : $"{s.Grade}/{a.MaxPoints}")</td>
+                                <td class="text-end">
+                                    @if (s is not null)
+                                    {
+                                        <button class="btn btn-outline-secondary btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#@collapseId" aria-expanded="false" aria-controls="@collapseId">
+                                            @(s.Grade is null ? "Notlandır" : "Görüntüle")
+                                        </button>
+                                    }
+                                </td>
+                            </tr>
+                            if (s is not null)
+                            {
+                                <tr class="collapse" id="@collapseId">
+                                    <td colspan="4" class="bg-light-subtle">
+                                        <div class="row g-4 py-2">
+                                            <div class="col-md-7">
+                                                <div class="text-muted small mb-1">Cevap</div>
+                                                <div class="submission-text">@s.Text</div>
+                                                @if (!string.IsNullOrEmpty(s.AttachmentUrl))
+                                                {
+                                                    <a class="small d-inline-block mt-2" href="@s.AttachmentUrl" target="_blank" rel="noopener"><i class="bi bi-paperclip"></i> Ek dosya</a>
+                                                }
+                                            </div>
+                                            <div class="col-md-5">
+                                                <form method="post" asp-controller="Assignments" asp-action="Grade">
+                                                    <input type="hidden" name="SubmissionId" value="@s.Id" />
+                                                    <input type="hidden" name="assignmentId" value="@a.Id" />
+                                                    <div class="mb-2">
+                                                        <label class="form-label" for="grade-@s.Id">Not (0–@a.MaxPoints)</label>
+                                                        <input class="form-control" id="grade-@s.Id" name="Grade" type="number" min="0" max="@a.MaxPoints" value="@s.Grade" required />
+                                                    </div>
+                                                    <div class="mb-2">
+                                                        <label class="form-label" for="feedback-@s.Id">Geri bildirim</label>
+                                                        <textarea class="form-control" id="feedback-@s.Id" name="Feedback" rows="3">@s.Feedback</textarea>
+                                                    </div>
+                                                    <button type="submit" class="btn btn-primary btn-sm">Notu kaydet</button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+}
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

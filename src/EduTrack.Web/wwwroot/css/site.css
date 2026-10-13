@@ -73,3 +73,98 @@
 .course-code-copy-btn:hover {
     color: var(--et-primary);
 }
+
+/* ---------- Course header and tabs ---------- */
+
+.course-hero {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 28px;
+    border-radius: var(--et-radius-md);
+    margin-bottom: 16px;
+}
+
+.course-hero h1 {
+    color: #fff;
+    font-size: var(--et-text-xl);
+    margin: 0 0 6px;
+}
+
+.course-hero p {
+    margin: 0;
+    color: rgba(255, 255, 255, .78);
+    font-size: var(--et-text-sm);
+}
+
+.course-code-box-inverse {
+    background: rgba(255, 255, 255, .12);
+    border-color: rgba(255, 255, 255, .24);
+}
+
+.course-code-box-inverse .course-code-label { color: rgba(255, 255, 255, .7); }
+.course-code-box-inverse .course-code-value { color: #fff; }
+.course-code-box-inverse .course-code-copy-btn { color: #fff; }
+
+.course-tabs {
+    display: flex;
+    gap: 4px;
+    overflow-x: auto;
+    border-bottom: 1px solid var(--et-border);
+    margin-bottom: 24px;
+}
+
+.course-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    color: var(--et-text-muted);
+    font-size: var(--et-text-sm);
+    font-weight: 500;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.course-tab:hover { color: var(--et-text); }
+
+.course-tab.active {
+    color: var(--et-text);
+    border-bottom-color: var(--et-accent);
+}
+
+/* ---------- Assignments ---------- */
+
+.assignment-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 20px;
+    color: var(--et-text-muted);
+    font-size: var(--et-text-sm);
+}
+
+.assignment-meta i { margin-right: 6px; }
+
+.instructions {
+    white-space: pre-line;
+    font-size: var(--et-text-md);
+    line-height: 1.6;
+}
+
+.submission-text {
+    white-space: pre-line;
+    background: var(--et-surface-2);
+    border-radius: var(--et-radius-sm);
+    padding: 12px 14px;
+    font-size: var(--et-text-sm);
+}
+
+.grade-display {
+    font-family: var(--et-font-mono);
+    font-size: var(--et-text-xl);
+    font-weight: 500;
+}

@@ -1,4 +1,4 @@
-﻿using EduTrack.Domain.Entities;
+using EduTrack.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using System.Reflection;
 
@@ -13,6 +13,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<CourseStudent> CourseStudent { get; set; }
     public DbSet<StreamPost> StreamPosts { get; set; }
     public DbSet<CourseMaterial> CourseMaterials { get; set; }
+    public DbSet<Assignment> Assignments { get; set; }
+    public DbSet<AssignmentSubmission> AssignmentSubmissions { get; set; }
     
 
 

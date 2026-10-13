@@ -1,4 +1,4 @@
-﻿using EduTrack.Application.Repositories;
+using EduTrack.Application.Repositories;
 using EduTrack.Persistence.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -21,6 +21,8 @@ public static class PersistenceExtensions
         services.AddScoped<IUserRoleRepository, UserRoleRepository>();
         services.AddScoped<IStreamPostRepository, StreamPostRepository>();
         services.AddScoped<ICourseMaterialRepository, CourseMaterialRepository>();
+        services.AddScoped<IAssignmentRepository, AssignmentRepository>();
+        services.AddScoped<IAssignmentSubmissionRepository, AssignmentSubmissionRepository>();
 
         return services;
     }

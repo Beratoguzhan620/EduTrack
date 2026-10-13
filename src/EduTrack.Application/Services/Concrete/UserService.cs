@@ -1,4 +1,4 @@
-﻿using Core.Results;
+using Core.Results;
 using Core.Exceptions;
 using EduTrack.Application.BusinessRules;
 using EduTrack.Application.DTOs.User;
@@ -7,6 +7,8 @@ using EduTrack.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using EduTrack.Application.Repositories;
 using Core.DTOs;
+using Core.Persistence.Paging;
+using EduTrack.Application.Queries;
 
 namespace EduTrack.Application.Services.Concrete;
 
@@ -18,22 +20,12 @@ public class UserService(
 {
     public async Task<Result<Paged<UserDto>>> GetAllUsersAsync(GetAllUsersQuery request)
     {
-        //TODO: dynamic query
-        var search = request.Search?.Trim();
-
-        var users = await userRepository.GetPagedAsync(
-            predicate: u =>
-                (string.IsNullOrEmpty(search) ||
-                    (u.FirstName != null && u.FirstName.Contains(search)) ||
-                    (u.LastName != null && u.LastName.Contains(search)) ||
-                    (u.Email != null && u.Email.Contains(search)))
-                &&
-                (request.RoleId == null ||
-                    u.UserRoles.Any(ur => ur.RoleId == request.RoleId)),
-
-            index: request.Index, 
-            size: request.Size, 
-            include: x => x.Include(u => u.UserRoles).ThenInclude(ur => ur.Role));
+        var users = await userRepository.Query()
+            .AsNoTracking()
+            .Include(u => u.UserRoles).ThenInclude(ur => ur.Role)
+            .ApplyFilters(request)
+            .OrderBy(u => u.FirstName).ThenBy(u => u.LastName)
+            .ToPaginateAsync(request.Index, request.Size);
 
 
         var response = new Paged<UserDto>()

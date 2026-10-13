@@ -1,0 +1,14 @@
+@using EduTrack.Application.DTOs.Assignment
+@model AssignmentStatus?
+@{
+    var (css, text) = Model switch
+    {
+        AssignmentStatus.Open => ("badge-accent", "Teslim bekleniyor"),
+        AssignmentStatus.Submitted => ("badge-success", "Teslim edildi"),
+        AssignmentStatus.SubmittedLate => ("badge-warning", "Geç teslim"),
+        AssignmentStatus.Missing => ("badge-danger", "Teslim edilmedi"),
+        AssignmentStatus.Graded => ("badge-neutral", "Notlandırıldı"),
+        _ => ("badge-neutral", "—"),
+    };
+}
+<span class="badge @css">@text</span>

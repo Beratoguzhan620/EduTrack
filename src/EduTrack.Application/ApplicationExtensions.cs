@@ -1,11 +1,10 @@
-﻿using BlogApp.Application.Services.Concrete;
 using Core.BusinessRules;
 using EduTrack.Application.Services.Abstract;
 using EduTrack.Application.Services.Concrete;
 using FluentValidation;
-using FluentValidation.AspNetCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using System.Reflection;
 namespace EduTrack.Application;
 
@@ -19,13 +18,15 @@ public static class ApplicationExtensions
         services.AddScoped<ICourseService, CourseService>();
         services.AddScoped<IStreamPostService, StreamPostService>();
         services.AddScoped<ICourseMaterialService, CourseMaterialService>();
+        services.AddScoped<IAssignmentService, AssignmentService>();
+        services.TryAddSingleton(TimeProvider.System);
 
         //AutMapper Ekler
         services.AddAutoMapper(_ => { }, Assembly.GetExecutingAssembly());
 
-        //FluentValidation Ekler
+        // FluentValidation validators; the web layer runs them through an MVC filter
+        // (FluentValidation.AspNetCore auto-validation is deprecated).
         services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
-        services.AddFluentValidationClientsideAdapters(); //TODO: deprecated
 
 
         //Scrutor ile BusinessRule'ları DI'a ekler
