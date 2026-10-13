@@ -19,11 +19,11 @@ Her aşama ayrı bir branch ve PR olarak yapılır (`stage/<no>-<kisa-ad>`). Bir
 - [x] Ekran görüntüleri için "UI preview" workflow'u (SQL Server + Playwright)
 
 ## Aşama 2 — Eksik özellikler
-- [ ] E-posta doğrulama (kayıt sonrası kod/link; `IsActive=false` ile başla) — SMTP ayarları user-secrets / env üzerinden
-- [ ] `S3FileService` ya tamamlanır ya da kaldırılıp dosyalar FileAPI üzerinden çalışır; `NotImplementedException` kalmaz
-- [ ] Ödevler (Assignments): oluşturma, teslim etme, teslimleri listeleme, puanlama
-- [ ] Kullanıcı listesinde dinamik arama/filtre (TODO: dynamic query)
-- [ ] Deprecated `AddFluentValidationClientsideAdapters` yerine güncel yaklaşım
+- [x] E-posta doğrulama (kayıt sonrası kod/link; `IsActive=false` ile başla) — SMTP ayarları user-secrets / env üzerinden
+- [x] `S3FileService` ya tamamlanır ya da kaldırılıp dosyalar FileAPI üzerinden çalışır; `NotImplementedException` kalmaz
+- [x] Ödevler (Assignments): oluşturma, teslim etme, teslimleri listeleme, puanlama
+- [x] Kullanıcı listesinde dinamik arama/filtre (TODO: dynamic query)
+- [x] Deprecated `AddFluentValidationClientsideAdapters` yerine güncel yaklaşım
 
 ## Aşama 3 — Sayfaların cilası + test
 - [ ] Kurs listesi (kart grid), kurs detayı (sekme: Akış / Materyaller / Ödevler / Öğrenciler) yeni tasarımla
