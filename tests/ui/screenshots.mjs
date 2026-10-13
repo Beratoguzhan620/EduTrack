@@ -91,11 +91,11 @@ for (const [device, viewport] of Object.entries(viewports)) {
   await teacher.fill("#NewAssignment_Title", "Kesirlerle problem çözme");
   await teacher.fill("#NewAssignment_Instructions", "Ders kitabındaki 4. ünite sonundaki 1-10 arası soruları çözün.\nÇözüm adımlarını açıkça yazın.");
   await shot(teacher, "desktop-assignment-create");
+  // Publishing opens the new assignment.
   await Promise.all([teacher.waitForNavigation(), teacher.click("#createAssignment button[type=submit]")]);
-  await shot(teacher, "desktop-assignments-instructor");
-
-  await Promise.all([teacher.waitForNavigation(), teacher.click("a:has-text('Aç')")]);
   const assignmentUrl = teacher.url();
+  await teacher.goto(`${baseUrl}/Course/Assignments/${courseId}`);
+  await shot(teacher, "desktop-assignments-instructor");
 
   const studentContext = await browser.newContext(desktop);
   const student = await studentContext.newPage();
