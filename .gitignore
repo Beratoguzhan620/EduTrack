@@ -374,8 +374,6 @@ FileStorage/
 !.env.example
 secrets.json
 **/wwwroot/uploads/
-.claude/
-CLAUDE.md
 docs/brief/
 desktop.ini
 data-protection-keys/
