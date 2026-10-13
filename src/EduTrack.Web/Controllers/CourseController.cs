@@ -1,21 +1,22 @@
-﻿using Core.Results;
+using Core.Results;
 using EduTrack.Application.DTOs.Course;
 using EduTrack.Application.DTOs.CourseMaterial;
 using EduTrack.Application.DTOs.StreamPost;
 using EduTrack.Application.Services.Abstract;
 using EduTrack.Domain.Constants;
 using EduTrack.Domain.Enums;
-using EduTrack.Persistence.Configurations;
 using EduTrack.Web.Models.Course;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EduTrack.Web.Controllers;
 
+[Authorize]
 public class CourseController(
     ICourseService courseService,
     IStreamPostService streamPostService,
-    ICourseMaterialService courseMaterialService) : BaseController
+    ICourseMaterialService courseMaterialService,
+    IAssignmentService assignmentService) : BaseController
 {
 
     public async Task<IActionResult> Index()
@@ -27,8 +28,10 @@ public class CourseController(
         result = await courseService.GetUserCoursesAsync(userId);
 
         var viewModel = new CourseViewModel();
-        viewModel.Courses = result.Data;
+        viewModel.Courses = result.Data ?? [];
 
+        ViewBag.SuccessMessage = TempData["SuccessMessage"];
+        ViewBag.ErrorMessage = TempData["ErrorMessage"];
         return View(viewModel);
     }
 
@@ -86,10 +89,23 @@ public class CourseController(
     [Authorize]
     public async Task<IActionResult> AssignmentsAsync(Guid id)
     {
-        var courseDetailResult = await GetCourseDetailAsync(id);
-        var model = new CourseDetailViewModel();
-        model.CourseDetail = courseDetailResult;
-        return View(model);
+        var assignments = await assignmentService.GetCourseAssignmentsAsync(id, GetCurrentUserId());
+        if (!assignments.Success)
+        {
+            TempData["ErrorMessage"] = assignments.Message;
+            return RedirectToAction(nameof(Index));
+        }
+
+        var model = new CourseDetailViewModel
+        {
+            CourseDetail = await GetCourseDetailAsync(id),
+            Assignments = assignments.Data ?? [],
+            NewAssignment = new() { CourseId = id, DueDate = DateTime.Now.Date.AddDays(7).AddHours(23).AddMinutes(59) },
+        };
+
+        ViewBag.SuccessMessage = TempData["SuccessMessage"];
+        ViewBag.ErrorMessage = TempData["ErrorMessage"];
+        return View("Assignments", model);
     }
 
     [HttpGet]
@@ -120,11 +136,8 @@ public class CourseController(
 
         var response = await courseService.CreateCourseAsync(request);
 
-        if (!response.Success)
-        {
-            ViewBag.ErrorMessage = response.Message;
-            return RedirectToAction(nameof(Index));
-        }
+        TempData[response.Success ? "SuccessMessage" : "ErrorMessage"] =
+            response.Success ? "Ders oluşturuldu. Ders kodunu öğrencilerinizle paylaşabilirsiniz." : response.Message;
 
         return RedirectToAction(nameof(Index));
     }
@@ -145,11 +158,8 @@ public class CourseController(
 
         var response = await courseService.JoinCourseAsync(request);
 
-        if (!response.Success)
-        {
-            ViewBag.ErrorMessage = response.Message;
-            return RedirectToAction(nameof(Index));
-        }
+        TempData[response.Success ? "SuccessMessage" : "ErrorMessage"] =
+            response.Success ? "Derse katıldınız." : response.Message;
 
         return RedirectToAction(nameof(Index));
     }

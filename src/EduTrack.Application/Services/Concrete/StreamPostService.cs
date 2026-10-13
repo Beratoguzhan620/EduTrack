@@ -1,4 +1,4 @@
-﻿using Core.Exceptions;
+using Core.Exceptions;
 using Core.Results;
 using EduTrack.Application.BusinessRules;
 using EduTrack.Application.DTOs.StreamPost;
@@ -75,9 +75,9 @@ public class StreamPostService(
         return type switch
         {
             StreamPostType.Announcement => $"{instructorName}",
-            StreamPostType.Assignment => $"{instructorName} posted a new assignment",
-            StreamPostType.Material => $"{instructorName} shared material",
-            _ => "Stream Post"
+            StreamPostType.Assignment => $"{instructorName} yeni bir ödev paylaştı",
+            StreamPostType.Material => $"{instructorName} yeni bir materyal paylaştı",
+            _ => "Paylaşım"
         };
     }
 

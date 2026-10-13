@@ -1,54 +1,136 @@
-﻿@using EduTrack.Web.Models.Course
+@using EduTrack.Application.DTOs.Assignment
+@using EduTrack.Web.Models.Course
+@using EduTrack.Web.Models.Shared
 @model CourseDetailViewModel
-
 @{
-    ViewData["Title"] = "Assignments";
+    ViewData["Title"] = $"Ödevler · {Model.CourseDetail.Title}";
+    var isInstructor = Model.CourseDetail.IsInstructor;
 }
 
-<main class="py-4">
-    <partial name="Partials/_CourseHeaderPartial" model="Model.CourseDetail" />
+<partial name="Partials/_ErrorMessageAlert" />
+<partial name="Partials/_SuccessMessageAlert" />
 
-    <h1 class="page-title h2">Assignments</h1>
+<partial name="Partials/_CourseHeaderPartial" model="Model.CourseDetail" />
+
+<div class="section-header">
+    <div>
+        <h2>Ödevler</h2>
+        <p>@(isInstructor ? "Ödev oluşturun, teslimleri inceleyin ve notlandırın." : "Teslim tarihlerini ve notlarınızı buradan takip edin.")</p>
+    </div>
+    @if (isInstructor)
+    {
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createAssignment">
+            <i class="bi bi-plus-lg"></i>Ödev oluştur
+        </button>
+    }
+</div>
+
+@if (Model.Assignments.Count == 0)
+{
+    <partial name="Partials/_EmptyState" model="@(new EmptyStateViewModel(
+        "Henüz ödev yok",
+        isInstructor ? "İlk ödevi oluşturduğunuzda öğrencileriniz ders akışında bildirim görür." : "Eğitmeniniz ödev paylaştığında burada listelenir.",
+        "bi-clipboard-check")
+    {
+        ActionText = isInstructor ? "Ödev oluştur" : null,
+        ActionModalTarget = isInstructor ? "#createAssignment" : null,
+    })" />
+}
+else
+{
     <div class="card">
         <div class="table-responsive">
-            <table class="table mb-0">
+            <table class="table table-hover">
                 <thead>
                     <tr>
-                        <th>Title</th>
-                        <th>Course</th>
-                        <th>Due date</th>
-                        <th>Status</th>
-                        <th>Points</th>
-                        <th></th>
+                        <th>Ödev</th>
+                        <th>Teslim tarihi</th>
+                        @if (isInstructor)
+                        {
+                            <th class="num">Teslim</th>
+                            <th class="num">Notlanan</th>
+                        }
+                        else
+                        {
+                            <th>Durum</th>
+                            <th class="num">Not</th>
+                        }
+                        <th class="text-end"><span class="visually-hidden">İşlem</span></th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td>Essay: Digital Citizenship</td>
-                        <td>Computer Science 101</td>
-                        <td>Jun 30, 2026</td>
-                        <td><span class="badge text-bg-warning">Open</span></td>
-                        <td>100</td>
-                        <td><a class="btn btn-outline-success btn-sm" href="assignment-detail.html">View</a></td>
-                    </tr>
-                    <tr>
-                        <td>Linear equations practice</td>
-                        <td>Algebra Foundations</td>
-                        <td>Jul 2, 2026</td>
-                        <td><span class="badge text-bg-warning">Open</span></td>
-                        <td>50</td>
-                        <td><a class="btn btn-outline-success btn-sm" href="assignment-detail.html">View</a></td>
-                    </tr>
-                    <tr>
-                        <td>Timeline reflection</td>
-                        <td>World History</td>
-                        <td>Jun 21, 2026</td>
-                        <td><span class="badge text-bg-success">Graded</span></td>
-                        <td>80</td>
-                        <td><a class="btn btn-outline-success btn-sm" href="assignment-detail.html">View</a></td>
-                    </tr>
+                    @foreach (var a in Model.Assignments)
+                    {
+                        var due = a.DueDate.ToLocalTime();
+                        <tr>
+                            <td class="fw-medium">@a.Title</td>
+                            <td class="text-muted">@due.ToString("d MMMM yyyy, HH:mm")</td>
+                            @if (isInstructor)
+                            {
+                                <td class="num">@a.SubmissionCount / @Model.CourseDetail.StudentCount</td>
+                                <td class="num">@a.GradedCount</td>
+                            }
+                            else
+                            {
+                                <td><partial name="Partials/_AssignmentStatusBadge" model="a.Status" /></td>
+                                <td class="num">@(a.Grade is null ? "—" : $"{a.Grade}/{a.MaxPoints}")</td>
+                            }
+                            <td class="text-end">
+                                <a class="btn btn-outline-secondary btn-sm" asp-controller="Assignments" asp-action="Detail" asp-route-id="@a.Id">
+                                    Aç<i class="bi bi-arrow-right"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    }
                 </tbody>
             </table>
         </div>
     </div>
-</main>
+}
+
+@if (isInstructor)
+{
+    <div class="modal fade" id="createAssignment" tabindex="-1" aria-labelledby="createAssignmentTitle" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <form class="modal-content" method="post" asp-controller="Assignments" asp-action="Create">
+                <div class="modal-header">
+                    <h2 class="modal-title h5" id="createAssignmentTitle">Ödev oluştur</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" asp-for="NewAssignment.CourseId" />
+                    <div class="mb-3">
+                        <label class="form-label" asp-for="NewAssignment.Title">Başlık</label>
+                        <input class="form-control" asp-for="NewAssignment.Title" placeholder="Ör. Kesirlerle problem çözme" />
+                        <span asp-validation-for="NewAssignment.Title"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" asp-for="NewAssignment.Instructions">Açıklama</label>
+                        <textarea class="form-control" asp-for="NewAssignment.Instructions" rows="5" placeholder="Öğrencilerin ne yapması gerektiğini yazın."></textarea>
+                        <span asp-validation-for="NewAssignment.Instructions"></span>
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-sm-7">
+                            <label class="form-label" asp-for="NewAssignment.DueDate">Teslim tarihi</label>
+                            <input class="form-control" asp-for="NewAssignment.DueDate" type="datetime-local" />
+                            <span asp-validation-for="NewAssignment.DueDate"></span>
+                        </div>
+                        <div class="col-sm-5">
+                            <label class="form-label" asp-for="NewAssignment.MaxPoints">Puan</label>
+                            <input class="form-control" asp-for="NewAssignment.MaxPoints" type="number" min="1" max="1000" />
+                            <span asp-validation-for="NewAssignment.MaxPoints"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Vazgeç</button>
+                    <button type="submit" class="btn btn-primary">Ödevi yayınla</button>
+                </div>
+            </form>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
