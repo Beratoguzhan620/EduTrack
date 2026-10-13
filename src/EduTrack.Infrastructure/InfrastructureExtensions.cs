@@ -1,14 +1,15 @@
-﻿using EduTrack.Application.Services.Abstract;
+using EduTrack.Application.DTOs.Settings;
+using EduTrack.Application.Services.Abstract;
 using EduTrack.Infrastructure.Integrations;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+
 namespace EduTrack.Infrastructure;
 
 public static class InfrastructureExtensions
 {
     public static IServiceCollection AddInfrastructureServices(this IServiceCollection services, IConfiguration configuration)
     {
-       
         string baseUrl = configuration["FileApi:BaseUrl"] ?? throw new InvalidOperationException("FileApi:BaseUrl is not configured.");
         string apiKey = configuration["FileApi:ApiKey"] ?? throw new InvalidOperationException("FileApi:ApiKey is not configured.");
 
@@ -16,12 +17,11 @@ public static class InfrastructureExtensions
         {
             client.BaseAddress = new Uri(baseUrl);
             client.DefaultRequestHeaders.Add("X-Api-Key", apiKey);
-
         });
 
-
+        services.Configure<EmailSettings>(configuration.GetSection(EmailSettings.SectionName));
+        services.AddScoped<IEmailSender, SmtpEmailSender>();
 
         return services;
     }
-
 }

@@ -1,4 +1,4 @@
-﻿using EduTrack.Domain.Entities;
+using EduTrack.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -28,5 +28,11 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         builder.Property(u => u.IsActive)
             .IsRequired()
             .HasDefaultValue(false);
+
+        builder.Property(u => u.EmailConfirmed)
+            .IsRequired();
+
+        builder.Property(u => u.EmailVerificationCode)
+            .HasMaxLength(12);
     }
 }

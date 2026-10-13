@@ -1,0 +1,64 @@
+@using EduTrack.Application.DTOs.Auth
+@model VerificationRequest
+@{
+    Layout = "_AuthLayout";
+    ViewData["Title"] = "E-posta doğrulama";
+}
+
+<h1>E-postanızı doğrulayın</h1>
+<p class="lead-text">
+    @if (!string.IsNullOrWhiteSpace(Model.Email))
+    {
+        <span><strong>@Model.Email</strong> adresine 6 haneli bir kod gönderdik. Kodu aşağıya girin ya da e-postadaki bağlantıya tıklayın.</span>
+    }
+    else
+    {
+        <span>Kayıt olurken kullandığınız e-posta adresini ve size gönderilen 6 haneli kodu girin.</span>
+    }
+</p>
+
+<partial name="Partials/_ErrorMessageAlert" />
+<partial name="Partials/_SuccessMessageAlert" />
+
+@if (ViewBag.InfoMessage is string info && !string.IsNullOrWhiteSpace(info))
+{
+    <div class="alert alert-info-soft" role="status">
+        <i class="bi bi-info-circle"></i><span>@info</span>
+    </div>
+}
+
+@if (ViewBag.DevelopmentCode is string devCode && !string.IsNullOrWhiteSpace(devCode))
+{
+    <div class="alert alert-info-soft" role="status">
+        <i class="bi bi-wrench"></i>
+        <span>Geliştirme modu: SMTP ayarlı olmadığı için e-posta gönderilmedi. Kodunuz <strong class="font-mono">@devCode</strong></span>
+    </div>
+}
+
+<form method="post" asp-action="VerifyEmail" asp-controller="Auth" novalidate>
+    <div class="mb-3">
+        <label class="form-label" asp-for="Email">E-posta</label>
+        <input class="form-control" asp-for="Email" type="email" autocomplete="email" />
+        <span asp-validation-for="Email"></span>
+    </div>
+
+    <div class="mb-4">
+        <label class="form-label" asp-for="Code">Doğrulama kodu</label>
+        <input class="form-control code-input" asp-for="Code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="000000" autofocus />
+        <span asp-validation-for="Code"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary w-100">Doğrula</button>
+</form>
+
+<form method="post" asp-action="ResendVerification" asp-controller="Auth" class="auth-switch">
+    <input type="hidden" name="email" value="@Model.Email" />
+    Kod gelmedi mi?
+    <button type="submit" class="btn btn-link p-0 align-baseline" @(string.IsNullOrWhiteSpace(Model.Email) ? "disabled" : null)>Yeni kod gönder</button>
+</form>
+
+<p class="auth-switch mt-2"><a asp-action="Login" asp-controller="Auth">Giriş sayfasına dön</a></p>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,4 +1,4 @@
-﻿using Core.Security;
+using Core.Security;
 using EduTrack.Domain.Constants;
 using EduTrack.Domain.Entities;
 using EduTrack.Persistence;
@@ -41,6 +41,7 @@ public static class DbSeeder
             LastName = "User",
             Email = "admin@example.com",
             IsActive = true,
+            EmailConfirmed = true,
             PasswordHash = passwordResult.Hash,
             PasswordSalt = passwordResult.Salt,
             UserRoles = [new UserRole { RoleId = RoleConstants.AdminId }]
