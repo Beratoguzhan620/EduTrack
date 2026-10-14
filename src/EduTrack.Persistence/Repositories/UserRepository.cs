@@ -11,8 +11,7 @@ public class UserRepository(AppDbContext context) : BaseRepository<User, Guid, A
 
     public async Task<User?> GetUserWithRolesByEmailAsync(string email)
     {
-        var user = await context
-            .Users
+        var user = await Query()
             .Include(u => u.UserRoles)
             .ThenInclude(ur => ur.Role)
             .FirstOrDefaultAsync(u => u.Email == email);

@@ -15,7 +15,7 @@ public class UsersController(IUserService userService) : BaseController
         var response = await userService.GetAllUsersAsync(model.Query);
         ViewBag.SuccessMessage = TempData["SuccessMessage"];
 
-        model.Response = response.Data;
+        model.Response = response.Data ?? model.Response;
 
         return View(model);
     }
