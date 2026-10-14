@@ -1,0 +1,16 @@
+@using EduTrack.Web.Models.Shared
+@{
+    ViewData["Title"] = "Erişim yok";
+}
+
+<div class="status-page">
+    <p class="status-code font-mono">403</p>
+    <partial name="Partials/_EmptyState" model="@(new EmptyStateViewModel(
+        "Bu sayfayı görme yetkiniz yok",
+        "Bu bölüm eğitmen veya yönetici hesapları içindir. Yanlış olduğunu düşünüyorsanız yöneticinize başvurun.",
+        "bi-shield-lock")
+    {
+        ActionText = "Derslere dön",
+        ActionUrl = Url.Action("Index", "Course"),
+    })" />
+</div>

@@ -1,83 +1,98 @@
-﻿@using EduTrack.Application.DTOs.CourseMaterial
 @using EduTrack.Domain.Enums
-@model CreateCourseMaterialRequest
+@using EduTrack.Web.Models.Material
+@model CreateCourseMaterialViewModel
+@{
+    ViewData["Title"] = "Materyal ekle";
+    var types = new[]
+    {
+        (MaterialType.Content, "Metin", "Ders notu veya açıklama", "bi-card-text"),
+        (MaterialType.Link, "Bağlantı", "Video, site veya alıştırma", "bi-link-45deg"),
+        (MaterialType.Document, "Doküman", "PDF, sunum veya çalışma kâğıdı", "bi-file-earmark-text"),
+    };
+}
 
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a asp-controller="Course" asp-action="Index">Dersler</a></li>
+        <li class="breadcrumb-item"><a asp-controller="Course" asp-action="Materials" asp-route-id="@Model.CourseId">@Model.CourseTitle</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Materyal ekle</li>
+    </ol>
+</nav>
 
-<main class="py-4">
-    <div class="card form-card mx-auto">
+<div class="card form-card">
+    <div class="card-body p-4">
+        <h1 class="h4 mb-1">Materyal ekle</h1>
+        <p class="text-muted mb-4">Eklenen materyal öğrencilerin ders akışında da görünür.</p>
 
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
 
-
-        <div class="card-body p-4">
-
-            
-        <partial name="Partials/_ErrorMessageAlert" />
-        <partial name="Partials/_SuccessMessageAlert" />
-
-            <h1 class="page-title h3">Add material</h1>
-            <form asp-action="Add" asp-controller="Materials" method="post" enctype="multipart/form-data">
-
-                <input type="hidden" asp-for="CourseId" value="@ViewBag.CourseId" />
-
-                <div class="mb-3">
-                    <label asp-for="Title" class="form-label">Title</label>
-                    <input asp-for="Title"  class="form-control">
+        <form asp-action="Add" asp-controller="Materials" asp-route-id="@Model.CourseId" method="post" enctype="multipart/form-data" novalidate>
+            <fieldset class="mb-4">
+                <legend class="form-label">@Html.DisplayNameFor(m => m.Type)</legend>
+                <div class="type-picker">
+                    @foreach (var (value, text, hint, icon) in types)
+                    {
+                        <label class="type-option">
+                            <input type="radio" name="Type" value="@((int)value)" @(Model.Type == value ? "checked" : null) />
+                            <span class="type-option-body">
+                                <i class="bi @icon"></i>
+                                <span><strong>@text</strong><small>@hint</small></span>
+                            </span>
+                        </label>
+                    }
                 </div>
+                <span asp-validation-for="Type"></span>
+            </fieldset>
 
-                <div class="mb-3">
-                    <label asp-for="Type" class="form-label">Type</label>
-                    <select asp-for="Type" class="form-select" asp-items="Html.GetEnumSelectList<MaterialType>()">
-                        <option value="" selected disabled>Seçiniz</option>
-                    </select>
-                </div>
-                <div class="mb-3 material-input" data-material-type="@((int)MaterialType.Document)">
-                    <label asp-for="File" class="form-label">Document</label>
-                    <input asp-for="File" type="file" class="form-control">
-                    <span asp-validation-for="File" class="text-danger"></span>
-                </div>
-                <div class="mb-3 material-input" data-material-type="@((int)MaterialType.Link)">
-                    <label asp-for="Url" class="form-label">Resource URL</label>
-                    <input asp-for="Url" type="url" class="form-control" placeholder="https://example.com/resource">
-                    <span asp-validation-for="Url" class="text-danger"></span>
-                </div>
-                <div class="mb-3 material-input" data-material-type="@((int)MaterialType.Content)">
-                    <label asp-for="Description" class="form-label">Description</label>
-                    <textarea asp-for="Description" class="form-control" rows="4"></textarea>
-                    <span asp-validation-for="Description" class="text-danger"></span>
-                </div>
-                <div class="d-flex gap-2">
-                    <button type="submit" class="btn btn-success">Save material</button>
-                    <a asp-action="Materials" asp-controller="Course" asp-route-id="@ViewBag.CourseId" class="btn btn-outline-secondary">Cancel</a>
-                </div>
-            </form>
-        </div>
+            <div class="mb-3">
+                <label class="form-label" asp-for="Title"></label>
+                <input class="form-control" asp-for="Title" placeholder="Ör. Kesirlerle toplama" />
+                <span asp-validation-for="Title"></span>
+            </div>
+
+            <div class="mb-3 material-input" data-material-type="@((int)MaterialType.Link)">
+                <label class="form-label" asp-for="Url"></label>
+                <input class="form-control" asp-for="Url" type="url" placeholder="https://" />
+                <span asp-validation-for="Url"></span>
+            </div>
+
+            <div class="mb-3 material-input" data-material-type="@((int)MaterialType.Document)">
+                <label class="form-label" asp-for="File"></label>
+                <input class="form-control" asp-for="File" type="file" />
+                <div class="form-text">En fazla 20 MB.</div>
+                <span asp-validation-for="File"></span>
+            </div>
+
+            <div class="mb-4">
+                <label class="form-label" asp-for="Description"></label>
+                <textarea class="form-control" asp-for="Description" rows="5" placeholder="Metin materyalinde içerik, diğerlerinde kısa bir açıklama."></textarea>
+                <span asp-validation-for="Description"></span>
+            </div>
+
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary">Materyali ekle</button>
+                <a class="btn btn-outline-secondary" asp-controller="Course" asp-action="Materials" asp-route-id="@Model.CourseId">Vazgeç</a>
+            </div>
+        </form>
     </div>
-</main>
+</div>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     <script>
         (() => {
-            const typeSelect = document.getElementById('@Html.IdFor(model => model.Type)');
-            const materialInputs = document.querySelectorAll('.material-input');
-
-            const updateMaterialInputs = () => {
-                const selectedType = typeSelect.value;
-
-                materialInputs.forEach(group => {
-                    const isActive = group.dataset.materialType === selectedType;
-                    const controls = group.querySelectorAll('input, textarea, select');
-
-                    group.classList.toggle('d-none', !isActive);
-                    controls.forEach(control => {
-                        control.disabled = !isActive;
-                        control.required = isActive;
-                    });
+            const radios = document.querySelectorAll("input[name=Type]");
+            const groups = document.querySelectorAll(".material-input");
+            const update = () => {
+                const selected = document.querySelector("input[name=Type]:checked")?.value;
+                groups.forEach(group => {
+                    const active = group.dataset.materialType === selected;
+                    group.hidden = !active;
+                    group.querySelectorAll("input").forEach(input => { input.disabled = !active; });
                 });
             };
-
-            typeSelect.addEventListener('change', updateMaterialInputs);
-            updateMaterialInputs();
+            radios.forEach(radio => radio.addEventListener("change", update));
+            update();
         })();
     </script>
 }

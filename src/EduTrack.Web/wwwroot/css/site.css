@@ -168,3 +168,223 @@
     font-size: var(--et-text-xl);
     font-weight: 500;
 }
+
+/* ---------- Course stream ---------- */
+
+.stream-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: 12px;
+}
+
+.stream-post {
+    display: grid;
+    grid-template-columns: 36px minmax(0, 1fr);
+    gap: 12px;
+    padding: 16px;
+    background: var(--et-surface);
+    border: 1px solid var(--et-border);
+    border-radius: var(--et-radius-md);
+}
+
+.stream-post-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 4px 12px;
+    margin-bottom: 4px;
+}
+
+.stream-text {
+    margin: 0;
+    white-space: pre-line;
+    overflow-wrap: anywhere;
+}
+
+.stream-attachment {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 4px;
+    padding: 8px 12px;
+    border: 1px solid var(--et-border);
+    border-radius: var(--et-radius-sm);
+    color: var(--et-text);
+    font-size: var(--et-text-sm);
+    font-weight: 500;
+    text-decoration: none;
+}
+
+.stream-attachment:hover { background: var(--et-surface-2); color: var(--et-text); }
+.stream-attachment i { color: var(--et-accent); }
+
+.detail-list {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 6px 16px;
+    font-size: var(--et-text-sm);
+}
+
+.detail-list dt { color: var(--et-text-muted); font-weight: 400; }
+.detail-list dd { margin: 0; }
+
+/* ---------- Materials ---------- */
+
+.material-list {
+    display: grid;
+    border: 1px solid var(--et-border);
+    border-radius: var(--et-radius-md);
+    background: var(--et-surface);
+    overflow: hidden;
+}
+
+.material-item {
+    display: grid;
+    grid-template-columns: 40px minmax(0, 1fr) auto;
+    gap: 14px;
+    align-items: center;
+    padding: 14px 16px;
+    color: var(--et-text);
+    text-decoration: none;
+}
+
+.material-item + .material-item { border-top: 1px solid var(--et-border); }
+.material-item:hover { background: var(--et-surface-2); color: var(--et-text); }
+
+.material-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--et-radius-sm);
+    display: grid;
+    place-items: center;
+    background: var(--et-accent-soft);
+    color: var(--et-accent);
+    font-size: 18px;
+}
+
+.material-body { display: grid; min-width: 0; }
+.material-title { font-weight: 500; }
+
+.material-description {
+    color: var(--et-text-muted);
+    font-size: var(--et-text-sm);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.material-meta {
+    display: grid;
+    justify-items: end;
+    gap: 2px;
+}
+
+@media (max-width: 575.98px) {
+    .material-item { grid-template-columns: 40px minmax(0, 1fr); }
+    .material-meta { grid-column: 2; justify-items: start; grid-auto-flow: column; gap: 8px; }
+}
+
+.type-picker {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 8px;
+}
+
+.type-option input { position: absolute; opacity: 0; pointer-events: none; }
+
+.type-option-body {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    height: 100%;
+    padding: 12px;
+    border: 1px solid var(--et-border);
+    border-radius: var(--et-radius-sm);
+    background: var(--et-surface);
+    cursor: pointer;
+}
+
+.type-option-body i { color: var(--et-text-muted); font-size: 18px; }
+.type-option-body strong { display: block; font-size: var(--et-text-sm); }
+.type-option-body small { color: var(--et-text-muted); font-size: var(--et-text-xs); }
+
+.type-option input:checked + .type-option-body {
+    border-color: var(--et-accent);
+    box-shadow: inset 0 0 0 1px var(--et-accent);
+    background: var(--et-accent-soft);
+}
+
+.type-option input:checked + .type-option-body i { color: var(--et-accent); }
+.type-option input:focus-visible + .type-option-body { outline: 2px solid var(--et-accent); outline-offset: 2px; }
+
+/* ---------- Roster ---------- */
+
+.roster {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 8px;
+}
+
+.roster li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    background: var(--et-surface);
+    border: 1px solid var(--et-border);
+    border-radius: var(--et-radius-sm);
+}
+
+/* ---------- Status pages ---------- */
+
+.status-page {
+    max-width: 560px;
+    margin: 48px auto;
+}
+
+.status-code {
+    text-align: center;
+    color: var(--et-text-muted);
+    font-size: var(--et-text-sm);
+    letter-spacing: 2px;
+    margin-bottom: 12px;
+}
+
+/* ---------- Loading state ---------- */
+
+.btn.is-loading {
+    position: relative;
+    color: transparent !important;
+    pointer-events: none;
+}
+
+.btn.is-loading::after {
+    content: "";
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    top: calc(50% - 8px);
+    left: calc(50% - 8px);
+    border: 2px solid currentColor;
+    border-color: rgba(255, 255, 255, .9) rgba(255, 255, 255, .9) rgba(255, 255, 255, .9) transparent;
+    border-radius: 50%;
+    animation: btn-spin .7s linear infinite;
+}
+
+.btn-outline-secondary.is-loading::after,
+.btn-ghost.is-loading::after,
+.btn-light.is-loading::after {
+    border-color: var(--et-text-muted) var(--et-text-muted) var(--et-text-muted) transparent;
+}
+
+@keyframes btn-spin { to { transform: rotate(360deg); } }
+
+@media (prefers-reduced-motion: reduce) {
+    .btn.is-loading::after { animation-duration: 2s; }
+}

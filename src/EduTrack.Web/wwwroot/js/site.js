@@ -111,6 +111,41 @@
         }
     });
 
+    // ---------- Loading state ----------
+    // Disables the submit button while a POST form is on its way, so it cannot be sent twice.
+    document.addEventListener("submit", (event) => {
+        const form = event.target;
+        if (!(form instanceof HTMLFormElement) || event.defaultPrevented) return;
+        if ((form.method || "get").toLowerCase() !== "post") return;
+        if (window.jQuery && jQuery(form).data("validator") && !jQuery(form).valid()) return;
+
+        const button = event.submitter || form.querySelector("button[type=submit]");
+        if (!button) return;
+
+        // Keep the clicked button's name/value in the request after it is disabled.
+        if (button.name) {
+            const hidden = document.createElement("input");
+            hidden.type = "hidden";
+            hidden.name = button.name;
+            hidden.value = button.value;
+            form.appendChild(hidden);
+        }
+
+        setTimeout(() => {
+            button.classList.add("is-loading");
+            button.setAttribute("aria-busy", "true");
+            button.disabled = true;
+        }, 0);
+    });
+
+    window.addEventListener("pageshow", () => {
+        document.querySelectorAll(".btn.is-loading").forEach((button) => {
+            button.classList.remove("is-loading");
+            button.removeAttribute("aria-busy");
+            button.disabled = false;
+        });
+    });
+
     // ---------- Boot ----------
     document.addEventListener("DOMContentLoaded", () => {
         document.querySelectorAll("[data-toast]").forEach(mountToast);

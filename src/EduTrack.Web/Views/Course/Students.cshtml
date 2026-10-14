@@ -1,54 +1,76 @@
-﻿@using EduTrack.Web.Models.Course
+@using EduTrack.Web.Models.Course
+@using EduTrack.Web.Models.Shared
 @model CourseDetailViewModel
 @{
-    ViewData["Title"] = "Students";
+    ViewData["Title"] = $"Öğrenciler · {Model.CourseDetail.Title}";
+    var isInstructor = Model.CourseDetail.IsInstructor;
 }
 
-<main class="py-4">
-    <partial name="Partials/_CourseHeaderPartial" model="Model.CourseDetail" />
+<partial name="Partials/_CourseHeaderPartial" model="Model.CourseDetail" />
 
-    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
-        <div>
-            <h1 class="page-title h2 mb-1">Students</h1>
-            <p class="text-secondary mb-0">Computer Science 101 roster.</p>
-        </div><button class="btn btn-success">Invite student</button>
+<div class="section-header">
+    <div>
+        <h2>Öğrenciler</h2>
+        <p>@(isInstructor ? "Ödev teslimleri ve not ortalamaları. Yeni öğrenciler ders koduyla katılır." : $"{Model.Students.Count} kişi bu derse kayıtlı.")</p>
     </div>
+</div>
+
+@if (Model.Students.Count == 0)
+{
+    <partial name="Partials/_EmptyState" model="@(new EmptyStateViewModel(
+        "Derste henüz öğrenci yok",
+        isInstructor ? $"Ders kodunu ({Model.CourseDetail.Code}) öğrencilerinizle paylaşın; katıldıklarında burada görünürler." : "Sınıf arkadaşlarınız katıldıkça burada görünecek.",
+        "bi-people"))" />
+}
+else if (isInstructor)
+{
     <div class="card">
         <div class="table-responsive">
             <table class="table mb-0">
                 <thead>
                     <tr>
-                        <th>Name</th>
-                        <th>Email</th>
-                        <th>Assignments complete</th>
-                        <th>Average</th>
-                        <th>Status</th>
+                        <th>Öğrenci</th>
+                        <th>Katılım</th>
+                        <th class="num">Teslim</th>
+                        <th class="num">Ortalama</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td>Maya Singh</td>
-                        <td>maya.student@edutrack.test</td>
-                        <td>9 / 10</td>
-                        <td>91%</td>
-                        <td><span class="badge text-bg-success">Active</span></td>
-                    </tr>
-                    <tr>
-                        <td>Owen Lee</td>
-                        <td>owen.lee@edutrack.test</td>
-                        <td>10 / 10</td>
-                        <td>95%</td>
-                        <td><span class="badge text-bg-success">Active</span></td>
-                    </tr>
-                    <tr>
-                        <td>Leila Carter</td>
-                        <td>leila.carter@edutrack.test</td>
-                        <td>7 / 10</td>
-                        <td>84%</td>
-                        <td><span class="badge text-bg-warning">Needs support</span></td>
-                    </tr>
+                    @foreach (var student in Model.Students)
+                    {
+                        var missing = student.AssignmentCount - student.SubmittedCount;
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="avatar">@student.Initials</span>
+                                    <div>
+                                        <div class="fw-medium">@student.FullName</div>
+                                        <div class="text-muted small">@student.Email</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="text-muted">@student.EnrolledAt.ToLocalTime().ToString("d MMMM yyyy")</td>
+                            <td class="num">
+                                @student.SubmittedCount / @student.AssignmentCount
+                                @if (missing > 0)
+                                {
+                                    <div><span class="badge badge-warning">@missing eksik</span></div>
+                                }
+                            </td>
+                            <td class="num">@(student.AveragePercent is null ? "—" : $"%{student.AveragePercent:0}")</td>
+                        </tr>
+                    }
                 </tbody>
             </table>
         </div>
     </div>
-</main>
+}
+else
+{
+    <ul class="roster">
+        @foreach (var student in Model.Students)
+        {
+            <li><span class="avatar">@student.Initials</span><span>@student.FullName</span></li>
+        }
+    </ul>
+}

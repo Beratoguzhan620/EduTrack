@@ -1,0 +1,17 @@
+@using EduTrack.Web.Models.Shared
+@{
+    ViewData["Title"] = "Sayfa bulunamadı";
+    if (!(User.Identity?.IsAuthenticated ?? false)) { Layout = "_AuthLayout"; }
+}
+
+<div class="status-page">
+    <p class="status-code font-mono">404</p>
+    <partial name="Partials/_EmptyState" model="@(new EmptyStateViewModel(
+        "Sayfa bulunamadı",
+        "Aradığınız sayfa taşınmış, silinmiş ya da hiç var olmamış olabilir.",
+        "bi-signpost-split")
+    {
+        ActionText = "Derslere dön",
+        ActionUrl = Url.Action("Index", "Course"),
+    })" />
+</div>

@@ -45,6 +45,7 @@ app.UseRequestLocalization(new RequestLocalizationOptions
     SupportedUICultures = [turkish],
 });
 
+app.UseStatusCodePagesWithReExecute("/not-found");
 app.UseHttpsRedirection();
 app.UseRouting();
 
