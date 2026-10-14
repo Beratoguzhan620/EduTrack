@@ -10,6 +10,9 @@ public class CourseStudentDto
     public int SubmittedCount { get; set; }
     public int AssignmentCount { get; set; }
 
+    /// <summary>Assignments past their due date that the student has not submitted.</summary>
+    public int MissingCount { get; set; }
+
     /// <summary>Average of graded submissions as a percentage of their points, or null.</summary>
     public double? AveragePercent { get; set; }
 

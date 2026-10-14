@@ -38,7 +38,7 @@ else if (isInstructor)
                 <tbody>
                     @foreach (var student in Model.Students)
                     {
-                        var missing = student.AssignmentCount - student.SubmittedCount;
+                        var missing = student.MissingCount;
                         <tr>
                             <td>
                                 <div class="d-flex align-items-center gap-2">
@@ -54,7 +54,7 @@ else if (isInstructor)
                                 @student.SubmittedCount / @student.AssignmentCount
                                 @if (missing > 0)
                                 {
-                                    <div><span class="badge badge-warning">@missing eksik</span></div>
+                                    <div><span class="badge badge-warning">@missing gecikmiş</span></div>
                                 }
                             </td>
                             <td class="num">@(student.AveragePercent is null ? "—" : $"%{student.AveragePercent:0}")</td>

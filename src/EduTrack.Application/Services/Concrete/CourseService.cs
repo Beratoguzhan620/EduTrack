@@ -178,6 +178,7 @@ public class CourseService(
                 include: q => q.Include(a => a.Submissions),
                 enableTracking: false);
 
+            var now = timeProvider.GetUtcNow().UtcDateTime;
             var students = course.Students
                 .OrderBy(cs => cs.User.FirstName).ThenBy(cs => cs.User.LastName)
                 .Select(cs =>
@@ -195,6 +196,7 @@ public class CourseService(
                         EnrolledAt = cs.EnrolledAt,
                         AssignmentCount = assignments.Count,
                         SubmittedCount = submissions.Count,
+                        MissingCount = assignments.Count(a => a.DueDate < now && a.Submissions.All(s => s.StudentId != cs.UserId)),
                         AveragePercent = graded.Count == 0
                             ? null
                             : graded.Average(x => x.Submission.Grade!.Value * 100.0 / x.Assignment.MaxPoints),
