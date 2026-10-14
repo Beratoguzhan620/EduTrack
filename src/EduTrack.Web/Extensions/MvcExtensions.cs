@@ -18,9 +18,9 @@ public static class MvcExtensions
 
                      options.LoginPath = "/Login";
                      options.LogoutPath = "/Logout";
-                     options.AccessDeniedPath = "/AccessDenied";
+                     options.AccessDeniedPath = "/access-denied";
 
-                     options.ExpireTimeSpan = TimeSpan.FromMinutes(10);
+                     options.ExpireTimeSpan = TimeSpan.FromHours(8);
                      options.SlidingExpiration = true;
                  });
     }
@@ -35,6 +35,9 @@ public static class MvcExtensions
         await context.Database.MigrateAsync();
 
         await DbSeeder.SeedAsync(context);
+
+        if (app.Configuration.GetValue<bool>("Seed:DemoContent"))
+            await DemoDataSeeder.SeedAsync(context);
 
     }
 }
