@@ -32,6 +32,7 @@ jobs:
       ConnectionStrings__DefaultConnection: "Server=localhost,1433;Database=EduTrackPreview;User Id=sa;Password=Preview#Passw0rd;TrustServerCertificate=True;"
       FileApi__BaseUrl: "http://localhost:5099/"
       FileApi__ApiKey: "preview"
+      Seed__DemoContent: "true"
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: "http://localhost:5080"
 
