@@ -13,7 +13,9 @@ public class CourseService(
     IUserRepository userRepository, 
     ICourseRepository courseRepository,
     ICourseStudentRepository courseStudentRepository,
-    CourseBusinessRules rules) : ICourseService
+    IAssignmentRepository assignmentRepository,
+    CourseBusinessRules rules,
+    TimeProvider timeProvider) : ICourseService
 {
 
     public async Task<Result<List<CourseDto>>> GetUserCoursesAsync(Guid userId)
@@ -65,7 +67,7 @@ public class CourseService(
                 Description = request.Description,
                 InstructorId = request.InstructorId,
                 IsActive = true,
-                CreatedAt = DateTime.Now,
+                CreatedAt = timeProvider.GetUtcNow().UtcDateTime,
                 Code = await GenerateUniqueCourseCode()
             };
 
@@ -103,28 +105,28 @@ public class CourseService(
             var student = await userRepository.GetAsync(u => u.Id == request.StudentId);
             rules.CheckUserExists(student);
 
-            var course = await courseRepository.GetAsync(c => c.Code == request.Code);
-            rules.CheckCourseExists(course);
+            var code = (request.Code ?? string.Empty).Trim().ToUpperInvariant();
+            var course = await courseRepository.GetAsync(c => c.Code == code);
+            rules.CheckCourseCodeExists(course);
+            rules.CheckIsNotOwnCourse(course!, student!.Id);
 
-            await rules.CheckStudentAlreadyEnrolled(course, student);
+            await rules.CheckStudentAlreadyEnrolled(course!, student);
 
             var courseStudent = new CourseStudent
             {
                 CourseId = course!.Id,
                 UserId = student!.Id,
-                EnrolledAt = DateTime.Now
+                EnrolledAt = timeProvider.GetUtcNow().UtcDateTime
             };
 
             await courseStudentRepository.AddAsync(courseStudent);
 
-            return Result.Ok();
-
+            return Result.Ok($"{course!.Title} dersine katıldınız.");
         }
         catch (BusinessException ex)
         {
             return Result.Fail(ex.Message);
         }
-
     }
 
     public async Task<Result<CourseDto>> GetCourseDetailAsync(Guid courseId, Guid userId)
@@ -136,6 +138,7 @@ public class CourseService(
                 include: c => c.Include(c => c.Instructor).Include(c => c.Students));
 
             rules.CheckCourseExists(course);
+            rules.CheckIsCourseMember(course!, userId, course!.Students.Any(st => st.UserId == userId));
 
             var courseDto = new CourseDto
             {
@@ -157,6 +160,55 @@ public class CourseService(
 
     }
 
+
+    public async Task<Result<List<CourseStudentDto>>> GetCourseStudentsAsync(Guid courseId, Guid userId)
+    {
+        try
+        {
+            var course = await courseRepository.GetAsync(
+                c => c.Id == courseId,
+                include: c => c.Include(c => c.Students).ThenInclude(cs => cs.User),
+                enableTracking: false);
+
+            rules.CheckCourseExists(course);
+            rules.CheckIsCourseMember(course!, userId, course!.Students.Any(st => st.UserId == userId));
+
+            var assignments = await assignmentRepository.GetListAsync(
+                predicate: a => a.CourseId == courseId,
+                include: q => q.Include(a => a.Submissions),
+                enableTracking: false);
+
+            var students = course.Students
+                .OrderBy(cs => cs.User.FirstName).ThenBy(cs => cs.User.LastName)
+                .Select(cs =>
+                {
+                    var submissions = assignments
+                        .SelectMany(a => a.Submissions.Where(s => s.StudentId == cs.UserId).Select(s => (Assignment: a, Submission: s)))
+                        .ToList();
+                    var graded = submissions.Where(x => x.Submission.Grade is not null && x.Assignment.MaxPoints > 0).ToList();
+
+                    return new CourseStudentDto
+                    {
+                        UserId = cs.UserId,
+                        FullName = $"{cs.User.FirstName} {cs.User.LastName}",
+                        Email = cs.User.Email,
+                        EnrolledAt = cs.EnrolledAt,
+                        AssignmentCount = assignments.Count,
+                        SubmittedCount = submissions.Count,
+                        AveragePercent = graded.Count == 0
+                            ? null
+                            : graded.Average(x => x.Submission.Grade!.Value * 100.0 / x.Assignment.MaxPoints),
+                    };
+                })
+                .ToList();
+
+            return Result<List<CourseStudentDto>>.Ok(students);
+        }
+        catch (BusinessException ex)
+        {
+            return Result<List<CourseStudentDto>>.Fail(ex.Message);
+        }
+    }
 
     private async Task<string> GenerateUniqueCourseCode()
     {

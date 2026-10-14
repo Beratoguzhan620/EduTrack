@@ -10,4 +10,7 @@ public interface ICourseService
     Task<Result<CourseCreatedResponse>> CreateCourseAsync(CreateCourseRequest request);
     Task<Result> JoinCourseAsync(JoinCourseRequest request);
 
+    /// <summary>Students of a course; only course members may list them.</summary>
+    Task<Result<List<CourseStudentDto>>> GetCourseStudentsAsync(Guid courseId, Guid userId);
+
 }

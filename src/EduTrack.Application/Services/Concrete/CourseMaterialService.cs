@@ -8,6 +8,7 @@ using EduTrack.Application.Repositories;
 using EduTrack.Application.Services.Abstract;
 using EduTrack.Domain.Entities;
 using EduTrack.Domain.Enums;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Http;
 
 namespace EduTrack.Application.Services.Concrete;
@@ -15,6 +16,7 @@ namespace EduTrack.Application.Services.Concrete;
 public class CourseMaterialService(
     ICourseMaterialRepository courseMaterialRepository,
     ICourseRepository courseRepository,
+    ICourseStudentRepository courseStudentRepository,
     CourseMaterialBusinessRules rules,
     IFileService fileService,
     IStreamPostService streamPostService
@@ -27,15 +29,17 @@ public class CourseMaterialService(
             rules.DescriptionShouldNotBeEmptyWhenTypeIsContent(request);
             rules.UrlShouldNotBeEmptyWhenTypeIsLink(request);
             rules.FileShouldNotBeNullWhenTypeIsDocument(request);
+            rules.CheckLinkIsWebAddress(request);
 
             var course = await courseRepository.GetAsync(c => c.Id == request.CourseId);
             rules.CheckCourseExists(course);
+            rules.CheckIsCourseInstructor(course!, request.InstructorId);
 
 
             var courseMaterial = new CourseMaterial
             {
-                Title = request.Title,
-                Description = request.Description,
+                Title = request.Title.Trim(),
+                Description = request.Description?.Trim(),
                 Type = request.Type,
                 Url = request.Url,
                 CourseId = request.CourseId,
@@ -75,10 +79,9 @@ public class CourseMaterialService(
 
             return Result<CourseMaterialDto>.Fail(e.Message);
         }
-        catch (Exception e)
+        catch (HttpRequestException)
         {
-            return Result<CourseMaterialDto>.Fail(e.Message);
-
+            return Result<CourseMaterialDto>.Fail("Dosya yüklenemedi. Dosya servisi şu anda yanıt vermiyor, lütfen tekrar deneyin.");
         }
     }
 
@@ -89,12 +92,19 @@ public class CourseMaterialService(
         return uploadResult.OpenUrl;
     }
 
-    public async Task<Result<CourseMaterialDto>> GetCourseMaterialByIdAsync(Guid courseMaterialId)
+    public async Task<Result<CourseMaterialDto>> GetCourseMaterialByIdAsync(Guid courseMaterialId, Guid userId)
     {
         try
         {
-            var material = await courseMaterialRepository.GetAsync(cm => cm.Id == courseMaterialId);
+            var material = await courseMaterialRepository.GetAsync(
+                cm => cm.Id == courseMaterialId,
+                include: q => q.Include(cm => cm.Course),
+                enableTracking: false);
             rules.CheckCourseMaterialExists(material);
+
+            var isEnrolled = await courseStudentRepository.AnyAsync(cs => cs.CourseId == material!.CourseId && cs.UserId == userId);
+            rules.CheckIsCourseMember(material!.Course, userId, isEnrolled);
+
             var dto = new CourseMaterialDto
             {
                 Id = material.Id,

@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using Core.BusinessRules;
 using Core.Exceptions;
 using Core.Security;
@@ -9,7 +10,7 @@ namespace EduTrack.Application.BusinessRules;
 
 public class AuthBusinessRules(IUserRepository userRepository) : IBusinessRule
 {
-    public void CheckUserExists(User? user)
+    public void CheckUserExists([NotNull] User? user)
     {
         if (user is null)
            throw new BusinessException("Email adresi veya şifre hatalı.");
