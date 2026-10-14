@@ -115,7 +115,12 @@ for (const [device, viewport] of Object.entries(viewports)) {
   await student.fill("#Email", "ayse.yilmaz@example.com");
   await student.fill("#passwordInput", "Demo123!");
   await Promise.all([student.waitForNavigation(), student.click("button[type=submit]")]);
-  await student.goto(`${baseUrl}/Course/Join?JoinCourseViewModel.Code=${encodeURIComponent(courseCode)}`);
+  await student.goto(`${baseUrl}/Course`);
+  await student.click("button[data-bs-target='#joinCourse']");
+  await student.waitForTimeout(300);
+  await student.fill("#JoinCourseViewModel_Code", courseCode);
+  await Promise.all([student.waitForNavigation(), student.click("#joinCourse button[type=submit]")]);
+  await shot(student, "desktop-joined-course");
 
   await student.goto(`${baseUrl}/Course/Detail/${courseId}`);
   await shot(student, "desktop-course-stream-student");
@@ -146,6 +151,42 @@ for (const [device, viewport] of Object.entries(viewports)) {
   await shot(mobilePage, "mobile-assignment-student");
   await mobilePage.goto(`${baseUrl}/Course/Assignments/${courseId}`);
   await shot(mobilePage, "mobile-assignments-student");
+}
+
+// Demo classroom (Seed:DemoContent): the seeded instructor and one of the students.
+for (const [device, viewport] of Object.entries(viewports)) {
+  const context = await browser.newContext({ viewport, locale: "tr-TR", deviceScaleFactor: device === "mobile" ? 2 : 1 });
+  const page = await context.newPage();
+
+  await page.goto(`${baseUrl}/Login`);
+  await page.fill("#Email", "ogretmen@example.com");
+  await page.fill("#passwordInput", "Demo123!");
+  await Promise.all([page.waitForNavigation(), page.click("button[type=submit]")]);
+  await page.goto(`${baseUrl}/Course`);
+  await shot(page, `${device}-demo-courses`);
+
+  await Promise.all([page.waitForNavigation(), page.locator(".card", { hasText: "5-A Matematik" }).locator("a[href*='/Course/Detail/']").first().click()]);
+  const courseId = page.url().split("/").pop();
+  await shot(page, `${device}-demo-stream`);
+  await page.goto(`${baseUrl}/Course/Materials/${courseId}`);
+  await shot(page, `${device}-demo-materials`);
+  await page.goto(`${baseUrl}/Course/Students/${courseId}`);
+  await shot(page, `${device}-demo-students`);
+  await page.goto(`${baseUrl}/Course/Assignments/${courseId}`);
+  await shot(page, `${device}-demo-assignments`);
+  await page.goto(`${baseUrl}/Materials/Add/${courseId}`);
+  await shot(page, `${device}-demo-material-add`);
+
+  if (device === "desktop") {
+    await page.goto(`${baseUrl}/Users`);
+    await shot(page, `${device}-demo-access-denied`);
+    await page.goto(`${baseUrl}/Course/Detail/00000000-0000-0000-0000-000000000000`);
+    await shot(page, `${device}-demo-course-not-member`);
+    await page.goto(`${baseUrl}/bu-sayfa-yok`);
+    await shot(page, `${device}-demo-not-found`);
+  }
+
+  await context.close();
 }
 
 await browser.close();

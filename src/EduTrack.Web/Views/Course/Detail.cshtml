@@ -1,75 +1,85 @@
 @using EduTrack.Application.DTOs.StreamPost
-@using EduTrack.Domain.Constants
 @using EduTrack.Domain.Enums
 @using EduTrack.Web.Models.Course
+@using EduTrack.Web.Models.Shared
+@model CourseDetailViewModel
 @{
     ViewData["Title"] = Model.CourseDetail.Title;
+    var isInstructor = Model.CourseDetail.IsInstructor;
 }
 
-@model CourseDetailViewModel
+<partial name="Partials/_ErrorMessageAlert" />
+<partial name="Partials/_SuccessMessageAlert" />
 
+<partial name="Partials/_CourseHeaderPartial" model="Model.CourseDetail" />
 
-<main class="py-4">
-    <partial name="Partials/_CourseHeaderPartial" model="Model.CourseDetail" />
-
-    <div class="">
-
-        @if (Model.CourseDetail.IsInstructor)
+<div class="row g-4">
+    <div class="col-lg-8 order-2 order-lg-1">
+        @if (isInstructor)
         {
-            <form method="post" asp-action="MakeAnnouncement" asp-controller="Course">
-                <div class="card mb-4">
-                    <div class="card-body">
-                        <label class="form-label" for="post">Share with your class</label>
-                        <textarea id="post" name="content" class="form-control mb-3" rows="3" placeholder="Announce something to the class"></textarea>
-                        <input type="hidden" name="id" value="@Model.CourseDetail.Id" />
-                        <button type="submit" class="btn btn-success">Post</button>
+            <form class="card mb-4" method="post" asp-action="MakeAnnouncement" asp-controller="Course" asp-route-id="@Model.CourseDetail.Id">
+                <div class="card-body">
+                    <label class="form-label" for="announcement">Sınıfınızla paylaşın</label>
+                    <textarea id="announcement" name="content" class="form-control mb-3" rows="3" maxlength="@CourseController.AnnouncementMaxLength" required placeholder="Bir duyuru yazın…"></textarea>
+                    <div class="d-flex justify-content-end">
+                        <button type="submit" class="btn btn-primary"><i class="bi bi-send"></i>Paylaş</button>
                     </div>
                 </div>
             </form>
-
         }
 
-
-        <div class="vstack gap-3">
-
-            @foreach (var post in Model.StreamPosts)
-            {
-                <div class="card stream-item">
-                    <div class="card-body">
-                        <div class="d-flex gap-3">
-                            <span class="avatar">@post.InstructorInitials</span>
-                            <div>
-                                <h2 class="h6 mb-1">@post.Title</h2>
-
-                                @if (post.Type == StreamPostType.Material)
-                                {
-                                    <p class="mb-1">
-                                        <a asp-route-id="@post.Content" asp-action="Details" asp-controller="Materials">Materyali görüntüle</a>
-                                    </p>
-
-                                }
-                                else if (post.Type == StreamPostType.Assignment)
-                                {
-                                    <p class="mb-1">
-                                        <a asp-route-id="@post.Content" asp-action="Detail" asp-controller="Assignments"><i class="bi bi-clipboard-check"></i> Ödevi görüntüle</a>
-                                    </p>
-                                }
-                                else
-                                {
-                                    <p class="mb-1">@post.Content</p>
-
-                                }
-                                <small class="text-secondary">@post.Date.ToLocalTime().ToString("f")</small>
-
+        @if (Model.StreamPosts.Count == 0)
+        {
+            <partial name="Partials/_EmptyState" model="@(new EmptyStateViewModel(
+                "Akışta henüz paylaşım yok",
+                isInstructor ? "Duyurular, materyaller ve ödevler burada zaman sırasıyla görünür." : "Eğitmeniniz duyuru, materyal veya ödev paylaştığında burada görünecek.",
+                "bi-chat-square-text"))" />
+        }
+        else
+        {
+            <ol class="stream-list">
+                @foreach (var post in Model.StreamPosts)
+                {
+                    <li class="stream-post">
+                        <span class="avatar">@post.InstructorInitials</span>
+                        <div class="stream-post-body">
+                            <div class="stream-post-head">
+                                <span class="fw-medium">@post.Title</span>
+                                <time class="text-muted small" datetime="@post.Date.ToString("o")">@post.Date.ToLocalTime().ToString("d MMMM, HH:mm")</time>
                             </div>
+                            @switch (post.Type)
+                            {
+                                case StreamPostType.Material:
+                                    <a class="stream-attachment" asp-action="Details" asp-controller="Materials" asp-route-id="@post.Content">
+                                        <i class="bi bi-folder2-open"></i><span>Materyali aç</span>
+                                    </a>
+                                    break;
+                                case StreamPostType.Assignment:
+                                    <a class="stream-attachment" asp-action="Detail" asp-controller="Assignments" asp-route-id="@post.Content">
+                                        <i class="bi bi-clipboard-check"></i><span>Ödevi aç</span>
+                                    </a>
+                                    break;
+                                default:
+                                    <p class="stream-text">@post.Content</p>
+                                    break;
+                            }
                         </div>
-                    </div>
-                </div>
-            }
-
-
-        </div>
+                    </li>
+                }
+            </ol>
+        }
     </div>
 
-
-</main>
+    <aside class="col-lg-4 order-1 order-lg-2">
+        <div class="card">
+            <div class="card-body p-4">
+                <h2 class="h6 text-muted mb-2">Ders hakkında</h2>
+                <p class="mb-3">@(string.IsNullOrWhiteSpace(Model.CourseDetail.Description) ? "Açıklama eklenmemiş." : Model.CourseDetail.Description)</p>
+                <dl class="detail-list mb-0">
+                    <dt>Eğitmen</dt><dd>@Model.CourseDetail.InstructorFullName</dd>
+                    <dt>Öğrenci</dt><dd class="font-mono">@Model.CourseDetail.StudentCount</dd>
+                </dl>
+            </div>
+        </div>
+    </aside>
+</div>

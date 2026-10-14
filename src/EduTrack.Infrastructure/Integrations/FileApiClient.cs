@@ -26,7 +26,7 @@ public class FileApiClient(HttpClient httpClient) : IFileService
         response.EnsureSuccessStatusCode();
 
         var result = await response.Content.ReadFromJsonAsync<FileUploadResult>(cancellationToken);
-        return result;
+        return result ?? throw new HttpRequestException("File API returned an empty upload response.");
     }
 
 

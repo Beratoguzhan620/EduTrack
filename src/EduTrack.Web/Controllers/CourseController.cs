@@ -1,6 +1,4 @@
-using Core.Results;
 using EduTrack.Application.DTOs.Course;
-using EduTrack.Application.DTOs.CourseMaterial;
 using EduTrack.Application.DTOs.StreamPost;
 using EduTrack.Application.Services.Abstract;
 using EduTrack.Domain.Constants;
@@ -18,17 +16,13 @@ public class CourseController(
     ICourseMaterialService courseMaterialService,
     IAssignmentService assignmentService) : BaseController
 {
+    public const int AnnouncementMaxLength = 2000;
 
     public async Task<IActionResult> Index()
     {
-        Result<List<CourseDto>> result;
+        var result = await courseService.GetUserCoursesAsync(GetCurrentUserId());
 
-        var userId = GetCurrentUserId();
-
-        result = await courseService.GetUserCoursesAsync(userId);
-
-        var viewModel = new CourseViewModel();
-        viewModel.Courses = result.Data ?? [];
+        var viewModel = new CourseViewModel { Courses = result.Data ?? [] };
 
         ViewBag.SuccessMessage = TempData["SuccessMessage"];
         ViewBag.ErrorMessage = TempData["ErrorMessage"];
@@ -36,146 +30,156 @@ public class CourseController(
     }
 
     [HttpGet]
-    [Authorize]
     public async Task<IActionResult> Detail(Guid id)
     {
-        var courseDetailResult = await GetCourseDetailAsync(id);
-        CourseDetailViewModel viewModel = new();
+        var course = await courseService.GetCourseDetailAsync(id, GetCurrentUserId());
+        if (!course.Success || course.Data is null)
+            return BackToCourses(course.Message);
 
-        viewModel.CourseDetail = courseDetailResult;
-        var streamPostResult = await streamPostService.GetStreamPosts(id);
-        viewModel.StreamPosts = streamPostResult.Data;
-        return View(viewModel);
+        var posts = await streamPostService.GetStreamPosts(id);
 
+        ViewBag.SuccessMessage = TempData["SuccessMessage"];
+        ViewBag.ErrorMessage = TempData["ErrorMessage"];
+        return View(new CourseDetailViewModel
+        {
+            CourseDetail = course.Data,
+            StreamPosts = posts.Data ?? [],
+        });
     }
 
-
-
-
     [HttpPost]
+    [ValidateAntiForgeryToken]
     [Authorize(Roles = $"{RoleConstants.Admin},{RoleConstants.Instructor}")]
-    public async Task<IActionResult> MakeAnnouncement(Guid id, string content)
+    public async Task<IActionResult> MakeAnnouncement(Guid id, string? content)
     {
-        var dto = new CreateStreamPostRequest
+        var text = content?.Trim() ?? string.Empty;
+
+        if (text.Length == 0)
+        {
+            TempData["ErrorMessage"] = "Duyuru metni boş olamaz.";
+            return RedirectToAction(nameof(Detail), new { id });
+        }
+
+        if (text.Length > AnnouncementMaxLength)
+        {
+            TempData["ErrorMessage"] = $"Duyuru en fazla {AnnouncementMaxLength} karakter olabilir.";
+            return RedirectToAction(nameof(Detail), new { id });
+        }
+
+        var result = await streamPostService.CreateStreamPost(new CreateStreamPostRequest
         {
             InstructorId = GetCurrentUserId(),
-            Content = content,
+            Content = text,
             CourseId = id,
-            Type = StreamPostType.Announcement
-        };
+            Type = StreamPostType.Announcement,
+        });
 
-        await streamPostService.CreateStreamPost(dto);
-
+        TempData[result.Success ? "SuccessMessage" : "ErrorMessage"] = result.Success ? "Duyuru paylaşıldı." : result.Message;
         return RedirectToAction(nameof(Detail), new { id });
     }
 
-
     [HttpGet]
-    [Authorize]
     public async Task<IActionResult> Materials(Guid id)
     {
-        var courseDetailResult = await GetCourseDetailAsync(id);
-        var courseMaterialResult = await courseMaterialService.GetCourseMaterialsByCourseIdAsync(id);
-        var viewModel = new CourseDetailViewModel();
-        if (courseMaterialResult.Success)
-        {
-            viewModel.CourseDetail = courseDetailResult;
-            viewModel.Materials = courseMaterialResult.Data;
-        }
-        return View(viewModel);
-    }
+        var course = await courseService.GetCourseDetailAsync(id, GetCurrentUserId());
+        if (!course.Success || course.Data is null)
+            return BackToCourses(course.Message);
 
-    [HttpGet]
-    [Authorize]
-    public async Task<IActionResult> AssignmentsAsync(Guid id)
-    {
-        var assignments = await assignmentService.GetCourseAssignmentsAsync(id, GetCurrentUserId());
-        if (!assignments.Success)
-        {
-            TempData["ErrorMessage"] = assignments.Message;
-            return RedirectToAction(nameof(Index));
-        }
-
-        var model = new CourseDetailViewModel
-        {
-            CourseDetail = await GetCourseDetailAsync(id),
-            Assignments = assignments.Data ?? [],
-            NewAssignment = new() { CourseId = id, DueDate = DateTime.Now.Date.AddDays(7).AddHours(23).AddMinutes(59) },
-        };
+        var materials = await courseMaterialService.GetCourseMaterialsByCourseIdAsync(id);
 
         ViewBag.SuccessMessage = TempData["SuccessMessage"];
         ViewBag.ErrorMessage = TempData["ErrorMessage"];
-        return View("Assignments", model);
+        return View(new CourseDetailViewModel
+        {
+            CourseDetail = course.Data,
+            Materials = materials.Data ?? [],
+        });
     }
 
     [HttpGet]
-    [Authorize]
-    public async Task<IActionResult> StudentsAsync(Guid id)
+    public async Task<IActionResult> Assignments(Guid id)
     {
-        var courseDetailResult = await GetCourseDetailAsync(id);
-        var model = new CourseDetailViewModel();
-        model.CourseDetail = courseDetailResult;
-        return View(model);
+        var course = await courseService.GetCourseDetailAsync(id, GetCurrentUserId());
+        if (!course.Success || course.Data is null)
+            return BackToCourses(course.Message);
+
+        var assignments = await assignmentService.GetCourseAssignmentsAsync(id, GetCurrentUserId());
+
+        ViewBag.SuccessMessage = TempData["SuccessMessage"];
+        ViewBag.ErrorMessage = TempData["ErrorMessage"];
+        return View(new CourseDetailViewModel
+        {
+            CourseDetail = course.Data,
+            Assignments = assignments.Data ?? [],
+            NewAssignment = new() { CourseId = id, DueDate = DateTime.Now.Date.AddDays(7).AddHours(23).AddMinutes(59) },
+        });
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> Students(Guid id)
+    {
+        var course = await courseService.GetCourseDetailAsync(id, GetCurrentUserId());
+        if (!course.Success || course.Data is null)
+            return BackToCourses(course.Message);
+
+        var students = await courseService.GetCourseStudentsAsync(id, GetCurrentUserId());
+
+        return View(new CourseDetailViewModel
+        {
+            CourseDetail = course.Data,
+            Students = students.Data ?? [],
+        });
     }
 
     [HttpPost]
+    [ValidateAntiForgeryToken]
     [Authorize(Roles = $"{RoleConstants.Admin},{RoleConstants.Instructor}")]
     public async Task<IActionResult> Create(CourseViewModel model)
     {
+        var form = model.CreateCourseViewModel;
 
-        if (!ModelState.IsValid)
-            return RedirectToAction("Index", "Home");
+        if (!ModelState.IsValid || form is null)
+            return BackToCourses(FirstError() ?? "Ders bilgilerini kontrol edin.");
 
-
-        var request = new CreateCourseRequest
+        var response = await courseService.CreateCourseAsync(new CreateCourseRequest
         {
             InstructorId = GetCurrentUserId(),
-            Title = model.CreateCourseViewModel.Title,
-            Description = model.CreateCourseViewModel.Description
-        };
+            Title = form.Title.Trim(),
+            Description = form.Description.Trim(),
+        });
 
-        var response = await courseService.CreateCourseAsync(request);
+        if (!response.Success || response.Data is null)
+            return BackToCourses(response.Message);
 
-        TempData[response.Success ? "SuccessMessage" : "ErrorMessage"] =
-            response.Success ? "Ders oluşturuldu. Ders kodunu öğrencilerinizle paylaşabilirsiniz." : response.Message;
-
-        return RedirectToAction(nameof(Index));
+        TempData["SuccessMessage"] = $"Ders oluşturuldu. Ders kodu: {response.Data.Code}";
+        return RedirectToAction(nameof(Detail), new { id = response.Data.Id });
     }
 
-
-    [HttpGet]
-    [Authorize]
+    [HttpPost]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> Join(CourseViewModel model)
     {
-        if (!ModelState.IsValid)
-            return RedirectToAction(nameof(Index));
+        var form = model.JoinCourseViewModel;
 
-        var request = new JoinCourseRequest
+        if (!ModelState.IsValid || form is null)
+            return BackToCourses(FirstError() ?? "Ders kodunu kontrol edin.");
+
+        var response = await courseService.JoinCourseAsync(new JoinCourseRequest
         {
-            Code = model.JoinCourseViewModel.Code,
-            StudentId = GetCurrentUserId()
-        };
+            Code = form.Code,
+            StudentId = GetCurrentUserId(),
+        });
 
-        var response = await courseService.JoinCourseAsync(request);
-
-        TempData[response.Success ? "SuccessMessage" : "ErrorMessage"] =
-            response.Success ? "Derse katıldınız." : response.Message;
-
+        TempData[response.Success ? "SuccessMessage" : "ErrorMessage"] = response.Message;
         return RedirectToAction(nameof(Index));
     }
 
-
-    private async Task<CourseDto> GetCourseDetailAsync(Guid courseId)
+    private RedirectToActionResult BackToCourses(string? message)
     {
-        var userId = GetCurrentUserId();
-        var courseDetailResult = await courseService.GetCourseDetailAsync(courseId, userId);
-
-        if (courseDetailResult.Success && courseDetailResult.Data != null)
-        {
-            return courseDetailResult.Data;
-        }
-
-        return new CourseDto();
+        TempData["ErrorMessage"] = string.IsNullOrWhiteSpace(message) ? "Ders bulunamadı." : message;
+        return RedirectToAction(nameof(Index));
     }
 
+    private string? FirstError() =>
+        ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).FirstOrDefault(m => !string.IsNullOrWhiteSpace(m));
 }

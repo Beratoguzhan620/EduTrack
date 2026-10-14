@@ -12,4 +12,5 @@ public class CourseDetailViewModel
     public List<CourseMaterialDto> Materials { get; set; } = new();
     public List<AssignmentListItemDto> Assignments { get; set; } = new();
     public CreateAssignmentRequest NewAssignment { get; set; } = new();
+    public List<CourseStudentDto> Students { get; set; } = new();
 }

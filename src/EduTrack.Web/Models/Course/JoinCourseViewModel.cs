@@ -1,9 +1,11 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 
 namespace EduTrack.Web.Models.Course;
 
 public class JoinCourseViewModel
 {
-    [Required, MinLength(8), MaxLength(8)]
-    public string Code { get; set; }
+    [Display(Name = "Ders kodu")]
+    [Required(ErrorMessage = "Ders kodu gereklidir.")]
+    [StringLength(8, MinimumLength = 8, ErrorMessage = "Ders kodu 8 karakterdir.")]
+    public string Code { get; set; } = string.Empty;
 }

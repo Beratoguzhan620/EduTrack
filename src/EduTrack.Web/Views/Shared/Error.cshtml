@@ -1,25 +1,20 @@
-﻿@model ErrorViewModel
+@using EduTrack.Web.Models.Shared
+@model ErrorViewModel
 @{
-    ViewData["Title"] = "Error";
+    ViewData["Title"] = "Bir hata oluştu";
 }
 
-<h1 class="text-danger">Error.</h1>
-<h2 class="text-danger">An error occurred while processing your request.</h2>
-
-@if (Model.ShowRequestId)
-{
-    <p>
-        <strong>Request ID:</strong> <code>@Model.RequestId</code>
-    </p>
-}
-
-<h3>Development Mode</h3>
-<p>
-    Swapping to <strong>Development</strong> environment will display more detailed information about the error that occurred.
-</p>
-<p>
-    <strong>The Development environment shouldn't be enabled for deployed applications.</strong>
-    It can result in displaying sensitive information from exceptions to end users.
-    For local debugging, enable the <strong>Development</strong> environment by setting the <strong>ASPNETCORE_ENVIRONMENT</strong> environment variable to <strong>Development</strong>
-    and restarting the app.
-</p>
+<div class="status-page">
+    <partial name="Partials/_EmptyState" model="@(new EmptyStateViewModel(
+        "Bir şeyler ters gitti",
+        "İsteğiniz işlenirken beklenmeyen bir hata oluştu. Sayfayı yenileyin ya da biraz sonra tekrar deneyin.",
+        "bi-exclamation-triangle")
+    {
+        ActionText = "Derslere dön",
+        ActionUrl = Url.Action("Index", "Course"),
+    })" />
+    @if (Model?.ShowRequestId ?? false)
+    {
+        <p class="text-center text-muted small mt-3">Hata kodu: <span class="font-mono">@Model.RequestId</span></p>
+    }
+</div>

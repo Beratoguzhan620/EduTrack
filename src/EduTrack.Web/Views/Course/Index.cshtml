@@ -59,56 +59,54 @@ else
 }
 
 
-<form asp-action="Create" asp-controller="Course" method="post">
-    <div class="modal fade" id="createCourse" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h2 class="modal-title h5">Ders oluştur</h2>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
+<div class="modal fade" id="createCourse" tabindex="-1" aria-labelledby="createCourseTitle" aria-hidden="true">
+    <div class="modal-dialog">
+        <form class="modal-content" asp-action="Create" asp-controller="Course" method="post" novalidate>
+            <div class="modal-header">
+                <h2 class="modal-title h5" id="createCourseTitle">Ders oluştur</h2>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label" asp-for="CreateCourseViewModel!.Title"></label>
+                    <input class="form-control" placeholder="Ör. 5-A Matematik" asp-for="CreateCourseViewModel!.Title" maxlength="100" />
+                    <span asp-validation-for="CreateCourseViewModel!.Title"></span>
                 </div>
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label class="form-label" asp-for="CreateCourseViewModel.Title">Ders adı</label>
-                        <input class="form-control" placeholder="Ör. 5-A Matematik" asp-for="CreateCourseViewModel.Title" />
-                    </div>
-                    <div>
-                        <label class="form-label" asp-for="CreateCourseViewModel.Description">Açıklama</label>
-                        <input class="form-control" placeholder="Kısa bir açıklama" asp-for="CreateCourseViewModel.Description" />
-                    </div>
-
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Vazgeç</button>
-                    <button type="submit" class="btn btn-primary">Dersi oluştur</button>
+                <div>
+                    <label class="form-label" asp-for="CreateCourseViewModel!.Description"></label>
+                    <textarea class="form-control" rows="3" placeholder="Öğrencilerin dersi tanıyacağı kısa bir açıklama" asp-for="CreateCourseViewModel!.Description" maxlength="500"></textarea>
+                    <span asp-validation-for="CreateCourseViewModel!.Description"></span>
                 </div>
             </div>
-        </div>
-    </div>
-
-</form>
-
-
-<form asp-action="Join" asp-controller="Course" method="get">
-    <div class="modal fade" id="joinCourse" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h2 class="modal-title h5">Derse katıl</h2>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
-                </div>
-                <div class="modal-body">
-                    <label class="form-label" asp-for="JoinCourseViewModel.Code">Ders kodu</label>
-                    <input class="form-control font-mono" placeholder="Eğitmeninizin paylaştığı kod" asp-for="JoinCourseViewModel.Code" />
-
-
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Vazgeç</button>
-                    <button type="submit" class="btn btn-primary">Katıl</button>
-                </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Vazgeç</button>
+                <button type="submit" class="btn btn-primary">Dersi oluştur</button>
             </div>
-        </div>
+        </form>
     </div>
+</div>
 
-</form>
+<div class="modal fade" id="joinCourse" tabindex="-1" aria-labelledby="joinCourseTitle" aria-hidden="true">
+    <div class="modal-dialog">
+        <form class="modal-content" asp-action="Join" asp-controller="Course" method="post" novalidate>
+            <div class="modal-header">
+                <h2 class="modal-title h5" id="joinCourseTitle">Derse katıl</h2>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
+            </div>
+            <div class="modal-body">
+                <label class="form-label" asp-for="JoinCourseViewModel!.Code"></label>
+                <input class="form-control font-mono text-uppercase" placeholder="8 karakterlik kod" asp-for="JoinCourseViewModel!.Code" maxlength="8" autocomplete="off" />
+                <div class="form-text">Kodu eğitmeninizden alabilirsiniz.</div>
+                <span asp-validation-for="JoinCourseViewModel!.Code"></span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Vazgeç</button>
+                <button type="submit" class="btn btn-primary">Katıl</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

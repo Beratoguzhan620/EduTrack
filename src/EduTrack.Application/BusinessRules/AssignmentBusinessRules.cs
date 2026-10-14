@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using Core.BusinessRules;
 using Core.Exceptions;
 using EduTrack.Domain.Entities;
@@ -6,19 +7,19 @@ namespace EduTrack.Application.BusinessRules;
 
 public class AssignmentBusinessRules : IBusinessRule
 {
-    public void CheckCourseExists(Course? course)
+    public void CheckCourseExists([NotNull] Course? course)
     {
         if (course is null)
             throw new BusinessException("Ders bulunamadı.");
     }
 
-    public void CheckAssignmentExists(Assignment? assignment)
+    public void CheckAssignmentExists([NotNull] Assignment? assignment)
     {
         if (assignment is null)
             throw new BusinessException("Ödev bulunamadı.");
     }
 
-    public void CheckSubmissionExists(AssignmentSubmission? submission)
+    public void CheckSubmissionExists([NotNull] AssignmentSubmission? submission)
     {
         if (submission is null)
             throw new BusinessException("Teslim bulunamadı.");

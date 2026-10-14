@@ -26,11 +26,11 @@ Her aşama ayrı bir branch ve PR olarak yapılır (`stage/<no>-<kisa-ad>`). Bir
 - [x] Deprecated `AddFluentValidationClientsideAdapters` yerine güncel yaklaşım
 
 ## Aşama 3 — Sayfaların cilası + test
-- [ ] Kurs listesi (kart grid), kurs detayı (sekme: Akış / Materyaller / Ödevler / Öğrenciler) yeni tasarımla
-- [ ] Tüm formlarda doğrulama mesajları, yükleniyor durumları, boş durumlar
-- [ ] Demo seed verisi: 1 öğretmen, 8 öğrenci, 3 kurs, duyurular, materyaller (demo hesapları README'de)
-- [ ] Unit test kapsamını iş kurallarına (BusinessRules) genişlet; tüm testler yeşil
-- [ ] 404 / 500 hata sayfaları
+- [x] Kurs listesi (kart grid), kurs detayı (sekme: Akış / Materyaller / Ödevler / Öğrenciler) yeni tasarımla
+- [x] Tüm formlarda doğrulama mesajları, yükleniyor durumları, boş durumlar
+- [x] Demo seed verisi: 1 öğretmen, 8 öğrenci, 3 kurs, duyurular, materyaller (demo hesapları README'de)
+- [x] Unit test kapsamını iş kurallarına (BusinessRules) genişlet; tüm testler yeşil
+- [x] 404 / 500 hata sayfaları
 
 ## Aşama 4 — Yayın ve README
 - [ ] `docker-compose up` ile tek komutta çalışır (Web + FileAPI + SQL Server)
