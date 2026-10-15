@@ -1,11 +1,16 @@
-﻿using EduTrack.Application.DTOs.File;
+using EduTrack.Application.DTOs.File;
 using EduTrack.Application.Services.Abstract;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 
 namespace EduTrack.Infrastructure.Integrations;
 
-public class FileApiClient(HttpClient httpClient) : IFileService
+/// <summary>Talks to external-services/FileAPI.</summary>
+/// <param name="publicBaseUrl">
+/// Address browsers use to reach the File API. It differs from the HttpClient base address when the
+/// app talks to the File API over an internal network (for example <c>http://fileapi:8080</c> in Docker).
+/// </param>
+public class FileApiClient(HttpClient httpClient, FileApiPublicUrl publicBaseUrl) : IFileService
 {
     private readonly string Endpoint = "api/files";
     public async Task<FileUploadResult> UploadAsync(FileUploadRequest request, CancellationToken cancellationToken = default)
@@ -25,8 +30,15 @@ public class FileApiClient(HttpClient httpClient) : IFileService
         using var response = await httpClient.PostAsync(Endpoint, formData, cancellationToken);
         response.EnsureSuccessStatusCode();
 
-        var result = await response.Content.ReadFromJsonAsync<FileUploadResult>(cancellationToken);
-        return result ?? throw new HttpRequestException("File API returned an empty upload response.");
+        var result = await response.Content.ReadFromJsonAsync<FileUploadResult>(cancellationToken)
+            ?? throw new HttpRequestException("File API returned an empty upload response.");
+
+        // The File API answers with paths such as /api/files/{id}; store links the browser can open.
+        return result with
+        {
+            OpenUrl = publicBaseUrl.Resolve(result.OpenUrl),
+            DownloadUrl = publicBaseUrl.Resolve(result.DownloadUrl),
+        };
     }
 
 
@@ -41,4 +53,12 @@ public class FileApiClient(HttpClient httpClient) : IFileService
 
     }
 
+}
+
+public sealed record FileApiPublicUrl(Uri BaseUri)
+{
+    public string Resolve(string url) =>
+        Uri.TryCreate(url, UriKind.Absolute, out var absolute) && absolute.Scheme is "http" or "https"
+            ? url
+            : new Uri(BaseUri, url.TrimStart('/')).ToString();
 }
