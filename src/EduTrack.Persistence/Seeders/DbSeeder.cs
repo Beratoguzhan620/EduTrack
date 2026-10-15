@@ -8,12 +8,7 @@ namespace EduTrack.Persistence.Seeders;
 
 public static class DbSeeder
 {
-
-    public static async Task SeedAsync(AppDbContext context)
-    {
-        await SeedRolesAsync(context);
-        await SeedAdminUserAsync(context);
-    }
+    public const string AdminEmail = "admin@example.com";
 
     public static async Task SeedRolesAsync(AppDbContext context)
     {
@@ -30,16 +25,17 @@ public static class DbSeeder
         await context.SaveChangesAsync();
     }
 
-    public static async Task SeedAdminUserAsync(AppDbContext context)
+    /// <summary>Creates the admin account once; an existing admin keeps its password.</summary>
+    public static async Task SeedAdminUserAsync(AppDbContext context, string password)
     {
-        var passwordResult = HashingHelper.CreatePasswordHash("112");
+        var passwordResult = HashingHelper.CreatePasswordHash(password);
         var adminId = Guid.Parse("00000000-0000-0000-0000-000000000001");
         var adminUser = new User
         {
             Id = adminId,
             FirstName = "Admin",
             LastName = "User",
-            Email = "admin@example.com",
+            Email = AdminEmail,
             IsActive = true,
             EmailConfirmed = true,
             PasswordHash = passwordResult.Hash,

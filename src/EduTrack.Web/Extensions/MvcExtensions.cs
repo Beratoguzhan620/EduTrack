@@ -1,4 +1,4 @@
-﻿using EduTrack.Persistence;
+using EduTrack.Persistence;
 using EduTrack.Persistence.Seeders;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
@@ -34,10 +34,22 @@ public static class MvcExtensions
 
         await context.Database.MigrateAsync();
 
-        await DbSeeder.SeedAsync(context);
+        var demoContent = app.Configuration.GetValue<bool>("Seed:DemoContent");
 
-        if (app.Configuration.GetValue<bool>("Seed:DemoContent"))
+        // The admin password comes from configuration (Admin__Password). Demo installs fall back to
+        // the shared demo password so the README accounts work out of the box.
+        var adminPassword = app.Configuration["Admin:Password"];
+        if (string.IsNullOrWhiteSpace(adminPassword) && demoContent)
+            adminPassword = DemoDataSeeder.DemoPassword;
+
+        await DbSeeder.SeedRolesAsync(context);
+
+        if (string.IsNullOrWhiteSpace(adminPassword))
+            app.Logger.LogWarning("Admin:Password is not set; the admin account was not created.");
+        else
+            await DbSeeder.SeedAdminUserAsync(context, adminPassword);
+
+        if (demoContent)
             await DemoDataSeeder.SeedAsync(context);
-
     }
 }
