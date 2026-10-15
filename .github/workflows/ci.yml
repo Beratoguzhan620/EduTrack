@@ -48,3 +48,33 @@ jobs:
         with:
           name: coverage-report
           path: TestResults/**/coverage.cobertura.xml
+
+  docker:
+    name: Docker Compose
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Start the stack
+        run: docker compose up --build --detach --wait --wait-timeout 300
+
+      - name: Check the web app and the File API
+        run: |
+          for i in $(seq 1 60); do
+            if curl -sf http://localhost:8080/Login > /dev/null; then break; fi
+            sleep 3
+          done
+          curl -sf http://localhost:8080/Login | grep -q "EduTrack"
+          curl -sf -o /dev/null http://localhost:8081/swagger/index.html
+          echo "Web app and File API are up."
+
+      - name: Show logs
+        if: failure()
+        run: docker compose logs --no-color
+
+      - name: Stop the stack
+        if: always()
+        run: docker compose down --volumes
+

@@ -33,8 +33,8 @@ Her aşama ayrı bir branch ve PR olarak yapılır (`stage/<no>-<kisa-ad>`). Bir
 - [x] 404 / 500 hata sayfaları
 
 ## Aşama 4 — Yayın ve README
-- [ ] `docker-compose up` ile tek komutta çalışır (Web + FileAPI + SQL Server)
+- [x] `docker-compose up` ile tek komutta çalışır (Web + FileAPI + SQL Server)
 - [ ] Canlı demo (Azure App Service / Render / Fly.io) — link README'ye
-- [ ] `docs/screenshots/` ekran görüntüleri + kısa GIF
-- [ ] README (TR + EN) — `CONTRIBUTING.md`'deki şablona göre, mimari şeması (Mermaid) dahil
-- [ ] README'de "Proje geçmişi / Background" bölümü — TR: "Bu proje bir bootcamp projesi olarak başladı, sonra baştan geliştirildi." EN: "This project started as a bootcamp project and was later rebuilt from the ground up." Altına neyin yeniden yapıldığı kısaca maddelenir (tasarım, özellikler, testler, CI).
+- [x] `docs/screenshots/` ekran görüntüleri + kısa GIF
+- [x] README (TR + EN) — `CONTRIBUTING.md`'deki şablona göre, mimari şeması (Mermaid) dahil
+- [x] README'de "Proje geçmişi / Background" bölümü — TR: "Bu proje bir bootcamp projesi olarak başladı, sonra baştan geliştirildi." EN: "This project started as a bootcamp project and was later rebuilt from the ground up." Altına neyin yeniden yapıldığı kısaca maddelenir (tasarım, özellikler, testler, CI).

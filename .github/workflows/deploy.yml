@@ -67,8 +67,9 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           password: ${{ secrets.VPS_PASSWORD }}
           port: ${{ secrets.VPS_PORT }}
-          source: docker-compose.yml
+          source: deploy/docker-compose.yml
           target: /opt/deploy/edutrack
+          strip_components: 1
           overwrite: true
 
       - name: Deploy application

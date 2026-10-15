@@ -4,7 +4,7 @@ import { mkdir } from "node:fs/promises";
 
 const baseUrl = process.env.BASE_URL ?? "http://localhost:5080";
 const out = new URL("./output/", import.meta.url).pathname;
-const admin = { email: "admin@example.com", password: "112" };
+const admin = { email: "admin@example.com", password: "Demo123!" };
 
 const viewports = {
   desktop: { width: 1440, height: 900 },
