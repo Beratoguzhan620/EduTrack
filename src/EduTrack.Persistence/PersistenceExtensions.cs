@@ -10,8 +10,13 @@ public static class PersistenceExtensions
 {
     public static IServiceCollection AddPersistenceServices(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddDbContext<AppDbContext>(options =>
-             options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
+        // SQL Server by default; "Sqlite" (Database:Provider) runs the public demo, with the database in a file that
+        // starts again from the demo content on every restart.
+        var connectionString = configuration.GetConnectionString("DefaultConnection");
+        if (string.Equals(configuration["Database:Provider"], "Sqlite", StringComparison.OrdinalIgnoreCase))
+            services.AddDbContext<AppDbContext>(options => options.UseSqlite(connectionString));
+        else
+            services.AddDbContext<AppDbContext>(options => options.UseSqlServer(connectionString));
 
 
         services.AddScoped<IUserRepository, UserRepository>();
