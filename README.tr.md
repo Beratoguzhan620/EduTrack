@@ -12,6 +12,8 @@
 
 ## Demo hesapları
 
+**Canlı demo:** [edutrack-demo.onrender.com](https://edutrack-demo.onrender.com). Aşağıdaki hesaplarla giriş yapabilirsin. Orada e-posta kurulu değil, bu yüzden yeni açılan bir hesap adresini doğrulayamaz. Ücretsiz bir sunucuda, veritabanı konteynerin içinde SQLite olarak çalışıyor; her yeniden başlatmada aynı verilerle baştan açılır. Bir süre kimse açmadıysa ilk açılış bir dakika kadar sürebilir.
+
 Uygulamayı demo içerikle başlatın ([Yerelde çalıştırma](#yerelde-çalıştırma)) ve şu hesaplarla giriş yapın:
 
 | Rol | E-posta | Şifre |
