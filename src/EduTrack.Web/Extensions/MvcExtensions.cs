@@ -32,7 +32,11 @@ public static class MvcExtensions
 
         var context = services.GetRequiredService<AppDbContext>();
 
-        await context.Database.MigrateAsync();
+        // The migrations are written for SQL Server; on SQLite (the public demo) the schema comes from the model.
+        if (context.Database.IsSqlite())
+            await context.Database.EnsureCreatedAsync();
+        else
+            await context.Database.MigrateAsync();
 
         var demoContent = app.Configuration.GetValue<bool>("Seed:DemoContent");
 

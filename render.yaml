@@ -1,0 +1,26 @@
+# The public demo on Render's free plan: one web service from deploy/demo/Dockerfile (the app and the File API at
+# /files), with SQLite in a file inside the container. Every restart (the free plan sleeps after 15 idle minutes)
+# starts again from the demo classroom, whose accounts are listed in the README. E-mail is not configured, so new
+# sign-ups cannot verify their address; the demo accounts are already verified.
+services:
+  - type: web
+    name: edutrack-demo
+    runtime: docker
+    plan: free
+    region: frankfurt
+    dockerfilePath: ./deploy/demo/Dockerfile
+    dockerContext: .
+    autoDeployTrigger: checksPass
+    envVars:
+      - key: FILE_API_KEY
+        generateValue: true
+      - key: FileApi__PublicUrl
+        value: https://edutrack-demo.onrender.com/files/
+      - key: Seed__DemoContent
+        value: "true"
+      - key: TZ
+        value: Europe/Istanbul
+      - key: ASPNETCORE_FORWARDEDHEADERS_ENABLED
+        value: "true"
+      - key: PORT
+        value: "8080"
