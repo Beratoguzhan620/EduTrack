@@ -1,0 +1,1648 @@
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (100ms) [Parameters=[], CommandType='Text', CommandTimeout='60']
+      CREATE DATABASE [EduTrackPreview];
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (49ms) [Parameters=[], CommandType='Text', CommandTimeout='60']
+      IF SERVERPROPERTY('EngineEdition') <> 5
+      BEGIN
+          ALTER DATABASE [EduTrackPreview] SET READ_COMMITTED_SNAPSHOT ON;
+      END;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (5ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT 1
+info: Microsoft.EntityFrameworkCore.Migrations[20411]
+      Acquiring an exclusive lock for migration application. See https://aka.ms/efcore-docs-migrations-lock for more information if this takes too long.
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (20ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      DECLARE @result int;
+      EXEC @result = sp_getapplock @Resource = '__EFMigrationsLock', @LockOwner = 'Session', @LockMode = 'Exclusive';
+      SELECT @result
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (5ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      IF OBJECT_ID(N'[__EFMigrationsHistory]') IS NULL
+      BEGIN
+          CREATE TABLE [__EFMigrationsHistory] (
+              [MigrationId] nvarchar(150) NOT NULL,
+              [ProductVersion] nvarchar(32) NOT NULL,
+              CONSTRAINT [PK___EFMigrationsHistory] PRIMARY KEY ([MigrationId])
+          );
+      END;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT OBJECT_ID(N'[__EFMigrationsHistory]');
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (5ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT [MigrationId], [ProductVersion]
+      FROM [__EFMigrationsHistory]
+      ORDER BY [MigrationId];
+info: Microsoft.EntityFrameworkCore.Migrations[20402]
+      Applying migration '20260627074111_mig_001'.
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      CREATE TABLE [Roles] (
+          [Id] int NOT NULL,
+          [Name] nvarchar(50) NOT NULL,
+          CONSTRAINT [PK_Roles] PRIMARY KEY ([Id])
+      );
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      CREATE TABLE [Users] (
+          [Id] uniqueidentifier NOT NULL,
+          [FirstName] nvarchar(50) NOT NULL,
+          [LastName] nvarchar(50) NOT NULL,
+          [Email] nvarchar(100) NOT NULL,
+          [PasswordHash] varbinary(max) NOT NULL,
+          [PasswordSalt] varbinary(max) NOT NULL,
+          [IsActive] bit NOT NULL DEFAULT CAST(0 AS bit),
+          CONSTRAINT [PK_Users] PRIMARY KEY ([Id])
+      );
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      CREATE TABLE [Courses] (
+          [Id] uniqueidentifier NOT NULL,
+          [Title] nvarchar(100) NOT NULL,
+          [Description] nvarchar(500) NOT NULL,
+          [IsActive] bit NOT NULL DEFAULT CAST(0 AS bit),
+          [InstructorId] uniqueidentifier NOT NULL,
+          [CreatedAt] datetime2 NOT NULL,
+          CONSTRAINT [PK_Courses] PRIMARY KEY ([Id]),
+          CONSTRAINT [FK_Courses_Users_InstructorId] FOREIGN KEY ([InstructorId]) REFERENCES [Users] ([Id]) ON DELETE NO ACTION
+      );
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      CREATE TABLE [UserRoles] (
+          [Id] uniqueidentifier NOT NULL,
+          [UserId] uniqueidentifier NOT NULL,
+          [RoleId] int NOT NULL,
+          CONSTRAINT [PK_UserRoles] PRIMARY KEY ([Id]),
+          CONSTRAINT [FK_UserRoles_Roles_RoleId] FOREIGN KEY ([RoleId]) REFERENCES [Roles] ([Id]) ON DELETE NO ACTION,
+          CONSTRAINT [FK_UserRoles_Users_UserId] FOREIGN KEY ([UserId]) REFERENCES [Users] ([Id]) ON DELETE CASCADE
+      );
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      CREATE TABLE [CourseStudent] (
+          [Id] uniqueidentifier NOT NULL,
+          [CourseId] uniqueidentifier NOT NULL,
+          [UserId] uniqueidentifier NOT NULL,
+          [EnrolledAt] datetime2 NOT NULL,
+          CONSTRAINT [PK_CourseStudent] PRIMARY KEY ([Id]),
+          CONSTRAINT [FK_CourseStudent_Courses_CourseId] FOREIGN KEY ([CourseId]) REFERENCES [Courses] ([Id]) ON DELETE CASCADE,
+          CONSTRAINT [FK_CourseStudent_Users_UserId] FOREIGN KEY ([UserId]) REFERENCES [Users] ([Id]) ON DELETE NO ACTION
+      );
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      CREATE INDEX [IX_Courses_InstructorId] ON [Courses] ([InstructorId]);
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      CREATE UNIQUE INDEX [IX_CourseStudent_CourseId_UserId] ON [CourseStudent] ([CourseId], [UserId]);
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      CREATE INDEX [IX_CourseStudent_UserId] ON [CourseStudent] ([UserId]);
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      CREATE UNIQUE INDEX [IX_Roles_Name] ON [Roles] ([Name]);
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      CREATE INDEX [IX_UserRoles_RoleId] ON [UserRoles] ([RoleId]);
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      CREATE UNIQUE INDEX [IX_UserRoles_UserId_RoleId] ON [UserRoles] ([UserId], [RoleId]);
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      CREATE UNIQUE INDEX [IX_Users_Email] ON [Users] ([Email]);
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (3ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+      VALUES (N'20260627074111_mig_001', N'10.0.9');
+info: Microsoft.EntityFrameworkCore.Migrations[20402]
+      Applying migration '20260628062635_mig_002'.
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      ALTER TABLE [Courses] ADD [Code] nvarchar(8) NOT NULL DEFAULT N'';
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+      VALUES (N'20260628062635_mig_002', N'10.0.9');
+info: Microsoft.EntityFrameworkCore.Migrations[20402]
+      Applying migration '20260705083634_mig_003'.
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      CREATE TABLE [StreamPosts] (
+          [Id] uniqueidentifier NOT NULL,
+          [CourseId] uniqueidentifier NOT NULL,
+          [Title] nvarchar(100) NOT NULL,
+          [Content] nvarchar(500) NOT NULL,
+          [Date] datetime2 NOT NULL,
+          CONSTRAINT [PK_StreamPosts] PRIMARY KEY ([Id]),
+          CONSTRAINT [FK_StreamPosts_Courses_CourseId] FOREIGN KEY ([CourseId]) REFERENCES [Courses] ([Id]) ON DELETE CASCADE
+      );
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      CREATE INDEX [IX_StreamPosts_CourseId] ON [StreamPosts] ([CourseId]);
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+      VALUES (N'20260705083634_mig_003', N'10.0.9');
+info: Microsoft.EntityFrameworkCore.Migrations[20402]
+      Applying migration '20260705084422_mig_004'.
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      ALTER TABLE [StreamPosts] ADD [Type] int NOT NULL DEFAULT 0;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+      VALUES (N'20260705084422_mig_004', N'10.0.9');
+info: Microsoft.EntityFrameworkCore.Migrations[20402]
+      Applying migration '20260705085616_mig_005'.
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      ALTER TABLE [StreamPosts] ADD [InstructorId] uniqueidentifier NOT NULL DEFAULT '00000000-0000-0000-0000-000000000000';
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      CREATE INDEX [IX_StreamPosts_InstructorId] ON [StreamPosts] ([InstructorId]);
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      ALTER TABLE [StreamPosts] ADD CONSTRAINT [FK_StreamPosts_Users_InstructorId] FOREIGN KEY ([InstructorId]) REFERENCES [Users] ([Id]) ON DELETE NO ACTION;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+      VALUES (N'20260705085616_mig_005', N'10.0.9');
+info: Microsoft.EntityFrameworkCore.Migrations[20402]
+      Applying migration '20260711085318_mig_006'.
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      CREATE TABLE [CourseMaterials] (
+          [Id] uniqueidentifier NOT NULL,
+          [CourseId] uniqueidentifier NOT NULL,
+          [Title] nvarchar(100) NOT NULL,
+          [Description] nvarchar(max) NULL,
+          [Type] int NOT NULL,
+          [Url] nvarchar(max) NULL,
+          CONSTRAINT [PK_CourseMaterials] PRIMARY KEY ([Id]),
+          CONSTRAINT [FK_CourseMaterials_Courses_CourseId] FOREIGN KEY ([CourseId]) REFERENCES [Courses] ([Id]) ON DELETE CASCADE
+      );
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      CREATE INDEX [IX_CourseMaterials_CourseId] ON [CourseMaterials] ([CourseId]);
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+      VALUES (N'20260711085318_mig_006', N'10.0.9');
+info: Microsoft.EntityFrameworkCore.Migrations[20402]
+      Applying migration '20260712071620_mig_007'.
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      ALTER TABLE [CourseMaterials] ADD [Date] datetime2 NOT NULL DEFAULT '0001-01-01T00:00:00.0000000';
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+      VALUES (N'20260712071620_mig_007', N'10.0.9');
+info: Microsoft.EntityFrameworkCore.Migrations[20402]
+      Applying migration '20261013115027_AddAssignmentsAndEmailVerification'.
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      ALTER TABLE [Users] ADD [EmailConfirmed] bit NOT NULL DEFAULT CAST(0 AS bit);
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      UPDATE [Users] SET [EmailConfirmed] = 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      ALTER TABLE [Users] ADD [EmailVerificationCode] nvarchar(12) NULL;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      ALTER TABLE [Users] ADD [EmailVerificationExpiresAt] datetime2 NULL;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      CREATE TABLE [Assignments] (
+          [Id] uniqueidentifier NOT NULL,
+          [CourseId] uniqueidentifier NOT NULL,
+          [CreatedById] uniqueidentifier NOT NULL,
+          [Title] nvarchar(150) NOT NULL,
+          [Instructions] nvarchar(4000) NOT NULL,
+          [DueDate] datetime2 NOT NULL,
+          [MaxPoints] int NOT NULL,
+          [CreatedAt] datetime2 NOT NULL,
+          CONSTRAINT [PK_Assignments] PRIMARY KEY ([Id]),
+          CONSTRAINT [FK_Assignments_Courses_CourseId] FOREIGN KEY ([CourseId]) REFERENCES [Courses] ([Id]) ON DELETE CASCADE,
+          CONSTRAINT [FK_Assignments_Users_CreatedById] FOREIGN KEY ([CreatedById]) REFERENCES [Users] ([Id]) ON DELETE NO ACTION
+      );
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      CREATE TABLE [AssignmentSubmissions] (
+          [Id] uniqueidentifier NOT NULL,
+          [AssignmentId] uniqueidentifier NOT NULL,
+          [StudentId] uniqueidentifier NOT NULL,
+          [Text] nvarchar(max) NOT NULL,
+          [AttachmentUrl] nvarchar(500) NULL,
+          [SubmittedAt] datetime2 NOT NULL,
+          [Grade] int NULL,
+          [Feedback] nvarchar(2000) NULL,
+          [GradedAt] datetime2 NULL,
+          CONSTRAINT [PK_AssignmentSubmissions] PRIMARY KEY ([Id]),
+          CONSTRAINT [FK_AssignmentSubmissions_Assignments_AssignmentId] FOREIGN KEY ([AssignmentId]) REFERENCES [Assignments] ([Id]) ON DELETE CASCADE,
+          CONSTRAINT [FK_AssignmentSubmissions_Users_StudentId] FOREIGN KEY ([StudentId]) REFERENCES [Users] ([Id]) ON DELETE NO ACTION
+      );
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      CREATE INDEX [IX_Assignments_CourseId_DueDate] ON [Assignments] ([CourseId], [DueDate]);
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      CREATE INDEX [IX_Assignments_CreatedById] ON [Assignments] ([CreatedById]);
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      CREATE UNIQUE INDEX [IX_AssignmentSubmissions_AssignmentId_StudentId] ON [AssignmentSubmissions] ([AssignmentId], [StudentId]);
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      CREATE INDEX [IX_AssignmentSubmissions_StudentId] ON [AssignmentSubmissions] ([StudentId]);
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+      VALUES (N'20261013115027_AddAssignmentsAndEmailVerification', N'10.0.9');
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (3ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      DECLARE @result int;
+      EXEC @result = sp_releaseapplock @Resource = '__EFMigrationsLock', @LockOwner = 'Session';
+      SELECT @result
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (11ms) [Parameters=[@role_Id='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT CASE
+          WHEN EXISTS (
+              SELECT 1
+              FROM [Roles] AS [r]
+              WHERE [r].[Id] = @role_Id) THEN CAST(1 AS bit)
+          ELSE CAST(0 AS bit)
+      END
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@role_Id='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT CASE
+          WHEN EXISTS (
+              SELECT 1
+              FROM [Roles] AS [r]
+              WHERE [r].[Id] = @role_Id) THEN CAST(1 AS bit)
+          ELSE CAST(0 AS bit)
+      END
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (3ms) [Parameters=[@p0='?' (DbType = Int32), @p1='?' (Size = 50), @p2='?' (DbType = Int32), @p3='?' (Size = 50)], CommandType='Text', CommandTimeout='30']
+      SET IMPLICIT_TRANSACTIONS OFF;
+      SET NOCOUNT ON;
+      INSERT INTO [Roles] ([Id], [Name])
+      VALUES (@p0, @p1),
+      (@p2, @p3);
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[@adminId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT CASE
+          WHEN EXISTS (
+              SELECT 1
+              FROM [Users] AS [u]
+              WHERE [u].[Id] = @adminId) THEN CAST(1 AS bit)
+          ELSE CAST(0 AS bit)
+      END
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (3ms) [Parameters=[@p0='?' (DbType = Guid), @p1='?' (Size = 100), @p2='?' (DbType = Boolean), @p3='?' (Size = 12), @p4='?' (DbType = DateTime2), @p5='?' (Size = 50), @p6='?' (DbType = Boolean), @p7='?' (Size = 50), @p8='?' (Size = 8000) (DbType = Binary), @p9='?' (Size = 8000) (DbType = Binary), @p10='?' (DbType = Guid), @p11='?' (DbType = Int32), @p12='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SET NOCOUNT ON;
+      INSERT INTO [Users] ([Id], [Email], [EmailConfirmed], [EmailVerificationCode], [EmailVerificationExpiresAt], [FirstName], [IsActive], [LastName], [PasswordHash], [PasswordSalt])
+      VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9);
+      INSERT INTO [UserRoles] ([Id], [RoleId], [UserId])
+      VALUES (@p10, @p11, @p12);
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (3ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT CASE
+          WHEN EXISTS (
+              SELECT 1
+              FROM [Users] AS [u]
+              WHERE [u].[Email] = N'ogretmen@example.com') THEN CAST(1 AS bit)
+          ELSE CAST(0 AS bit)
+      END
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (16ms) [Parameters=[@p0='?' (DbType = Guid), @p1='?' (Size = 100), @p2='?' (DbType = Boolean), @p3='?' (Size = 12), @p4='?' (DbType = DateTime2), @p5='?' (Size = 50), @p6='?' (DbType = Boolean), @p7='?' (Size = 50), @p8='?' (Size = 8000) (DbType = Binary), @p9='?' (Size = 8000) (DbType = Binary), @p10='?' (DbType = Guid), @p11='?' (Size = 100), @p12='?' (DbType = Boolean), @p13='?' (Size = 12), @p14='?' (DbType = DateTime2), @p15='?' (Size = 50), @p16='?' (DbType = Boolean), @p17='?' (Size = 50), @p18='?' (Size = 8000) (DbType = Binary), @p19='?' (Size = 8000) (DbType = Binary), @p20='?' (DbType = Guid), @p21='?' (Size = 100), @p22='?' (DbType = Boolean), @p23='?' (Size = 12), @p24='?' (DbType = DateTime2), @p25='?' (Size = 50), @p26='?' (DbType = Boolean), @p27='?' (Size = 50), @p28='?' (Size = 8000) (DbType = Binary), @p29='?' (Size = 8000) (DbType = Binary), @p30='?' (DbType = Guid), @p31='?' (Size = 100), @p32='?' (DbType = Boolean), @p33='?' (Size = 12), @p34='?' (DbType = DateTime2), @p35='?' (Size = 50), @p36='?' (DbType = Boolean), @p37='?' (Size = 50), @p38='?' (Size = 8000) (DbType = Binary), @p39='?' (Size = 8000) (DbType = Binary), @p40='?' (DbType = Guid), @p41='?' (Size = 100), @p42='?' (DbType = Boolean), @p43='?' (Size = 12), @p44='?' (DbType = DateTime2), @p45='?' (Size = 50), @p46='?' (DbType = Boolean), @p47='?' (Size = 50), @p48='?' (Size = 8000) (DbType = Binary), @p49='?' (Size = 8000) (DbType = Binary), @p50='?' (DbType = Guid), @p51='?' (Size = 100), @p52='?' (DbType = Boolean), @p53='?' (Size = 12), @p54='?' (DbType = DateTime2), @p55='?' (Size = 50), @p56='?' (DbType = Boolean), @p57='?' (Size = 50), @p58='?' (Size = 8000) (DbType = Binary), @p59='?' (Size = 8000) (DbType = Binary), @p60='?' (DbType = Guid), @p61='?' (Size = 100), @p62='?' (DbType = Boolean), @p63='?' (Size = 12), @p64='?' (DbType = DateTime2), @p65='?' (Size = 50), @p66='?' (DbType = Boolean), @p67='?' (Size = 50), @p68='?' (Size = 8000) (DbType = Binary), @p69='?' (Size = 8000) (DbType = Binary), @p70='?' (DbType = Guid), @p71='?' (Size = 100), @p72='?' (DbType = Boolean), @p73='?' (Size = 12), @p74='?' (DbType = DateTime2), @p75='?' (Size = 50), @p76='?' (DbType = Boolean), @p77='?' (Size = 50), @p78='?' (Size = 8000) (DbType = Binary), @p79='?' (Size = 8000) (DbType = Binary), @p80='?' (DbType = Guid), @p81='?' (Size = 100), @p82='?' (DbType = Boolean), @p83='?' (Size = 12), @p84='?' (DbType = DateTime2), @p85='?' (Size = 50), @p86='?' (DbType = Boolean), @p87='?' (Size = 50), @p88='?' (Size = 8000) (DbType = Binary), @p89='?' (Size = 8000) (DbType = Binary), @p90='?' (DbType = Guid), @p91='?' (Size = 8), @p92='?' (DbType = DateTime2), @p93='?' (Size = 500), @p94='?' (DbType = Guid), @p95='?' (DbType = Boolean), @p96='?' (Size = 100), @p97='?' (DbType = Guid), @p98='?' (Size = 8), @p99='?' (DbType = DateTime2), @p100='?' (Size = 500), @p101='?' (DbType = Guid), @p102='?' (DbType = Boolean), @p103='?' (Size = 100), @p104='?' (DbType = Guid), @p105='?' (Size = 8), @p106='?' (DbType = DateTime2), @p107='?' (Size = 500), @p108='?' (DbType = Guid), @p109='?' (DbType = Boolean), @p110='?' (Size = 100), @p111='?' (DbType = Guid), @p112='?' (DbType = Int32), @p113='?' (DbType = Guid), @p114='?' (DbType = Guid), @p115='?' (DbType = Guid), @p116='?' (DbType = DateTime2), @p117='?' (DbType = Guid), @p118='?' (DbType = DateTime2), @p119='?' (Size = 4000), @p120='?' (DbType = Int32), @p121='?' (Size = 150), @p122='?' (DbType = Guid), @p123='?' (DbType = Guid), @p124='?' (DbType = DateTime2), @p125='?' (DbType = Guid), @p126='?' (DbType = DateTime2), @p127='?' (Size = 4000), @p128='?' (DbType = Int32), @p129='?' (Size = 150), @p130='?' (DbType = Guid), @p131='?' (DbType = Guid), @p132='?' (DbType = DateTime2), @p133='?' (DbType = Guid), @p134='?' (DbType = DateTime2), @p135='?' (Size = 4000), @p136='?' (DbType = Int32), @p137='?' (Size = 150), @p138='?' (DbType = Guid), @p139='?' (DbType = Guid), @p140='?' (DbType = DateTime2), @p141='?' (Size = 4000), @p142='?' (Size = 100), @p143='?' (DbType = Int32), @p144='?' (Size = 4000), @p145='?' (DbType = Guid), @p146='?' (DbType = Guid), @p147='?' (DbType = DateTime2), @p148='?' (Size = 4000), @p149='?' (Size = 100), @p150='?' (DbType = Int32), @p151='?' (Size = 4000), @p152='?' (DbType = Guid), @p153='?' (DbType = Guid), @p154='?' (DbType = DateTime2), @p155='?' (Size = 4000), @p156='?' (Size = 100), @p157='?' (DbType = Int32), @p158='?' (Size = 4000), @p159='?' (DbType = Guid), @p160='?' (DbType = Guid), @p161='?' (DbType = DateTime2), @p162='?' (Size = 4000), @p163='?' (Size = 100), @p164='?' (DbType = Int32), @p165='?' (Size = 4000), @p166='?' (DbType = Guid), @p167='?' (DbType = Guid), @p168='?' (DbType = DateTime2), @p169='?' (DbType = Guid), @p170='?' (DbType = Guid), @p171='?' (DbType = Guid), @p172='?' (DbType = DateTime2), @p173='?' (DbType = Guid), @p174='?' (DbType = Guid), @p175='?' (DbType = Guid), @p176='?' (DbType = DateTime2), @p177='?' (DbType = Guid), @p178='?' (DbType = Guid), @p179='?' (DbType = Guid), @p180='?' (DbType = DateTime2), @p181='?' (DbType = Guid), @p182='?' (DbType = Guid), @p183='?' (DbType = Guid), @p184='?' (DbType = DateTime2), @p185='?' (DbType = Guid), @p186='?' (DbType = Guid), @p187='?' (DbType = Guid), @p188='?' (DbType = DateTime2), @p189='?' (DbType = Guid), @p190='?' (DbType = Guid), @p191='?' (DbType = Guid), @p192='?' (DbType = DateTime2), @p193='?' (DbType = Guid), @p194='?' (DbType = Guid), @p195='?' (DbType = Guid), @p196='?' (DbType = DateTime2), @p197='?' (DbType = Guid), @p198='?' (DbType = Guid), @p199='?' (DbType = Guid), @p200='?' (DbType = DateTime2), @p201='?' (DbType = Guid), @p202='?' (DbType = Guid), @p203='?' (DbType = Guid), @p204='?' (DbType = DateTime2), @p205='?' (DbType = Guid), @p206='?' (DbType = Guid), @p207='?' (DbType = Guid), @p208='?' (DbType = DateTime2), @p209='?' (DbType = Guid), @p210='?' (DbType = Guid), @p211='?' (DbType = Guid), @p212='?' (DbType = DateTime2), @p213='?' (DbType = Guid), @p214='?' (DbType = Guid), @p215='?' (DbType = Guid), @p216='?' (DbType = DateTime2), @p217='?' (DbType = Guid), @p218='?' (DbType = Guid), @p219='?' (DbType = Guid), @p220='?' (DbType = DateTime2), @p221='?' (DbType = Guid), @p222='?' (DbType = Guid), @p223='?' (DbType = Guid), @p224='?' (DbType = DateTime2), @p225='?' (DbType = Guid), @p226='?' (DbType = Guid), @p227='?' (DbType = Guid), @p228='?' (DbType = DateTime2), @p229='?' (DbType = Guid), @p230='?' (DbType = Guid), @p231='?' (DbType = Guid), @p232='?' (DbType = DateTime2), @p233='?' (DbType = Guid), @p234='?' (DbType = Guid), @p235='?' (DbType = Guid), @p236='?' (DbType = DateTime2), @p237='?' (DbType = Guid), @p238='?' (DbType = Guid), @p239='?' (DbType = Guid), @p240='?' (DbType = DateTime2), @p241='?' (DbType = Guid), @p242='?' (DbType = Guid), @p243='?' (DbType = Guid), @p244='?' (DbType = DateTime2), @p245='?' (DbType = Guid), @p246='?' (DbType = Guid), @p247='?' (DbType = Guid), @p248='?' (DbType = DateTime2), @p249='?' (DbType = Guid), @p250='?' (DbType = Guid), @p251='?' (Size = 500), @p252='?' (DbType = Guid), @p253='?' (DbType = DateTime2), @p254='?' (DbType = Guid), @p255='?' (Size = 100), @p256='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SET NOCOUNT ON;
+      INSERT INTO [Users] ([Id], [Email], [EmailConfirmed], [EmailVerificationCode], [EmailVerificationExpiresAt], [FirstName], [IsActive], [LastName], [PasswordHash], [PasswordSalt])
+      VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9),
+      (@p10, @p11, @p12, @p13, @p14, @p15, @p16, @p17, @p18, @p19),
+      (@p20, @p21, @p22, @p23, @p24, @p25, @p26, @p27, @p28, @p29),
+      (@p30, @p31, @p32, @p33, @p34, @p35, @p36, @p37, @p38, @p39),
+      (@p40, @p41, @p42, @p43, @p44, @p45, @p46, @p47, @p48, @p49),
+      (@p50, @p51, @p52, @p53, @p54, @p55, @p56, @p57, @p58, @p59),
+      (@p60, @p61, @p62, @p63, @p64, @p65, @p66, @p67, @p68, @p69),
+      (@p70, @p71, @p72, @p73, @p74, @p75, @p76, @p77, @p78, @p79),
+      (@p80, @p81, @p82, @p83, @p84, @p85, @p86, @p87, @p88, @p89);
+      INSERT INTO [Courses] ([Id], [Code], [CreatedAt], [Description], [InstructorId], [IsActive], [Title])
+      VALUES (@p90, @p91, @p92, @p93, @p94, @p95, @p96),
+      (@p97, @p98, @p99, @p100, @p101, @p102, @p103),
+      (@p104, @p105, @p106, @p107, @p108, @p109, @p110);
+      INSERT INTO [UserRoles] ([Id], [RoleId], [UserId])
+      VALUES (@p111, @p112, @p113);
+      INSERT INTO [Assignments] ([Id], [CourseId], [CreatedAt], [CreatedById], [DueDate], [Instructions], [MaxPoints], [Title])
+      VALUES (@p114, @p115, @p116, @p117, @p118, @p119, @p120, @p121),
+      (@p122, @p123, @p124, @p125, @p126, @p127, @p128, @p129),
+      (@p130, @p131, @p132, @p133, @p134, @p135, @p136, @p137);
+      INSERT INTO [CourseMaterials] ([Id], [CourseId], [Date], [Description], [Title], [Type], [Url])
+      VALUES (@p138, @p139, @p140, @p141, @p142, @p143, @p144),
+      (@p145, @p146, @p147, @p148, @p149, @p150, @p151),
+      (@p152, @p153, @p154, @p155, @p156, @p157, @p158),
+      (@p159, @p160, @p161, @p162, @p163, @p164, @p165);
+      INSERT INTO [CourseStudent] ([Id], [CourseId], [EnrolledAt], [UserId])
+      VALUES (@p166, @p167, @p168, @p169),
+      (@p170, @p171, @p172, @p173),
+      (@p174, @p175, @p176, @p177),
+      (@p178, @p179, @p180, @p181),
+      (@p182, @p183, @p184, @p185),
+      (@p186, @p187, @p188, @p189),
+      (@p190, @p191, @p192, @p193),
+      (@p194, @p195, @p196, @p197),
+      (@p198, @p199, @p200, @p201),
+      (@p202, @p203, @p204, @p205),
+      (@p206, @p207, @p208, @p209),
+      (@p210, @p211, @p212, @p213),
+      (@p214, @p215, @p216, @p217),
+      (@p218, @p219, @p220, @p221),
+      (@p222, @p223, @p224, @p225),
+      (@p226, @p227, @p228, @p229),
+      (@p230, @p231, @p232, @p233),
+      (@p234, @p235, @p236, @p237),
+      (@p238, @p239, @p240, @p241),
+      (@p242, @p243, @p244, @p245),
+      (@p246, @p247, @p248, @p249);
+      INSERT INTO [StreamPosts] ([Id], [Content], [CourseId], [Date], [InstructorId], [Title], [Type])
+      VALUES (@p250, @p251, @p252, @p253, @p254, @p255, @p256);
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (9ms) [Parameters=[@p0='?' (DbType = Guid), @p1='?' (Size = 500), @p2='?' (DbType = Guid), @p3='?' (DbType = DateTime2), @p4='?' (DbType = Guid), @p5='?' (Size = 100), @p6='?' (DbType = Int32), @p7='?' (DbType = Guid), @p8='?' (Size = 500), @p9='?' (DbType = Guid), @p10='?' (DbType = DateTime2), @p11='?' (DbType = Guid), @p12='?' (Size = 100), @p13='?' (DbType = Int32), @p14='?' (DbType = Guid), @p15='?' (Size = 500), @p16='?' (DbType = Guid), @p17='?' (DbType = DateTime2), @p18='?' (DbType = Guid), @p19='?' (Size = 100), @p20='?' (DbType = Int32), @p21='?' (DbType = Guid), @p22='?' (Size = 500), @p23='?' (DbType = Guid), @p24='?' (DbType = DateTime2), @p25='?' (DbType = Guid), @p26='?' (Size = 100), @p27='?' (DbType = Int32), @p28='?' (DbType = Guid), @p29='?' (Size = 500), @p30='?' (DbType = Guid), @p31='?' (DbType = DateTime2), @p32='?' (DbType = Guid), @p33='?' (Size = 100), @p34='?' (DbType = Int32), @p35='?' (DbType = Guid), @p36='?' (Size = 500), @p37='?' (DbType = Guid), @p38='?' (DbType = DateTime2), @p39='?' (DbType = Guid), @p40='?' (Size = 100), @p41='?' (DbType = Int32), @p42='?' (DbType = Guid), @p43='?' (Size = 500), @p44='?' (DbType = Guid), @p45='?' (DbType = DateTime2), @p46='?' (DbType = Guid), @p47='?' (Size = 100), @p48='?' (DbType = Int32), @p49='?' (DbType = Guid), @p50='?' (Size = 500), @p51='?' (DbType = Guid), @p52='?' (DbType = DateTime2), @p53='?' (DbType = Guid), @p54='?' (Size = 100), @p55='?' (DbType = Int32), @p56='?' (DbType = Guid), @p57='?' (Size = 500), @p58='?' (DbType = Guid), @p59='?' (DbType = DateTime2), @p60='?' (DbType = Guid), @p61='?' (Size = 100), @p62='?' (DbType = Int32), @p63='?' (DbType = Guid), @p64='?' (Size = 500), @p65='?' (DbType = Guid), @p66='?' (DbType = DateTime2), @p67='?' (DbType = Guid), @p68='?' (Size = 100), @p69='?' (DbType = Int32), @p70='?' (DbType = Guid), @p71='?' (DbType = Guid), @p72='?' (Size = 500), @p73='?' (Size = 2000), @p74='?' (DbType = Int32), @p75='?' (DbType = DateTime2), @p76='?' (DbType = Guid), @p77='?' (DbType = DateTime2), @p78='?' (Size = 4000), @p79='?' (DbType = Guid), @p80='?' (DbType = Guid), @p81='?' (Size = 500), @p82='?' (Size = 2000), @p83='?' (DbType = Int32), @p84='?' (DbType = DateTime2), @p85='?' (DbType = Guid), @p86='?' (DbType = DateTime2), @p87='?' (Size = 4000), @p88='?' (DbType = Guid), @p89='?' (DbType = Guid), @p90='?' (Size = 500), @p91='?' (Size = 2000), @p92='?' (DbType = Int32), @p93='?' (DbType = DateTime2), @p94='?' (DbType = Guid), @p95='?' (DbType = DateTime2), @p96='?' (Size = 4000), @p97='?' (DbType = Guid), @p98='?' (DbType = Guid), @p99='?' (Size = 500), @p100='?' (Size = 2000), @p101='?' (DbType = Int32), @p102='?' (DbType = DateTime2), @p103='?' (DbType = Guid), @p104='?' (DbType = DateTime2), @p105='?' (Size = 4000), @p106='?' (DbType = Guid), @p107='?' (DbType = Guid), @p108='?' (Size = 500), @p109='?' (Size = 2000), @p110='?' (DbType = Int32), @p111='?' (DbType = DateTime2), @p112='?' (DbType = Guid), @p113='?' (DbType = DateTime2), @p114='?' (Size = 4000), @p115='?' (DbType = Guid), @p116='?' (DbType = Guid), @p117='?' (Size = 500), @p118='?' (Size = 2000), @p119='?' (DbType = Int32), @p120='?' (DbType = DateTime2), @p121='?' (DbType = Guid), @p122='?' (DbType = DateTime2), @p123='?' (Size = 4000), @p124='?' (DbType = Guid), @p125='?' (DbType = Guid), @p126='?' (Size = 500), @p127='?' (Size = 2000), @p128='?' (DbType = Int32), @p129='?' (DbType = DateTime2), @p130='?' (DbType = Guid), @p131='?' (DbType = DateTime2), @p132='?' (Size = 4000), @p133='?' (DbType = Guid), @p134='?' (DbType = Guid), @p135='?' (Size = 500), @p136='?' (Size = 2000), @p137='?' (DbType = Int32), @p138='?' (DbType = DateTime2), @p139='?' (DbType = Guid), @p140='?' (DbType = DateTime2), @p141='?' (Size = 4000), @p142='?' (DbType = Guid), @p143='?' (DbType = Guid), @p144='?' (Size = 500), @p145='?' (Size = 2000), @p146='?' (DbType = Int32), @p147='?' (DbType = DateTime2), @p148='?' (DbType = Guid), @p149='?' (DbType = DateTime2), @p150='?' (Size = 4000), @p151='?' (DbType = Guid), @p152='?' (DbType = Guid), @p153='?' (Size = 500), @p154='?' (Size = 2000), @p155='?' (DbType = Int32), @p156='?' (DbType = DateTime2), @p157='?' (DbType = Guid), @p158='?' (DbType = DateTime2), @p159='?' (Size = 4000), @p160='?' (DbType = Guid), @p161='?' (DbType = Guid), @p162='?' (Size = 500), @p163='?' (Size = 2000), @p164='?' (DbType = Int32), @p165='?' (DbType = DateTime2), @p166='?' (DbType = Guid), @p167='?' (DbType = DateTime2), @p168='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+      SET NOCOUNT ON;
+      INSERT INTO [StreamPosts] ([Id], [Content], [CourseId], [Date], [InstructorId], [Title], [Type])
+      VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6),
+      (@p7, @p8, @p9, @p10, @p11, @p12, @p13),
+      (@p14, @p15, @p16, @p17, @p18, @p19, @p20),
+      (@p21, @p22, @p23, @p24, @p25, @p26, @p27),
+      (@p28, @p29, @p30, @p31, @p32, @p33, @p34),
+      (@p35, @p36, @p37, @p38, @p39, @p40, @p41),
+      (@p42, @p43, @p44, @p45, @p46, @p47, @p48),
+      (@p49, @p50, @p51, @p52, @p53, @p54, @p55),
+      (@p56, @p57, @p58, @p59, @p60, @p61, @p62),
+      (@p63, @p64, @p65, @p66, @p67, @p68, @p69);
+      INSERT INTO [AssignmentSubmissions] ([Id], [AssignmentId], [AttachmentUrl], [Feedback], [Grade], [GradedAt], [StudentId], [SubmittedAt], [Text])
+      VALUES (@p70, @p71, @p72, @p73, @p74, @p75, @p76, @p77, @p78),
+      (@p79, @p80, @p81, @p82, @p83, @p84, @p85, @p86, @p87),
+      (@p88, @p89, @p90, @p91, @p92, @p93, @p94, @p95, @p96),
+      (@p97, @p98, @p99, @p100, @p101, @p102, @p103, @p104, @p105),
+      (@p106, @p107, @p108, @p109, @p110, @p111, @p112, @p113, @p114),
+      (@p115, @p116, @p117, @p118, @p119, @p120, @p121, @p122, @p123),
+      (@p124, @p125, @p126, @p127, @p128, @p129, @p130, @p131, @p132),
+      (@p133, @p134, @p135, @p136, @p137, @p138, @p139, @p140, @p141),
+      (@p142, @p143, @p144, @p145, @p146, @p147, @p148, @p149, @p150),
+      (@p151, @p152, @p153, @p154, @p155, @p156, @p157, @p158, @p159),
+      (@p160, @p161, @p162, @p163, @p164, @p165, @p166, @p167, @p168);
+warn: Microsoft.AspNetCore.DataProtection.KeyManagement.XmlKeyManager[35]
+      No XML encryptor configured. Key {75e8fa3f-991b-4a3e-9e4b-dedc6f74ec3a} may be persisted to storage in unencrypted form.
+info: Microsoft.Hosting.Lifetime[14]
+      Now listening on: http://localhost:5080
+info: Microsoft.Hosting.Lifetime[0]
+      Application started. Press Ctrl+C to shut down.
+info: Microsoft.Hosting.Lifetime[0]
+      Hosting environment: Development
+info: Microsoft.Hosting.Lifetime[0]
+      Content root path: /home/runner/work/EduTrack/EduTrack/src/EduTrack.Web
+warn: Microsoft.AspNetCore.HttpsPolicy.HttpsRedirectionMiddleware[3]
+      Failed to determine the https port for redirect.
+warn: LuckyPennySoftware.AutoMapper.License[0]
+      You do not have a valid license key for the Lucky Penny software AutoMapper. This is allowed for development and testing scenarios. If you are running in production you are required to have a licensed version. Please visit https://luckypennysoftware.com to obtain a valid license.
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (8ms) [Parameters=[@email='?' (Size = 100)], CommandType='Text', CommandTimeout='30']
+      SELECT [u1].[Id], [u1].[Email], [u1].[EmailConfirmed], [u1].[EmailVerificationCode], [u1].[EmailVerificationExpiresAt], [u1].[FirstName], [u1].[IsActive], [u1].[LastName], [u1].[PasswordHash], [u1].[PasswordSalt], [s].[Id], [s].[RoleId], [s].[UserId], [s].[Id0], [s].[Name]
+      FROM (
+          SELECT TOP(1) [u].[Id], [u].[Email], [u].[EmailConfirmed], [u].[EmailVerificationCode], [u].[EmailVerificationExpiresAt], [u].[FirstName], [u].[IsActive], [u].[LastName], [u].[PasswordHash], [u].[PasswordSalt]
+          FROM [Users] AS [u]
+          WHERE [u].[Email] = @email
+      ) AS [u1]
+      LEFT JOIN (
+          SELECT [u0].[Id], [u0].[RoleId], [u0].[UserId], [r].[Id] AS [Id0], [r].[Name]
+          FROM [UserRoles] AS [u0]
+          INNER JOIN [Roles] AS [r] ON [u0].[RoleId] = [r].[Id]
+      ) AS [s] ON [u1].[Id] = [s].[UserId]
+      ORDER BY [u1].[Id], [s].[Id]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (6ms) [Parameters=[@userId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT [c].[Id], [c].[Code], [c].[CreatedAt], [c].[Description], [c].[InstructorId], [c].[IsActive], [c].[Title], [u].[Id], [u].[Email], [u].[EmailConfirmed], [u].[EmailVerificationCode], [u].[EmailVerificationExpiresAt], [u].[FirstName], [u].[IsActive], [u].[LastName], [u].[PasswordHash], [u].[PasswordSalt], [c0].[Id], [c0].[CourseId], [c0].[EnrolledAt], [c0].[UserId]
+      FROM [Courses] AS [c]
+      INNER JOIN [Users] AS [u] ON [c].[InstructorId] = [u].[Id]
+      LEFT JOIN [CourseStudent] AS [c0] ON [c].[Id] = [c0].[CourseId]
+      WHERE [c].[InstructorId] = @userId
+      ORDER BY [c].[Id], [u].[Id]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (6ms) [Parameters=[@userId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT [c].[Id], [c].[Code], [c].[CreatedAt], [c].[Description], [c].[InstructorId], [c].[IsActive], [c].[Title], [u].[Id], [u].[Email], [u].[EmailConfirmed], [u].[EmailVerificationCode], [u].[EmailVerificationExpiresAt], [u].[FirstName], [u].[IsActive], [u].[LastName], [u].[PasswordHash], [u].[PasswordSalt], [c1].[Id], [c1].[CourseId], [c1].[EnrolledAt], [c1].[UserId]
+      FROM [Courses] AS [c]
+      INNER JOIN [Users] AS [u] ON [c].[InstructorId] = [u].[Id]
+      LEFT JOIN [CourseStudent] AS [c1] ON [c].[Id] = [c1].[CourseId]
+      WHERE EXISTS (
+          SELECT 1
+          FROM [CourseStudent] AS [c0]
+          WHERE [c].[Id] = [c0].[CourseId] AND [c0].[UserId] = @userId)
+      ORDER BY [c].[Id], [u].[Id]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@userId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT [c].[Id], [c].[Code], [c].[CreatedAt], [c].[Description], [c].[InstructorId], [c].[IsActive], [c].[Title], [u].[Id], [u].[Email], [u].[EmailConfirmed], [u].[EmailVerificationCode], [u].[EmailVerificationExpiresAt], [u].[FirstName], [u].[IsActive], [u].[LastName], [u].[PasswordHash], [u].[PasswordSalt], [c0].[Id], [c0].[CourseId], [c0].[EnrolledAt], [c0].[UserId]
+      FROM [Courses] AS [c]
+      INNER JOIN [Users] AS [u] ON [c].[InstructorId] = [u].[Id]
+      LEFT JOIN [CourseStudent] AS [c0] ON [c].[Id] = [c0].[CourseId]
+      WHERE [c].[InstructorId] = @userId
+      ORDER BY [c].[Id], [u].[Id]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@userId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT [c].[Id], [c].[Code], [c].[CreatedAt], [c].[Description], [c].[InstructorId], [c].[IsActive], [c].[Title], [u].[Id], [u].[Email], [u].[EmailConfirmed], [u].[EmailVerificationCode], [u].[EmailVerificationExpiresAt], [u].[FirstName], [u].[IsActive], [u].[LastName], [u].[PasswordHash], [u].[PasswordSalt], [c1].[Id], [c1].[CourseId], [c1].[EnrolledAt], [c1].[UserId]
+      FROM [Courses] AS [c]
+      INNER JOIN [Users] AS [u] ON [c].[InstructorId] = [u].[Id]
+      LEFT JOIN [CourseStudent] AS [c1] ON [c].[Id] = [c1].[CourseId]
+      WHERE EXISTS (
+          SELECT 1
+          FROM [CourseStudent] AS [c0]
+          WHERE [c].[Id] = [c0].[CourseId] AND [c0].[UserId] = @userId)
+      ORDER BY [c].[Id], [u].[Id]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[@request_InstructorId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [u].[Id], [u].[Email], [u].[EmailConfirmed], [u].[EmailVerificationCode], [u].[EmailVerificationExpiresAt], [u].[FirstName], [u].[IsActive], [u].[LastName], [u].[PasswordHash], [u].[PasswordSalt]
+      FROM [Users] AS [u]
+      WHERE [u].[Id] = @request_InstructorId
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (4ms) [Parameters=[@code='?' (Size = 8)], CommandType='Text', CommandTimeout='30']
+      SELECT CASE
+          WHEN EXISTS (
+              SELECT 1
+              FROM [Courses] AS [c]
+              WHERE [c].[Code] = @code) THEN CAST(1 AS bit)
+          ELSE CAST(0 AS bit)
+      END
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[@p0='?' (DbType = Guid), @p1='?' (Size = 8), @p2='?' (DbType = DateTime2), @p3='?' (Size = 500), @p4='?' (DbType = Guid), @p5='?' (DbType = Boolean), @p6='?' (Size = 100)], CommandType='Text', CommandTimeout='30']
+      SET IMPLICIT_TRANSACTIONS OFF;
+      SET NOCOUNT ON;
+      INSERT INTO [Courses] ([Id], [Code], [CreatedAt], [Description], [InstructorId], [IsActive], [Title])
+      VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6);
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (3ms) [Parameters=[@courseId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT [s].[Id], [s].[Code], [s].[CreatedAt], [s].[Description], [s].[InstructorId], [s].[IsActive], [s].[Title], [s].[Id0], [s].[Email], [s].[EmailConfirmed], [s].[EmailVerificationCode], [s].[EmailVerificationExpiresAt], [s].[FirstName], [s].[IsActive0], [s].[LastName], [s].[PasswordHash], [s].[PasswordSalt], [c0].[Id], [c0].[CourseId], [c0].[EnrolledAt], [c0].[UserId]
+      FROM (
+          SELECT TOP(1) [c].[Id], [c].[Code], [c].[CreatedAt], [c].[Description], [c].[InstructorId], [c].[IsActive], [c].[Title], [u].[Id] AS [Id0], [u].[Email], [u].[EmailConfirmed], [u].[EmailVerificationCode], [u].[EmailVerificationExpiresAt], [u].[FirstName], [u].[IsActive] AS [IsActive0], [u].[LastName], [u].[PasswordHash], [u].[PasswordSalt]
+          FROM [Courses] AS [c]
+          INNER JOIN [Users] AS [u] ON [c].[InstructorId] = [u].[Id]
+          WHERE [c].[Id] = @courseId
+      ) AS [s]
+      LEFT JOIN [CourseStudent] AS [c0] ON [s].[Id] = [c0].[CourseId]
+      ORDER BY [s].[Id], [s].[Id0]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (4ms) [Parameters=[@courseId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT [s].[Id], [s].[Content], [s].[CourseId], [s].[Date], [s].[InstructorId], [s].[Title], [s].[Type], [c].[Id], [c].[Code], [c].[CreatedAt], [c].[Description], [c].[InstructorId], [c].[IsActive], [c].[Title], [u].[Id], [u].[Email], [u].[EmailConfirmed], [u].[EmailVerificationCode], [u].[EmailVerificationExpiresAt], [u].[FirstName], [u].[IsActive], [u].[LastName], [u].[PasswordHash], [u].[PasswordSalt]
+      FROM [StreamPosts] AS [s]
+      INNER JOIN [Courses] AS [c] ON [s].[CourseId] = [c].[Id]
+      INNER JOIN [Users] AS [u] ON [c].[InstructorId] = [u].[Id]
+      WHERE [s].[CourseId] = @courseId
+      ORDER BY [s].[Date] DESC
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@userId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT [c].[Id], [c].[Code], [c].[CreatedAt], [c].[Description], [c].[InstructorId], [c].[IsActive], [c].[Title], [u].[Id], [u].[Email], [u].[EmailConfirmed], [u].[EmailVerificationCode], [u].[EmailVerificationExpiresAt], [u].[FirstName], [u].[IsActive], [u].[LastName], [u].[PasswordHash], [u].[PasswordSalt], [c0].[Id], [c0].[CourseId], [c0].[EnrolledAt], [c0].[UserId]
+      FROM [Courses] AS [c]
+      INNER JOIN [Users] AS [u] ON [c].[InstructorId] = [u].[Id]
+      LEFT JOIN [CourseStudent] AS [c0] ON [c].[Id] = [c0].[CourseId]
+      WHERE [c].[InstructorId] = @userId
+      ORDER BY [c].[Id], [u].[Id]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@userId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT [c].[Id], [c].[Code], [c].[CreatedAt], [c].[Description], [c].[InstructorId], [c].[IsActive], [c].[Title], [u].[Id], [u].[Email], [u].[EmailConfirmed], [u].[EmailVerificationCode], [u].[EmailVerificationExpiresAt], [u].[FirstName], [u].[IsActive], [u].[LastName], [u].[PasswordHash], [u].[PasswordSalt], [c1].[Id], [c1].[CourseId], [c1].[EnrolledAt], [c1].[UserId]
+      FROM [Courses] AS [c]
+      INNER JOIN [Users] AS [u] ON [c].[InstructorId] = [u].[Id]
+      LEFT JOIN [CourseStudent] AS [c1] ON [c].[Id] = [c1].[CourseId]
+      WHERE EXISTS (
+          SELECT 1
+          FROM [CourseStudent] AS [c0]
+          WHERE [c].[Id] = [c0].[CourseId] AND [c0].[UserId] = @userId)
+      ORDER BY [c].[Id], [u].[Id]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT COUNT(*)
+      FROM [Users] AS [u]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (4ms) [Parameters=[@p='?' (DbType = Int32), @p1='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT [u1].[Id], [u1].[Email], [u1].[EmailConfirmed], [u1].[EmailVerificationCode], [u1].[EmailVerificationExpiresAt], [u1].[FirstName], [u1].[IsActive], [u1].[LastName], [u1].[PasswordHash], [u1].[PasswordSalt], [s].[Id], [s].[RoleId], [s].[UserId], [s].[Id0], [s].[Name]
+      FROM (
+          SELECT [u].[Id], [u].[Email], [u].[EmailConfirmed], [u].[EmailVerificationCode], [u].[EmailVerificationExpiresAt], [u].[FirstName], [u].[IsActive], [u].[LastName], [u].[PasswordHash], [u].[PasswordSalt]
+          FROM [Users] AS [u]
+          ORDER BY [u].[FirstName], [u].[LastName]
+          OFFSET @p ROWS FETCH NEXT @p1 ROWS ONLY
+      ) AS [u1]
+      LEFT JOIN (
+          SELECT [u0].[Id], [u0].[RoleId], [u0].[UserId], [r].[Id] AS [Id0], [r].[Name]
+          FROM [UserRoles] AS [u0]
+          INNER JOIN [Roles] AS [r] ON [u0].[RoleId] = [r].[Id]
+      ) AS [s] ON [u1].[Id] = [s].[UserId]
+      ORDER BY [u1].[FirstName], [u1].[LastName], [u1].[Id], [s].[Id]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@email='?' (Size = 100)], CommandType='Text', CommandTimeout='30']
+      SELECT [u1].[Id], [u1].[Email], [u1].[EmailConfirmed], [u1].[EmailVerificationCode], [u1].[EmailVerificationExpiresAt], [u1].[FirstName], [u1].[IsActive], [u1].[LastName], [u1].[PasswordHash], [u1].[PasswordSalt], [s].[Id], [s].[RoleId], [s].[UserId], [s].[Id0], [s].[Name]
+      FROM (
+          SELECT TOP(1) [u].[Id], [u].[Email], [u].[EmailConfirmed], [u].[EmailVerificationCode], [u].[EmailVerificationExpiresAt], [u].[FirstName], [u].[IsActive], [u].[LastName], [u].[PasswordHash], [u].[PasswordSalt]
+          FROM [Users] AS [u]
+          WHERE [u].[Email] = @email
+      ) AS [u1]
+      LEFT JOIN (
+          SELECT [u0].[Id], [u0].[RoleId], [u0].[UserId], [r].[Id] AS [Id0], [r].[Name]
+          FROM [UserRoles] AS [u0]
+          INNER JOIN [Roles] AS [r] ON [u0].[RoleId] = [r].[Id]
+      ) AS [s] ON [u1].[Id] = [s].[UserId]
+      ORDER BY [u1].[Id], [s].[Id]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@userId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT [c].[Id], [c].[Code], [c].[CreatedAt], [c].[Description], [c].[InstructorId], [c].[IsActive], [c].[Title], [u].[Id], [u].[Email], [u].[EmailConfirmed], [u].[EmailVerificationCode], [u].[EmailVerificationExpiresAt], [u].[FirstName], [u].[IsActive], [u].[LastName], [u].[PasswordHash], [u].[PasswordSalt], [c0].[Id], [c0].[CourseId], [c0].[EnrolledAt], [c0].[UserId]
+      FROM [Courses] AS [c]
+      INNER JOIN [Users] AS [u] ON [c].[InstructorId] = [u].[Id]
+      LEFT JOIN [CourseStudent] AS [c0] ON [c].[Id] = [c0].[CourseId]
+      WHERE [c].[InstructorId] = @userId
+      ORDER BY [c].[Id], [u].[Id]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@userId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT [c].[Id], [c].[Code], [c].[CreatedAt], [c].[Description], [c].[InstructorId], [c].[IsActive], [c].[Title], [u].[Id], [u].[Email], [u].[EmailConfirmed], [u].[EmailVerificationCode], [u].[EmailVerificationExpiresAt], [u].[FirstName], [u].[IsActive], [u].[LastName], [u].[PasswordHash], [u].[PasswordSalt], [c1].[Id], [c1].[CourseId], [c1].[EnrolledAt], [c1].[UserId]
+      FROM [Courses] AS [c]
+      INNER JOIN [Users] AS [u] ON [c].[InstructorId] = [u].[Id]
+      LEFT JOIN [CourseStudent] AS [c1] ON [c].[Id] = [c1].[CourseId]
+      WHERE EXISTS (
+          SELECT 1
+          FROM [CourseStudent] AS [c0]
+          WHERE [c].[Id] = [c0].[CourseId] AND [c0].[UserId] = @userId)
+      ORDER BY [c].[Id], [u].[Id]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@userId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT [c].[Id], [c].[Code], [c].[CreatedAt], [c].[Description], [c].[InstructorId], [c].[IsActive], [c].[Title], [u].[Id], [u].[Email], [u].[EmailConfirmed], [u].[EmailVerificationCode], [u].[EmailVerificationExpiresAt], [u].[FirstName], [u].[IsActive], [u].[LastName], [u].[PasswordHash], [u].[PasswordSalt], [c0].[Id], [c0].[CourseId], [c0].[EnrolledAt], [c0].[UserId]
+      FROM [Courses] AS [c]
+      INNER JOIN [Users] AS [u] ON [c].[InstructorId] = [u].[Id]
+      LEFT JOIN [CourseStudent] AS [c0] ON [c].[Id] = [c0].[CourseId]
+      WHERE [c].[InstructorId] = @userId
+      ORDER BY [c].[Id], [u].[Id]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@userId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT [c].[Id], [c].[Code], [c].[CreatedAt], [c].[Description], [c].[InstructorId], [c].[IsActive], [c].[Title], [u].[Id], [u].[Email], [u].[EmailConfirmed], [u].[EmailVerificationCode], [u].[EmailVerificationExpiresAt], [u].[FirstName], [u].[IsActive], [u].[LastName], [u].[PasswordHash], [u].[PasswordSalt], [c1].[Id], [c1].[CourseId], [c1].[EnrolledAt], [c1].[UserId]
+      FROM [Courses] AS [c]
+      INNER JOIN [Users] AS [u] ON [c].[InstructorId] = [u].[Id]
+      LEFT JOIN [CourseStudent] AS [c1] ON [c].[Id] = [c1].[CourseId]
+      WHERE EXISTS (
+          SELECT 1
+          FROM [CourseStudent] AS [c0]
+          WHERE [c].[Id] = [c0].[CourseId] AND [c0].[UserId] = @userId)
+      ORDER BY [c].[Id], [u].[Id]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT COUNT(*)
+      FROM [Users] AS [u]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@p='?' (DbType = Int32), @p1='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT [u1].[Id], [u1].[Email], [u1].[EmailConfirmed], [u1].[EmailVerificationCode], [u1].[EmailVerificationExpiresAt], [u1].[FirstName], [u1].[IsActive], [u1].[LastName], [u1].[PasswordHash], [u1].[PasswordSalt], [s].[Id], [s].[RoleId], [s].[UserId], [s].[Id0], [s].[Name]
+      FROM (
+          SELECT [u].[Id], [u].[Email], [u].[EmailConfirmed], [u].[EmailVerificationCode], [u].[EmailVerificationExpiresAt], [u].[FirstName], [u].[IsActive], [u].[LastName], [u].[PasswordHash], [u].[PasswordSalt]
+          FROM [Users] AS [u]
+          ORDER BY [u].[FirstName], [u].[LastName]
+          OFFSET @p ROWS FETCH NEXT @p1 ROWS ONLY
+      ) AS [u1]
+      LEFT JOIN (
+          SELECT [u0].[Id], [u0].[RoleId], [u0].[UserId], [r].[Id] AS [Id0], [r].[Name]
+          FROM [UserRoles] AS [u0]
+          INNER JOIN [Roles] AS [r] ON [u0].[RoleId] = [r].[Id]
+      ) AS [s] ON [u1].[Id] = [s].[UserId]
+      ORDER BY [u1].[FirstName], [u1].[LastName], [u1].[Id], [s].[Id]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@email='?' (Size = 100)], CommandType='Text', CommandTimeout='30']
+      SELECT [u1].[Id], [u1].[Email], [u1].[EmailConfirmed], [u1].[EmailVerificationCode], [u1].[EmailVerificationExpiresAt], [u1].[FirstName], [u1].[IsActive], [u1].[LastName], [u1].[PasswordHash], [u1].[PasswordSalt], [s].[Id], [s].[RoleId], [s].[UserId], [s].[Id0], [s].[Name]
+      FROM (
+          SELECT TOP(1) [u].[Id], [u].[Email], [u].[EmailConfirmed], [u].[EmailVerificationCode], [u].[EmailVerificationExpiresAt], [u].[FirstName], [u].[IsActive], [u].[LastName], [u].[PasswordHash], [u].[PasswordSalt]
+          FROM [Users] AS [u]
+          WHERE [u].[Email] = @email
+      ) AS [u1]
+      LEFT JOIN (
+          SELECT [u0].[Id], [u0].[RoleId], [u0].[UserId], [r].[Id] AS [Id0], [r].[Name]
+          FROM [UserRoles] AS [u0]
+          INNER JOIN [Roles] AS [r] ON [u0].[RoleId] = [r].[Id]
+      ) AS [s] ON [u1].[Id] = [s].[UserId]
+      ORDER BY [u1].[Id], [s].[Id]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@userId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT [c].[Id], [c].[Code], [c].[CreatedAt], [c].[Description], [c].[InstructorId], [c].[IsActive], [c].[Title], [u].[Id], [u].[Email], [u].[EmailConfirmed], [u].[EmailVerificationCode], [u].[EmailVerificationExpiresAt], [u].[FirstName], [u].[IsActive], [u].[LastName], [u].[PasswordHash], [u].[PasswordSalt], [c0].[Id], [c0].[CourseId], [c0].[EnrolledAt], [c0].[UserId]
+      FROM [Courses] AS [c]
+      INNER JOIN [Users] AS [u] ON [c].[InstructorId] = [u].[Id]
+      LEFT JOIN [CourseStudent] AS [c0] ON [c].[Id] = [c0].[CourseId]
+      WHERE [c].[InstructorId] = @userId
+      ORDER BY [c].[Id], [u].[Id]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@userId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT [c].[Id], [c].[Code], [c].[CreatedAt], [c].[Description], [c].[InstructorId], [c].[IsActive], [c].[Title], [u].[Id], [u].[Email], [u].[EmailConfirmed], [u].[EmailVerificationCode], [u].[EmailVerificationExpiresAt], [u].[FirstName], [u].[IsActive], [u].[LastName], [u].[PasswordHash], [u].[PasswordSalt], [c1].[Id], [c1].[CourseId], [c1].[EnrolledAt], [c1].[UserId]
+      FROM [Courses] AS [c]
+      INNER JOIN [Users] AS [u] ON [c].[InstructorId] = [u].[Id]
+      LEFT JOIN [CourseStudent] AS [c1] ON [c].[Id] = [c1].[CourseId]
+      WHERE EXISTS (
+          SELECT 1
+          FROM [CourseStudent] AS [c0]
+          WHERE [c].[Id] = [c0].[CourseId] AND [c0].[UserId] = @userId)
+      ORDER BY [c].[Id], [u].[Id]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@userId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT [c].[Id], [c].[Code], [c].[CreatedAt], [c].[Description], [c].[InstructorId], [c].[IsActive], [c].[Title], [u].[Id], [u].[Email], [u].[EmailConfirmed], [u].[EmailVerificationCode], [u].[EmailVerificationExpiresAt], [u].[FirstName], [u].[IsActive], [u].[LastName], [u].[PasswordHash], [u].[PasswordSalt], [c0].[Id], [c0].[CourseId], [c0].[EnrolledAt], [c0].[UserId]
+      FROM [Courses] AS [c]
+      INNER JOIN [Users] AS [u] ON [c].[InstructorId] = [u].[Id]
+      LEFT JOIN [CourseStudent] AS [c0] ON [c].[Id] = [c0].[CourseId]
+      WHERE [c].[InstructorId] = @userId
+      ORDER BY [c].[Id], [u].[Id]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@userId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT [c].[Id], [c].[Code], [c].[CreatedAt], [c].[Description], [c].[InstructorId], [c].[IsActive], [c].[Title], [u].[Id], [u].[Email], [u].[EmailConfirmed], [u].[EmailVerificationCode], [u].[EmailVerificationExpiresAt], [u].[FirstName], [u].[IsActive], [u].[LastName], [u].[PasswordHash], [u].[PasswordSalt], [c1].[Id], [c1].[CourseId], [c1].[EnrolledAt], [c1].[UserId]
+      FROM [Courses] AS [c]
+      INNER JOIN [Users] AS [u] ON [c].[InstructorId] = [u].[Id]
+      LEFT JOIN [CourseStudent] AS [c1] ON [c].[Id] = [c1].[CourseId]
+      WHERE EXISTS (
+          SELECT 1
+          FROM [CourseStudent] AS [c0]
+          WHERE [c].[Id] = [c0].[CourseId] AND [c0].[UserId] = @userId)
+      ORDER BY [c].[Id], [u].[Id]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@courseId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT [s].[Id], [s].[Code], [s].[CreatedAt], [s].[Description], [s].[InstructorId], [s].[IsActive], [s].[Title], [s].[Id0], [s].[Email], [s].[EmailConfirmed], [s].[EmailVerificationCode], [s].[EmailVerificationExpiresAt], [s].[FirstName], [s].[IsActive0], [s].[LastName], [s].[PasswordHash], [s].[PasswordSalt], [c0].[Id], [c0].[CourseId], [c0].[EnrolledAt], [c0].[UserId]
+      FROM (
+          SELECT TOP(1) [c].[Id], [c].[Code], [c].[CreatedAt], [c].[Description], [c].[InstructorId], [c].[IsActive], [c].[Title], [u].[Id] AS [Id0], [u].[Email], [u].[EmailConfirmed], [u].[EmailVerificationCode], [u].[EmailVerificationExpiresAt], [u].[FirstName], [u].[IsActive] AS [IsActive0], [u].[LastName], [u].[PasswordHash], [u].[PasswordSalt]
+          FROM [Courses] AS [c]
+          INNER JOIN [Users] AS [u] ON [c].[InstructorId] = [u].[Id]
+          WHERE [c].[Id] = @courseId
+      ) AS [s]
+      LEFT JOIN [CourseStudent] AS [c0] ON [s].[Id] = [c0].[CourseId]
+      ORDER BY [s].[Id], [s].[Id0]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@courseId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT [s].[Id], [s].[Content], [s].[CourseId], [s].[Date], [s].[InstructorId], [s].[Title], [s].[Type], [c].[Id], [c].[Code], [c].[CreatedAt], [c].[Description], [c].[InstructorId], [c].[IsActive], [c].[Title], [u].[Id], [u].[Email], [u].[EmailConfirmed], [u].[EmailVerificationCode], [u].[EmailVerificationExpiresAt], [u].[FirstName], [u].[IsActive], [u].[LastName], [u].[PasswordHash], [u].[PasswordSalt]
+      FROM [StreamPosts] AS [s]
+      INNER JOIN [Courses] AS [c] ON [s].[CourseId] = [c].[Id]
+      INNER JOIN [Users] AS [u] ON [c].[InstructorId] = [u].[Id]
+      WHERE [s].[CourseId] = @courseId
+      ORDER BY [s].[Date] DESC
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@courseId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT [s].[Id], [s].[Code], [s].[CreatedAt], [s].[Description], [s].[InstructorId], [s].[IsActive], [s].[Title], [s].[Id0], [s].[Email], [s].[EmailConfirmed], [s].[EmailVerificationCode], [s].[EmailVerificationExpiresAt], [s].[FirstName], [s].[IsActive0], [s].[LastName], [s].[PasswordHash], [s].[PasswordSalt], [c0].[Id], [c0].[CourseId], [c0].[EnrolledAt], [c0].[UserId]
+      FROM (
+          SELECT TOP(1) [c].[Id], [c].[Code], [c].[CreatedAt], [c].[Description], [c].[InstructorId], [c].[IsActive], [c].[Title], [u].[Id] AS [Id0], [u].[Email], [u].[EmailConfirmed], [u].[EmailVerificationCode], [u].[EmailVerificationExpiresAt], [u].[FirstName], [u].[IsActive] AS [IsActive0], [u].[LastName], [u].[PasswordHash], [u].[PasswordSalt]
+          FROM [Courses] AS [c]
+          INNER JOIN [Users] AS [u] ON [c].[InstructorId] = [u].[Id]
+          WHERE [c].[Id] = @courseId
+      ) AS [s]
+      LEFT JOIN [CourseStudent] AS [c0] ON [s].[Id] = [c0].[CourseId]
+      ORDER BY [s].[Id], [s].[Id0]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[@_8__locals1_courseId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [c].[Id], [c].[Code], [c].[CreatedAt], [c].[Description], [c].[InstructorId], [c].[IsActive], [c].[Title]
+      FROM [Courses] AS [c]
+      WHERE [c].[Id] = @_8__locals1_courseId
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[@courseId='?' (DbType = Guid), @userId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT CASE
+          WHEN EXISTS (
+              SELECT 1
+              FROM [CourseStudent] AS [c]
+              WHERE [c].[CourseId] = @courseId AND [c].[UserId] = @userId) THEN CAST(1 AS bit)
+          ELSE CAST(0 AS bit)
+      END
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (5ms) [Parameters=[@_8__locals1_courseId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT [a].[Id], [a].[CourseId], [a].[CreatedAt], [a].[CreatedById], [a].[DueDate], [a].[Instructions], [a].[MaxPoints], [a].[Title], [a0].[Id], [a0].[AssignmentId], [a0].[AttachmentUrl], [a0].[Feedback], [a0].[Grade], [a0].[GradedAt], [a0].[StudentId], [a0].[SubmittedAt], [a0].[Text]
+      FROM [Assignments] AS [a]
+      LEFT JOIN [AssignmentSubmissions] AS [a0] ON [a].[Id] = [a0].[AssignmentId]
+      WHERE [a].[CourseId] = @_8__locals1_courseId
+      ORDER BY [a].[DueDate], [a].[Id]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (3ms) [Parameters=[@request_CourseId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [c].[Id], [c].[Code], [c].[CreatedAt], [c].[Description], [c].[InstructorId], [c].[IsActive], [c].[Title]
+      FROM [Courses] AS [c]
+      WHERE [c].[Id] = @request_CourseId
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[@p0='?' (DbType = Guid), @p1='?' (DbType = Guid), @p2='?' (DbType = DateTime2), @p3='?' (DbType = Guid), @p4='?' (DbType = DateTime2), @p5='?' (Size = 4000), @p6='?' (DbType = Int32), @p7='?' (Size = 150)], CommandType='Text', CommandTimeout='30']
+      SET IMPLICIT_TRANSACTIONS OFF;
+      SET NOCOUNT ON;
+      INSERT INTO [Assignments] ([Id], [CourseId], [CreatedAt], [CreatedById], [DueDate], [Instructions], [MaxPoints], [Title])
+      VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7);
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[@request_CourseId='?' (DbType = Guid), @request_InstructorId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [c].[Id], [c].[Code], [c].[CreatedAt], [c].[Description], [c].[InstructorId], [c].[IsActive], [c].[Title], [u].[Id], [u].[Email], [u].[EmailConfirmed], [u].[EmailVerificationCode], [u].[EmailVerificationExpiresAt], [u].[FirstName], [u].[IsActive], [u].[LastName], [u].[PasswordHash], [u].[PasswordSalt]
+      FROM [Courses] AS [c]
+      INNER JOIN [Users] AS [u] ON [c].[InstructorId] = [u].[Id]
+      WHERE [c].[Id] = @request_CourseId AND [c].[InstructorId] = @request_InstructorId
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[@p0='?' (DbType = Guid), @p1='?' (Size = 500), @p2='?' (DbType = Guid), @p3='?' (DbType = DateTime2), @p4='?' (DbType = Guid), @p5='?' (Size = 100), @p6='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SET IMPLICIT_TRANSACTIONS OFF;
+      SET NOCOUNT ON;
+      INSERT INTO [StreamPosts] ([Id], [Content], [CourseId], [Date], [InstructorId], [Title], [Type])
+      VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6);
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (6ms) [Parameters=[@assignmentId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT [s].[Id], [s].[CourseId], [s].[CreatedAt], [s].[CreatedById], [s].[DueDate], [s].[Instructions], [s].[MaxPoints], [s].[Title], [s].[Id0], [s].[Code], [s].[CreatedAt0], [s].[Description], [s].[InstructorId], [s].[IsActive], [s].[Title0], [s0].[Id], [s0].[AssignmentId], [s0].[AttachmentUrl], [s0].[Feedback], [s0].[Grade], [s0].[GradedAt], [s0].[StudentId], [s0].[SubmittedAt], [s0].[Text], [s0].[Id0], [s0].[Email], [s0].[EmailConfirmed], [s0].[EmailVerificationCode], [s0].[EmailVerificationExpiresAt], [s0].[FirstName], [s0].[IsActive], [s0].[LastName], [s0].[PasswordHash], [s0].[PasswordSalt]
+      FROM (
+          SELECT TOP(1) [a].[Id], [a].[CourseId], [a].[CreatedAt], [a].[CreatedById], [a].[DueDate], [a].[Instructions], [a].[MaxPoints], [a].[Title], [c].[Id] AS [Id0], [c].[Code], [c].[CreatedAt] AS [CreatedAt0], [c].[Description], [c].[InstructorId], [c].[IsActive], [c].[Title] AS [Title0]
+          FROM [Assignments] AS [a]
+          INNER JOIN [Courses] AS [c] ON [a].[CourseId] = [c].[Id]
+          WHERE [a].[Id] = @assignmentId
+      ) AS [s]
+      LEFT JOIN (
+          SELECT [a0].[Id], [a0].[AssignmentId], [a0].[AttachmentUrl], [a0].[Feedback], [a0].[Grade], [a0].[GradedAt], [a0].[StudentId], [a0].[SubmittedAt], [a0].[Text], [u].[Id] AS [Id0], [u].[Email], [u].[EmailConfirmed], [u].[EmailVerificationCode], [u].[EmailVerificationExpiresAt], [u].[FirstName], [u].[IsActive], [u].[LastName], [u].[PasswordHash], [u].[PasswordSalt]
+          FROM [AssignmentSubmissions] AS [a0]
+          INNER JOIN [Users] AS [u] ON [a0].[StudentId] = [u].[Id]
+      ) AS [s0] ON [s].[Id] = [s0].[AssignmentId]
+      ORDER BY [s].[Id], [s].[Id0], [s0].[Id]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@courseId='?' (DbType = Guid), @userId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT CASE
+          WHEN EXISTS (
+              SELECT 1
+              FROM [CourseStudent] AS [c]
+              WHERE [c].[CourseId] = @courseId AND [c].[UserId] = @userId) THEN CAST(1 AS bit)
+          ELSE CAST(0 AS bit)
+      END
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[@course_Id='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT [c].[Id], [c].[CourseId], [c].[EnrolledAt], [c].[UserId], [u].[Id], [u].[Email], [u].[EmailConfirmed], [u].[EmailVerificationCode], [u].[EmailVerificationExpiresAt], [u].[FirstName], [u].[IsActive], [u].[LastName], [u].[PasswordHash], [u].[PasswordSalt]
+      FROM [CourseStudent] AS [c]
+      INNER JOIN [Users] AS [u] ON [c].[UserId] = [u].[Id]
+      WHERE [c].[CourseId] = @course_Id
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@courseId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT [s].[Id], [s].[Code], [s].[CreatedAt], [s].[Description], [s].[InstructorId], [s].[IsActive], [s].[Title], [s].[Id0], [s].[Email], [s].[EmailConfirmed], [s].[EmailVerificationCode], [s].[EmailVerificationExpiresAt], [s].[FirstName], [s].[IsActive0], [s].[LastName], [s].[PasswordHash], [s].[PasswordSalt], [c0].[Id], [c0].[CourseId], [c0].[EnrolledAt], [c0].[UserId]
+      FROM (
+          SELECT TOP(1) [c].[Id], [c].[Code], [c].[CreatedAt], [c].[Description], [c].[InstructorId], [c].[IsActive], [c].[Title], [u].[Id] AS [Id0], [u].[Email], [u].[EmailConfirmed], [u].[EmailVerificationCode], [u].[EmailVerificationExpiresAt], [u].[FirstName], [u].[IsActive] AS [IsActive0], [u].[LastName], [u].[PasswordHash], [u].[PasswordSalt]
+          FROM [Courses] AS [c]
+          INNER JOIN [Users] AS [u] ON [c].[InstructorId] = [u].[Id]
+          WHERE [c].[Id] = @courseId
+      ) AS [s]
+      LEFT JOIN [CourseStudent] AS [c0] ON [s].[Id] = [c0].[CourseId]
+      ORDER BY [s].[Id], [s].[Id0]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@courseId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT [s].[Id], [s].[Code], [s].[CreatedAt], [s].[Description], [s].[InstructorId], [s].[IsActive], [s].[Title], [s].[Id0], [s].[Email], [s].[EmailConfirmed], [s].[EmailVerificationCode], [s].[EmailVerificationExpiresAt], [s].[FirstName], [s].[IsActive0], [s].[LastName], [s].[PasswordHash], [s].[PasswordSalt], [c0].[Id], [c0].[CourseId], [c0].[EnrolledAt], [c0].[UserId]
+      FROM (
+          SELECT TOP(1) [c].[Id], [c].[Code], [c].[CreatedAt], [c].[Description], [c].[InstructorId], [c].[IsActive], [c].[Title], [u].[Id] AS [Id0], [u].[Email], [u].[EmailConfirmed], [u].[EmailVerificationCode], [u].[EmailVerificationExpiresAt], [u].[FirstName], [u].[IsActive] AS [IsActive0], [u].[LastName], [u].[PasswordHash], [u].[PasswordSalt]
+          FROM [Courses] AS [c]
+          INNER JOIN [Users] AS [u] ON [c].[InstructorId] = [u].[Id]
+          WHERE [c].[Id] = @courseId
+      ) AS [s]
+      LEFT JOIN [CourseStudent] AS [c0] ON [s].[Id] = [c0].[CourseId]
+      ORDER BY [s].[Id], [s].[Id0]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@_8__locals1_courseId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [c].[Id], [c].[Code], [c].[CreatedAt], [c].[Description], [c].[InstructorId], [c].[IsActive], [c].[Title]
+      FROM [Courses] AS [c]
+      WHERE [c].[Id] = @_8__locals1_courseId
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@courseId='?' (DbType = Guid), @userId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT CASE
+          WHEN EXISTS (
+              SELECT 1
+              FROM [CourseStudent] AS [c]
+              WHERE [c].[CourseId] = @courseId AND [c].[UserId] = @userId) THEN CAST(1 AS bit)
+          ELSE CAST(0 AS bit)
+      END
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@_8__locals1_courseId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT [a].[Id], [a].[CourseId], [a].[CreatedAt], [a].[CreatedById], [a].[DueDate], [a].[Instructions], [a].[MaxPoints], [a].[Title], [a0].[Id], [a0].[AssignmentId], [a0].[AttachmentUrl], [a0].[Feedback], [a0].[Grade], [a0].[GradedAt], [a0].[StudentId], [a0].[SubmittedAt], [a0].[Text]
+      FROM [Assignments] AS [a]
+      LEFT JOIN [AssignmentSubmissions] AS [a0] ON [a].[Id] = [a0].[AssignmentId]
+      WHERE [a].[CourseId] = @_8__locals1_courseId
+      ORDER BY [a].[DueDate], [a].[Id]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[@email='?' (Size = 100)], CommandType='Text', CommandTimeout='30']
+      SELECT CASE
+          WHEN EXISTS (
+              SELECT 1
+              FROM [Users] AS [u]
+              WHERE [u].[Email] = @email) THEN CAST(1 AS bit)
+          ELSE CAST(0 AS bit)
+      END
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[@p0='?' (DbType = Guid), @p1='?' (Size = 100), @p2='?' (DbType = Boolean), @p3='?' (Size = 12), @p4='?' (DbType = DateTime2), @p5='?' (Size = 50), @p6='?' (DbType = Boolean), @p7='?' (Size = 50), @p8='?' (Size = 8000) (DbType = Binary), @p9='?' (Size = 8000) (DbType = Binary)], CommandType='Text', CommandTimeout='30']
+      SET IMPLICIT_TRANSACTIONS OFF;
+      SET NOCOUNT ON;
+      INSERT INTO [Users] ([Id], [Email], [EmailConfirmed], [EmailVerificationCode], [EmailVerificationExpiresAt], [FirstName], [IsActive], [LastName], [PasswordHash], [PasswordSalt])
+      VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9);
+warn: EduTrack.Infrastructure.Integrations.SmtpEmailSender[0]
+      SMTP is not configured; e-mail to ayse.yilmaz@example.com with subject 'EduTrack e-posta doğrulama' was not sent. Body: <p>Merhaba Ayşe,</p>
+      <p>EduTrack hesabınızı etkinleştirmek için doğrulama kodunuz:</p>
+      <p style="font-size:24px;font-weight:600;letter-spacing:4px">365135</p>
+      <p>Ya da <a href="http://localhost:5080/VerifyEmail/Confirm?email=ayse.yilmaz%40example.com&code=365135">bu bağlantıya tıklayın</a>. Kod 24 saat geçerlidir.</p>
+      <p>Bu hesabı siz oluşturmadıysanız bu e-postayı yok sayabilirsiniz.</p>
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[@request_Email='?' (Size = 100)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [u].[Id], [u].[Email], [u].[EmailConfirmed], [u].[EmailVerificationCode], [u].[EmailVerificationExpiresAt], [u].[FirstName], [u].[IsActive], [u].[LastName], [u].[PasswordHash], [u].[PasswordSalt]
+      FROM [Users] AS [u]
+      WHERE [u].[Email] = @request_Email
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (3ms) [Parameters=[@p9='?' (DbType = Guid), @p0='?' (Size = 100), @p1='?' (DbType = Boolean), @p2='?' (Size = 12), @p3='?' (DbType = DateTime2), @p4='?' (Size = 50), @p5='?' (DbType = Boolean), @p6='?' (Size = 50), @p7='?' (Size = 8000) (DbType = Binary), @p8='?' (Size = 8000) (DbType = Binary)], CommandType='Text', CommandTimeout='30']
+      SET IMPLICIT_TRANSACTIONS OFF;
+      SET NOCOUNT ON;
+      UPDATE [Users] SET [Email] = @p0, [EmailConfirmed] = @p1, [EmailVerificationCode] = @p2, [EmailVerificationExpiresAt] = @p3, [FirstName] = @p4, [IsActive] = @p5, [LastName] = @p6, [PasswordHash] = @p7, [PasswordSalt] = @p8
+      OUTPUT 1
+      WHERE [Id] = @p9;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@email='?' (Size = 100)], CommandType='Text', CommandTimeout='30']
+      SELECT [u1].[Id], [u1].[Email], [u1].[EmailConfirmed], [u1].[EmailVerificationCode], [u1].[EmailVerificationExpiresAt], [u1].[FirstName], [u1].[IsActive], [u1].[LastName], [u1].[PasswordHash], [u1].[PasswordSalt], [s].[Id], [s].[RoleId], [s].[UserId], [s].[Id0], [s].[Name]
+      FROM (
+          SELECT TOP(1) [u].[Id], [u].[Email], [u].[EmailConfirmed], [u].[EmailVerificationCode], [u].[EmailVerificationExpiresAt], [u].[FirstName], [u].[IsActive], [u].[LastName], [u].[PasswordHash], [u].[PasswordSalt]
+          FROM [Users] AS [u]
+          WHERE [u].[Email] = @email
+      ) AS [u1]
+      LEFT JOIN (
+          SELECT [u0].[Id], [u0].[RoleId], [u0].[UserId], [r].[Id] AS [Id0], [r].[Name]
+          FROM [UserRoles] AS [u0]
+          INNER JOIN [Roles] AS [r] ON [u0].[RoleId] = [r].[Id]
+      ) AS [s] ON [u1].[Id] = [s].[UserId]
+      ORDER BY [u1].[Id], [s].[Id]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@userId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT [c].[Id], [c].[Code], [c].[CreatedAt], [c].[Description], [c].[InstructorId], [c].[IsActive], [c].[Title], [u].[Id], [u].[Email], [u].[EmailConfirmed], [u].[EmailVerificationCode], [u].[EmailVerificationExpiresAt], [u].[FirstName], [u].[IsActive], [u].[LastName], [u].[PasswordHash], [u].[PasswordSalt], [c0].[Id], [c0].[CourseId], [c0].[EnrolledAt], [c0].[UserId]
+      FROM [Courses] AS [c]
+      INNER JOIN [Users] AS [u] ON [c].[InstructorId] = [u].[Id]
+      LEFT JOIN [CourseStudent] AS [c0] ON [c].[Id] = [c0].[CourseId]
+      WHERE [c].[InstructorId] = @userId
+      ORDER BY [c].[Id], [u].[Id]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@userId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT [c].[Id], [c].[Code], [c].[CreatedAt], [c].[Description], [c].[InstructorId], [c].[IsActive], [c].[Title], [u].[Id], [u].[Email], [u].[EmailConfirmed], [u].[EmailVerificationCode], [u].[EmailVerificationExpiresAt], [u].[FirstName], [u].[IsActive], [u].[LastName], [u].[PasswordHash], [u].[PasswordSalt], [c1].[Id], [c1].[CourseId], [c1].[EnrolledAt], [c1].[UserId]
+      FROM [Courses] AS [c]
+      INNER JOIN [Users] AS [u] ON [c].[InstructorId] = [u].[Id]
+      LEFT JOIN [CourseStudent] AS [c1] ON [c].[Id] = [c1].[CourseId]
+      WHERE EXISTS (
+          SELECT 1
+          FROM [CourseStudent] AS [c0]
+          WHERE [c].[Id] = [c0].[CourseId] AND [c0].[UserId] = @userId)
+      ORDER BY [c].[Id], [u].[Id]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@userId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT [c].[Id], [c].[Code], [c].[CreatedAt], [c].[Description], [c].[InstructorId], [c].[IsActive], [c].[Title], [u].[Id], [u].[Email], [u].[EmailConfirmed], [u].[EmailVerificationCode], [u].[EmailVerificationExpiresAt], [u].[FirstName], [u].[IsActive], [u].[LastName], [u].[PasswordHash], [u].[PasswordSalt], [c0].[Id], [c0].[CourseId], [c0].[EnrolledAt], [c0].[UserId]
+      FROM [Courses] AS [c]
+      INNER JOIN [Users] AS [u] ON [c].[InstructorId] = [u].[Id]
+      LEFT JOIN [CourseStudent] AS [c0] ON [c].[Id] = [c0].[CourseId]
+      WHERE [c].[InstructorId] = @userId
+      ORDER BY [c].[Id], [u].[Id]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@userId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT [c].[Id], [c].[Code], [c].[CreatedAt], [c].[Description], [c].[InstructorId], [c].[IsActive], [c].[Title], [u].[Id], [u].[Email], [u].[EmailConfirmed], [u].[EmailVerificationCode], [u].[EmailVerificationExpiresAt], [u].[FirstName], [u].[IsActive], [u].[LastName], [u].[PasswordHash], [u].[PasswordSalt], [c1].[Id], [c1].[CourseId], [c1].[EnrolledAt], [c1].[UserId]
+      FROM [Courses] AS [c]
+      INNER JOIN [Users] AS [u] ON [c].[InstructorId] = [u].[Id]
+      LEFT JOIN [CourseStudent] AS [c1] ON [c].[Id] = [c1].[CourseId]
+      WHERE EXISTS (
+          SELECT 1
+          FROM [CourseStudent] AS [c0]
+          WHERE [c].[Id] = [c0].[CourseId] AND [c0].[UserId] = @userId)
+      ORDER BY [c].[Id], [u].[Id]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[@request_StudentId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [u].[Id], [u].[Email], [u].[EmailConfirmed], [u].[EmailVerificationCode], [u].[EmailVerificationExpiresAt], [u].[FirstName], [u].[IsActive], [u].[LastName], [u].[PasswordHash], [u].[PasswordSalt]
+      FROM [Users] AS [u]
+      WHERE [u].[Id] = @request_StudentId
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@code='?' (Size = 8)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [c].[Id], [c].[Code], [c].[CreatedAt], [c].[Description], [c].[InstructorId], [c].[IsActive], [c].[Title]
+      FROM [Courses] AS [c]
+      WHERE [c].[Code] = @code
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[@course_Id='?' (DbType = Guid), @student_Id='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT CASE
+          WHEN EXISTS (
+              SELECT 1
+              FROM [CourseStudent] AS [c]
+              WHERE [c].[CourseId] = @course_Id AND [c].[UserId] = @student_Id) THEN CAST(1 AS bit)
+          ELSE CAST(0 AS bit)
+      END
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[@p0='?' (DbType = Guid), @p1='?' (DbType = Guid), @p2='?' (DbType = DateTime2), @p3='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SET IMPLICIT_TRANSACTIONS OFF;
+      SET NOCOUNT ON;
+      INSERT INTO [CourseStudent] ([Id], [CourseId], [EnrolledAt], [UserId])
+      VALUES (@p0, @p1, @p2, @p3);
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@userId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT [c].[Id], [c].[Code], [c].[CreatedAt], [c].[Description], [c].[InstructorId], [c].[IsActive], [c].[Title], [u].[Id], [u].[Email], [u].[EmailConfirmed], [u].[EmailVerificationCode], [u].[EmailVerificationExpiresAt], [u].[FirstName], [u].[IsActive], [u].[LastName], [u].[PasswordHash], [u].[PasswordSalt], [c0].[Id], [c0].[CourseId], [c0].[EnrolledAt], [c0].[UserId]
+      FROM [Courses] AS [c]
+      INNER JOIN [Users] AS [u] ON [c].[InstructorId] = [u].[Id]
+      LEFT JOIN [CourseStudent] AS [c0] ON [c].[Id] = [c0].[CourseId]
+      WHERE [c].[InstructorId] = @userId
+      ORDER BY [c].[Id], [u].[Id]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@userId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT [c].[Id], [c].[Code], [c].[CreatedAt], [c].[Description], [c].[InstructorId], [c].[IsActive], [c].[Title], [u].[Id], [u].[Email], [u].[EmailConfirmed], [u].[EmailVerificationCode], [u].[EmailVerificationExpiresAt], [u].[FirstName], [u].[IsActive], [u].[LastName], [u].[PasswordHash], [u].[PasswordSalt], [c1].[Id], [c1].[CourseId], [c1].[EnrolledAt], [c1].[UserId]
+      FROM [Courses] AS [c]
+      INNER JOIN [Users] AS [u] ON [c].[InstructorId] = [u].[Id]
+      LEFT JOIN [CourseStudent] AS [c1] ON [c].[Id] = [c1].[CourseId]
+      WHERE EXISTS (
+          SELECT 1
+          FROM [CourseStudent] AS [c0]
+          WHERE [c].[Id] = [c0].[CourseId] AND [c0].[UserId] = @userId)
+      ORDER BY [c].[Id], [u].[Id]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@courseId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT [s].[Id], [s].[Code], [s].[CreatedAt], [s].[Description], [s].[InstructorId], [s].[IsActive], [s].[Title], [s].[Id0], [s].[Email], [s].[EmailConfirmed], [s].[EmailVerificationCode], [s].[EmailVerificationExpiresAt], [s].[FirstName], [s].[IsActive0], [s].[LastName], [s].[PasswordHash], [s].[PasswordSalt], [c0].[Id], [c0].[CourseId], [c0].[EnrolledAt], [c0].[UserId]
+      FROM (
+          SELECT TOP(1) [c].[Id], [c].[Code], [c].[CreatedAt], [c].[Description], [c].[InstructorId], [c].[IsActive], [c].[Title], [u].[Id] AS [Id0], [u].[Email], [u].[EmailConfirmed], [u].[EmailVerificationCode], [u].[EmailVerificationExpiresAt], [u].[FirstName], [u].[IsActive] AS [IsActive0], [u].[LastName], [u].[PasswordHash], [u].[PasswordSalt]
+          FROM [Courses] AS [c]
+          INNER JOIN [Users] AS [u] ON [c].[InstructorId] = [u].[Id]
+          WHERE [c].[Id] = @courseId
+      ) AS [s]
+      LEFT JOIN [CourseStudent] AS [c0] ON [s].[Id] = [c0].[CourseId]
+      ORDER BY [s].[Id], [s].[Id0]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@courseId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT [s].[Id], [s].[Content], [s].[CourseId], [s].[Date], [s].[InstructorId], [s].[Title], [s].[Type], [c].[Id], [c].[Code], [c].[CreatedAt], [c].[Description], [c].[InstructorId], [c].[IsActive], [c].[Title], [u].[Id], [u].[Email], [u].[EmailConfirmed], [u].[EmailVerificationCode], [u].[EmailVerificationExpiresAt], [u].[FirstName], [u].[IsActive], [u].[LastName], [u].[PasswordHash], [u].[PasswordSalt]
+      FROM [StreamPosts] AS [s]
+      INNER JOIN [Courses] AS [c] ON [s].[CourseId] = [c].[Id]
+      INNER JOIN [Users] AS [u] ON [c].[InstructorId] = [u].[Id]
+      WHERE [s].[CourseId] = @courseId
+      ORDER BY [s].[Date] DESC
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@courseId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT [s].[Id], [s].[Code], [s].[CreatedAt], [s].[Description], [s].[InstructorId], [s].[IsActive], [s].[Title], [s].[Id0], [s].[Email], [s].[EmailConfirmed], [s].[EmailVerificationCode], [s].[EmailVerificationExpiresAt], [s].[FirstName], [s].[IsActive0], [s].[LastName], [s].[PasswordHash], [s].[PasswordSalt], [c0].[Id], [c0].[CourseId], [c0].[EnrolledAt], [c0].[UserId]
+      FROM (
+          SELECT TOP(1) [c].[Id], [c].[Code], [c].[CreatedAt], [c].[Description], [c].[InstructorId], [c].[IsActive], [c].[Title], [u].[Id] AS [Id0], [u].[Email], [u].[EmailConfirmed], [u].[EmailVerificationCode], [u].[EmailVerificationExpiresAt], [u].[FirstName], [u].[IsActive] AS [IsActive0], [u].[LastName], [u].[PasswordHash], [u].[PasswordSalt]
+          FROM [Courses] AS [c]
+          INNER JOIN [Users] AS [u] ON [c].[InstructorId] = [u].[Id]
+          WHERE [c].[Id] = @courseId
+      ) AS [s]
+      LEFT JOIN [CourseStudent] AS [c0] ON [s].[Id] = [c0].[CourseId]
+      ORDER BY [s].[Id], [s].[Id0]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@_8__locals1_courseId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [c].[Id], [c].[Code], [c].[CreatedAt], [c].[Description], [c].[InstructorId], [c].[IsActive], [c].[Title]
+      FROM [Courses] AS [c]
+      WHERE [c].[Id] = @_8__locals1_courseId
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@courseId='?' (DbType = Guid), @userId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT CASE
+          WHEN EXISTS (
+              SELECT 1
+              FROM [CourseStudent] AS [c]
+              WHERE [c].[CourseId] = @courseId AND [c].[UserId] = @userId) THEN CAST(1 AS bit)
+          ELSE CAST(0 AS bit)
+      END
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@_8__locals1_courseId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT [a].[Id], [a].[CourseId], [a].[CreatedAt], [a].[CreatedById], [a].[DueDate], [a].[Instructions], [a].[MaxPoints], [a].[Title], [a0].[Id], [a0].[AssignmentId], [a0].[AttachmentUrl], [a0].[Feedback], [a0].[Grade], [a0].[GradedAt], [a0].[StudentId], [a0].[SubmittedAt], [a0].[Text]
+      FROM [Assignments] AS [a]
+      LEFT JOIN [AssignmentSubmissions] AS [a0] ON [a].[Id] = [a0].[AssignmentId]
+      WHERE [a].[CourseId] = @_8__locals1_courseId
+      ORDER BY [a].[DueDate], [a].[Id]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@assignmentId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT [s].[Id], [s].[CourseId], [s].[CreatedAt], [s].[CreatedById], [s].[DueDate], [s].[Instructions], [s].[MaxPoints], [s].[Title], [s].[Id0], [s].[Code], [s].[CreatedAt0], [s].[Description], [s].[InstructorId], [s].[IsActive], [s].[Title0], [s0].[Id], [s0].[AssignmentId], [s0].[AttachmentUrl], [s0].[Feedback], [s0].[Grade], [s0].[GradedAt], [s0].[StudentId], [s0].[SubmittedAt], [s0].[Text], [s0].[Id0], [s0].[Email], [s0].[EmailConfirmed], [s0].[EmailVerificationCode], [s0].[EmailVerificationExpiresAt], [s0].[FirstName], [s0].[IsActive], [s0].[LastName], [s0].[PasswordHash], [s0].[PasswordSalt]
+      FROM (
+          SELECT TOP(1) [a].[Id], [a].[CourseId], [a].[CreatedAt], [a].[CreatedById], [a].[DueDate], [a].[Instructions], [a].[MaxPoints], [a].[Title], [c].[Id] AS [Id0], [c].[Code], [c].[CreatedAt] AS [CreatedAt0], [c].[Description], [c].[InstructorId], [c].[IsActive], [c].[Title] AS [Title0]
+          FROM [Assignments] AS [a]
+          INNER JOIN [Courses] AS [c] ON [a].[CourseId] = [c].[Id]
+          WHERE [a].[Id] = @assignmentId
+      ) AS [s]
+      LEFT JOIN (
+          SELECT [a0].[Id], [a0].[AssignmentId], [a0].[AttachmentUrl], [a0].[Feedback], [a0].[Grade], [a0].[GradedAt], [a0].[StudentId], [a0].[SubmittedAt], [a0].[Text], [u].[Id] AS [Id0], [u].[Email], [u].[EmailConfirmed], [u].[EmailVerificationCode], [u].[EmailVerificationExpiresAt], [u].[FirstName], [u].[IsActive], [u].[LastName], [u].[PasswordHash], [u].[PasswordSalt]
+          FROM [AssignmentSubmissions] AS [a0]
+          INNER JOIN [Users] AS [u] ON [a0].[StudentId] = [u].[Id]
+      ) AS [s0] ON [s].[Id] = [s0].[AssignmentId]
+      ORDER BY [s].[Id], [s].[Id0], [s0].[Id]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@courseId='?' (DbType = Guid), @userId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT CASE
+          WHEN EXISTS (
+              SELECT 1
+              FROM [CourseStudent] AS [c]
+              WHERE [c].[CourseId] = @courseId AND [c].[UserId] = @userId) THEN CAST(1 AS bit)
+          ELSE CAST(0 AS bit)
+      END
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@courseId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT [s].[Id], [s].[Code], [s].[CreatedAt], [s].[Description], [s].[InstructorId], [s].[IsActive], [s].[Title], [s].[Id0], [s].[Email], [s].[EmailConfirmed], [s].[EmailVerificationCode], [s].[EmailVerificationExpiresAt], [s].[FirstName], [s].[IsActive0], [s].[LastName], [s].[PasswordHash], [s].[PasswordSalt], [c0].[Id], [c0].[CourseId], [c0].[EnrolledAt], [c0].[UserId]
+      FROM (
+          SELECT TOP(1) [c].[Id], [c].[Code], [c].[CreatedAt], [c].[Description], [c].[InstructorId], [c].[IsActive], [c].[Title], [u].[Id] AS [Id0], [u].[Email], [u].[EmailConfirmed], [u].[EmailVerificationCode], [u].[EmailVerificationExpiresAt], [u].[FirstName], [u].[IsActive] AS [IsActive0], [u].[LastName], [u].[PasswordHash], [u].[PasswordSalt]
+          FROM [Courses] AS [c]
+          INNER JOIN [Users] AS [u] ON [c].[InstructorId] = [u].[Id]
+          WHERE [c].[Id] = @courseId
+      ) AS [s]
+      LEFT JOIN [CourseStudent] AS [c0] ON [s].[Id] = [c0].[CourseId]
+      ORDER BY [s].[Id], [s].[Id0]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[@request_AssignmentId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[CourseId], [a].[CreatedAt], [a].[CreatedById], [a].[DueDate], [a].[Instructions], [a].[MaxPoints], [a].[Title]
+      FROM [Assignments] AS [a]
+      WHERE [a].[Id] = @request_AssignmentId
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@courseId='?' (DbType = Guid), @userId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT CASE
+          WHEN EXISTS (
+              SELECT 1
+              FROM [CourseStudent] AS [c]
+              WHERE [c].[CourseId] = @courseId AND [c].[UserId] = @userId) THEN CAST(1 AS bit)
+          ELSE CAST(0 AS bit)
+      END
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@request_AssignmentId='?' (DbType = Guid), @request_StudentId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[AssignmentId], [a].[AttachmentUrl], [a].[Feedback], [a].[Grade], [a].[GradedAt], [a].[StudentId], [a].[SubmittedAt], [a].[Text]
+      FROM [AssignmentSubmissions] AS [a]
+      WHERE [a].[AssignmentId] = @request_AssignmentId AND [a].[StudentId] = @request_StudentId
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[@p0='?' (DbType = Guid), @p1='?' (DbType = Guid), @p2='?' (Size = 500), @p3='?' (Size = 2000), @p4='?' (DbType = Int32), @p5='?' (DbType = DateTime2), @p6='?' (DbType = Guid), @p7='?' (DbType = DateTime2), @p8='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+      SET IMPLICIT_TRANSACTIONS OFF;
+      SET NOCOUNT ON;
+      INSERT INTO [AssignmentSubmissions] ([Id], [AssignmentId], [AttachmentUrl], [Feedback], [Grade], [GradedAt], [StudentId], [SubmittedAt], [Text])
+      VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8);
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@assignmentId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT [s].[Id], [s].[CourseId], [s].[CreatedAt], [s].[CreatedById], [s].[DueDate], [s].[Instructions], [s].[MaxPoints], [s].[Title], [s].[Id0], [s].[Code], [s].[CreatedAt0], [s].[Description], [s].[InstructorId], [s].[IsActive], [s].[Title0], [s0].[Id], [s0].[AssignmentId], [s0].[AttachmentUrl], [s0].[Feedback], [s0].[Grade], [s0].[GradedAt], [s0].[StudentId], [s0].[SubmittedAt], [s0].[Text], [s0].[Id0], [s0].[Email], [s0].[EmailConfirmed], [s0].[EmailVerificationCode], [s0].[EmailVerificationExpiresAt], [s0].[FirstName], [s0].[IsActive], [s0].[LastName], [s0].[PasswordHash], [s0].[PasswordSalt]
+      FROM (
+          SELECT TOP(1) [a].[Id], [a].[CourseId], [a].[CreatedAt], [a].[CreatedById], [a].[DueDate], [a].[Instructions], [a].[MaxPoints], [a].[Title], [c].[Id] AS [Id0], [c].[Code], [c].[CreatedAt] AS [CreatedAt0], [c].[Description], [c].[InstructorId], [c].[IsActive], [c].[Title] AS [Title0]
+          FROM [Assignments] AS [a]
+          INNER JOIN [Courses] AS [c] ON [a].[CourseId] = [c].[Id]
+          WHERE [a].[Id] = @assignmentId
+      ) AS [s]
+      LEFT JOIN (
+          SELECT [a0].[Id], [a0].[AssignmentId], [a0].[AttachmentUrl], [a0].[Feedback], [a0].[Grade], [a0].[GradedAt], [a0].[StudentId], [a0].[SubmittedAt], [a0].[Text], [u].[Id] AS [Id0], [u].[Email], [u].[EmailConfirmed], [u].[EmailVerificationCode], [u].[EmailVerificationExpiresAt], [u].[FirstName], [u].[IsActive], [u].[LastName], [u].[PasswordHash], [u].[PasswordSalt]
+          FROM [AssignmentSubmissions] AS [a0]
+          INNER JOIN [Users] AS [u] ON [a0].[StudentId] = [u].[Id]
+      ) AS [s0] ON [s].[Id] = [s0].[AssignmentId]
+      ORDER BY [s].[Id], [s].[Id0], [s0].[Id]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@courseId='?' (DbType = Guid), @userId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT CASE
+          WHEN EXISTS (
+              SELECT 1
+              FROM [CourseStudent] AS [c]
+              WHERE [c].[CourseId] = @courseId AND [c].[UserId] = @userId) THEN CAST(1 AS bit)
+          ELSE CAST(0 AS bit)
+      END
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@courseId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT [s].[Id], [s].[Code], [s].[CreatedAt], [s].[Description], [s].[InstructorId], [s].[IsActive], [s].[Title], [s].[Id0], [s].[Email], [s].[EmailConfirmed], [s].[EmailVerificationCode], [s].[EmailVerificationExpiresAt], [s].[FirstName], [s].[IsActive0], [s].[LastName], [s].[PasswordHash], [s].[PasswordSalt], [c0].[Id], [c0].[CourseId], [c0].[EnrolledAt], [c0].[UserId]
+      FROM (
+          SELECT TOP(1) [c].[Id], [c].[Code], [c].[CreatedAt], [c].[Description], [c].[InstructorId], [c].[IsActive], [c].[Title], [u].[Id] AS [Id0], [u].[Email], [u].[EmailConfirmed], [u].[EmailVerificationCode], [u].[EmailVerificationExpiresAt], [u].[FirstName], [u].[IsActive] AS [IsActive0], [u].[LastName], [u].[PasswordHash], [u].[PasswordSalt]
+          FROM [Courses] AS [c]
+          INNER JOIN [Users] AS [u] ON [c].[InstructorId] = [u].[Id]
+          WHERE [c].[Id] = @courseId
+      ) AS [s]
+      LEFT JOIN [CourseStudent] AS [c0] ON [s].[Id] = [c0].[CourseId]
+      ORDER BY [s].[Id], [s].[Id0]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@assignmentId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT [s].[Id], [s].[CourseId], [s].[CreatedAt], [s].[CreatedById], [s].[DueDate], [s].[Instructions], [s].[MaxPoints], [s].[Title], [s].[Id0], [s].[Code], [s].[CreatedAt0], [s].[Description], [s].[InstructorId], [s].[IsActive], [s].[Title0], [s0].[Id], [s0].[AssignmentId], [s0].[AttachmentUrl], [s0].[Feedback], [s0].[Grade], [s0].[GradedAt], [s0].[StudentId], [s0].[SubmittedAt], [s0].[Text], [s0].[Id0], [s0].[Email], [s0].[EmailConfirmed], [s0].[EmailVerificationCode], [s0].[EmailVerificationExpiresAt], [s0].[FirstName], [s0].[IsActive], [s0].[LastName], [s0].[PasswordHash], [s0].[PasswordSalt]
+      FROM (
+          SELECT TOP(1) [a].[Id], [a].[CourseId], [a].[CreatedAt], [a].[CreatedById], [a].[DueDate], [a].[Instructions], [a].[MaxPoints], [a].[Title], [c].[Id] AS [Id0], [c].[Code], [c].[CreatedAt] AS [CreatedAt0], [c].[Description], [c].[InstructorId], [c].[IsActive], [c].[Title] AS [Title0]
+          FROM [Assignments] AS [a]
+          INNER JOIN [Courses] AS [c] ON [a].[CourseId] = [c].[Id]
+          WHERE [a].[Id] = @assignmentId
+      ) AS [s]
+      LEFT JOIN (
+          SELECT [a0].[Id], [a0].[AssignmentId], [a0].[AttachmentUrl], [a0].[Feedback], [a0].[Grade], [a0].[GradedAt], [a0].[StudentId], [a0].[SubmittedAt], [a0].[Text], [u].[Id] AS [Id0], [u].[Email], [u].[EmailConfirmed], [u].[EmailVerificationCode], [u].[EmailVerificationExpiresAt], [u].[FirstName], [u].[IsActive], [u].[LastName], [u].[PasswordHash], [u].[PasswordSalt]
+          FROM [AssignmentSubmissions] AS [a0]
+          INNER JOIN [Users] AS [u] ON [a0].[StudentId] = [u].[Id]
+      ) AS [s0] ON [s].[Id] = [s0].[AssignmentId]
+      ORDER BY [s].[Id], [s].[Id0], [s0].[Id]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@courseId='?' (DbType = Guid), @userId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT CASE
+          WHEN EXISTS (
+              SELECT 1
+              FROM [CourseStudent] AS [c]
+              WHERE [c].[CourseId] = @courseId AND [c].[UserId] = @userId) THEN CAST(1 AS bit)
+          ELSE CAST(0 AS bit)
+      END
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@course_Id='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT [c].[Id], [c].[CourseId], [c].[EnrolledAt], [c].[UserId], [u].[Id], [u].[Email], [u].[EmailConfirmed], [u].[EmailVerificationCode], [u].[EmailVerificationExpiresAt], [u].[FirstName], [u].[IsActive], [u].[LastName], [u].[PasswordHash], [u].[PasswordSalt]
+      FROM [CourseStudent] AS [c]
+      INNER JOIN [Users] AS [u] ON [c].[UserId] = [u].[Id]
+      WHERE [c].[CourseId] = @course_Id
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@courseId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT [s].[Id], [s].[Code], [s].[CreatedAt], [s].[Description], [s].[InstructorId], [s].[IsActive], [s].[Title], [s].[Id0], [s].[Email], [s].[EmailConfirmed], [s].[EmailVerificationCode], [s].[EmailVerificationExpiresAt], [s].[FirstName], [s].[IsActive0], [s].[LastName], [s].[PasswordHash], [s].[PasswordSalt], [c0].[Id], [c0].[CourseId], [c0].[EnrolledAt], [c0].[UserId]
+      FROM (
+          SELECT TOP(1) [c].[Id], [c].[Code], [c].[CreatedAt], [c].[Description], [c].[InstructorId], [c].[IsActive], [c].[Title], [u].[Id] AS [Id0], [u].[Email], [u].[EmailConfirmed], [u].[EmailVerificationCode], [u].[EmailVerificationExpiresAt], [u].[FirstName], [u].[IsActive] AS [IsActive0], [u].[LastName], [u].[PasswordHash], [u].[PasswordSalt]
+          FROM [Courses] AS [c]
+          INNER JOIN [Users] AS [u] ON [c].[InstructorId] = [u].[Id]
+          WHERE [c].[Id] = @courseId
+      ) AS [s]
+      LEFT JOIN [CourseStudent] AS [c0] ON [s].[Id] = [c0].[CourseId]
+      ORDER BY [s].[Id], [s].[Id0]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (4ms) [Parameters=[@request_SubmissionId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[AssignmentId], [a].[AttachmentUrl], [a].[Feedback], [a].[Grade], [a].[GradedAt], [a].[StudentId], [a].[SubmittedAt], [a].[Text], [a0].[Id], [a0].[CourseId], [a0].[CreatedAt], [a0].[CreatedById], [a0].[DueDate], [a0].[Instructions], [a0].[MaxPoints], [a0].[Title], [c].[Id], [c].[Code], [c].[CreatedAt], [c].[Description], [c].[InstructorId], [c].[IsActive], [c].[Title]
+      FROM [AssignmentSubmissions] AS [a]
+      INNER JOIN [Assignments] AS [a0] ON [a].[AssignmentId] = [a0].[Id]
+      INNER JOIN [Courses] AS [c] ON [a0].[CourseId] = [c].[Id]
+      WHERE [a].[Id] = @request_SubmissionId
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (3ms) [Parameters=[@p8='?' (DbType = Guid), @p0='?' (DbType = Guid), @p1='?' (Size = 500), @p2='?' (Size = 2000), @p3='?' (DbType = Int32), @p4='?' (DbType = DateTime2), @p5='?' (DbType = Guid), @p6='?' (DbType = DateTime2), @p7='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+      SET IMPLICIT_TRANSACTIONS OFF;
+      SET NOCOUNT ON;
+      UPDATE [AssignmentSubmissions] SET [AssignmentId] = @p0, [AttachmentUrl] = @p1, [Feedback] = @p2, [Grade] = @p3, [GradedAt] = @p4, [StudentId] = @p5, [SubmittedAt] = @p6, [Text] = @p7
+      OUTPUT 1
+      WHERE [Id] = @p8;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@assignmentId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT [s].[Id], [s].[CourseId], [s].[CreatedAt], [s].[CreatedById], [s].[DueDate], [s].[Instructions], [s].[MaxPoints], [s].[Title], [s].[Id0], [s].[Code], [s].[CreatedAt0], [s].[Description], [s].[InstructorId], [s].[IsActive], [s].[Title0], [s0].[Id], [s0].[AssignmentId], [s0].[AttachmentUrl], [s0].[Feedback], [s0].[Grade], [s0].[GradedAt], [s0].[StudentId], [s0].[SubmittedAt], [s0].[Text], [s0].[Id0], [s0].[Email], [s0].[EmailConfirmed], [s0].[EmailVerificationCode], [s0].[EmailVerificationExpiresAt], [s0].[FirstName], [s0].[IsActive], [s0].[LastName], [s0].[PasswordHash], [s0].[PasswordSalt]
+      FROM (
+          SELECT TOP(1) [a].[Id], [a].[CourseId], [a].[CreatedAt], [a].[CreatedById], [a].[DueDate], [a].[Instructions], [a].[MaxPoints], [a].[Title], [c].[Id] AS [Id0], [c].[Code], [c].[CreatedAt] AS [CreatedAt0], [c].[Description], [c].[InstructorId], [c].[IsActive], [c].[Title] AS [Title0]
+          FROM [Assignments] AS [a]
+          INNER JOIN [Courses] AS [c] ON [a].[CourseId] = [c].[Id]
+          WHERE [a].[Id] = @assignmentId
+      ) AS [s]
+      LEFT JOIN (
+          SELECT [a0].[Id], [a0].[AssignmentId], [a0].[AttachmentUrl], [a0].[Feedback], [a0].[Grade], [a0].[GradedAt], [a0].[StudentId], [a0].[SubmittedAt], [a0].[Text], [u].[Id] AS [Id0], [u].[Email], [u].[EmailConfirmed], [u].[EmailVerificationCode], [u].[EmailVerificationExpiresAt], [u].[FirstName], [u].[IsActive], [u].[LastName], [u].[PasswordHash], [u].[PasswordSalt]
+          FROM [AssignmentSubmissions] AS [a0]
+          INNER JOIN [Users] AS [u] ON [a0].[StudentId] = [u].[Id]
+      ) AS [s0] ON [s].[Id] = [s0].[AssignmentId]
+      ORDER BY [s].[Id], [s].[Id0], [s0].[Id]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@courseId='?' (DbType = Guid), @userId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT CASE
+          WHEN EXISTS (
+              SELECT 1
+              FROM [CourseStudent] AS [c]
+              WHERE [c].[CourseId] = @courseId AND [c].[UserId] = @userId) THEN CAST(1 AS bit)
+          ELSE CAST(0 AS bit)
+      END
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@course_Id='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT [c].[Id], [c].[CourseId], [c].[EnrolledAt], [c].[UserId], [u].[Id], [u].[Email], [u].[EmailConfirmed], [u].[EmailVerificationCode], [u].[EmailVerificationExpiresAt], [u].[FirstName], [u].[IsActive], [u].[LastName], [u].[PasswordHash], [u].[PasswordSalt]
+      FROM [CourseStudent] AS [c]
+      INNER JOIN [Users] AS [u] ON [c].[UserId] = [u].[Id]
+      WHERE [c].[CourseId] = @course_Id
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@courseId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT [s].[Id], [s].[Code], [s].[CreatedAt], [s].[Description], [s].[InstructorId], [s].[IsActive], [s].[Title], [s].[Id0], [s].[Email], [s].[EmailConfirmed], [s].[EmailVerificationCode], [s].[EmailVerificationExpiresAt], [s].[FirstName], [s].[IsActive0], [s].[LastName], [s].[PasswordHash], [s].[PasswordSalt], [c0].[Id], [c0].[CourseId], [c0].[EnrolledAt], [c0].[UserId]
+      FROM (
+          SELECT TOP(1) [c].[Id], [c].[Code], [c].[CreatedAt], [c].[Description], [c].[InstructorId], [c].[IsActive], [c].[Title], [u].[Id] AS [Id0], [u].[Email], [u].[EmailConfirmed], [u].[EmailVerificationCode], [u].[EmailVerificationExpiresAt], [u].[FirstName], [u].[IsActive] AS [IsActive0], [u].[LastName], [u].[PasswordHash], [u].[PasswordSalt]
+          FROM [Courses] AS [c]
+          INNER JOIN [Users] AS [u] ON [c].[InstructorId] = [u].[Id]
+          WHERE [c].[Id] = @courseId
+      ) AS [s]
+      LEFT JOIN [CourseStudent] AS [c0] ON [s].[Id] = [c0].[CourseId]
+      ORDER BY [s].[Id], [s].[Id0]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@assignmentId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT [s].[Id], [s].[CourseId], [s].[CreatedAt], [s].[CreatedById], [s].[DueDate], [s].[Instructions], [s].[MaxPoints], [s].[Title], [s].[Id0], [s].[Code], [s].[CreatedAt0], [s].[Description], [s].[InstructorId], [s].[IsActive], [s].[Title0], [s0].[Id], [s0].[AssignmentId], [s0].[AttachmentUrl], [s0].[Feedback], [s0].[Grade], [s0].[GradedAt], [s0].[StudentId], [s0].[SubmittedAt], [s0].[Text], [s0].[Id0], [s0].[Email], [s0].[EmailConfirmed], [s0].[EmailVerificationCode], [s0].[EmailVerificationExpiresAt], [s0].[FirstName], [s0].[IsActive], [s0].[LastName], [s0].[PasswordHash], [s0].[PasswordSalt]
+      FROM (
+          SELECT TOP(1) [a].[Id], [a].[CourseId], [a].[CreatedAt], [a].[CreatedById], [a].[DueDate], [a].[Instructions], [a].[MaxPoints], [a].[Title], [c].[Id] AS [Id0], [c].[Code], [c].[CreatedAt] AS [CreatedAt0], [c].[Description], [c].[InstructorId], [c].[IsActive], [c].[Title] AS [Title0]
+          FROM [Assignments] AS [a]
+          INNER JOIN [Courses] AS [c] ON [a].[CourseId] = [c].[Id]
+          WHERE [a].[Id] = @assignmentId
+      ) AS [s]
+      LEFT JOIN (
+          SELECT [a0].[Id], [a0].[AssignmentId], [a0].[AttachmentUrl], [a0].[Feedback], [a0].[Grade], [a0].[GradedAt], [a0].[StudentId], [a0].[SubmittedAt], [a0].[Text], [u].[Id] AS [Id0], [u].[Email], [u].[EmailConfirmed], [u].[EmailVerificationCode], [u].[EmailVerificationExpiresAt], [u].[FirstName], [u].[IsActive], [u].[LastName], [u].[PasswordHash], [u].[PasswordSalt]
+          FROM [AssignmentSubmissions] AS [a0]
+          INNER JOIN [Users] AS [u] ON [a0].[StudentId] = [u].[Id]
+      ) AS [s0] ON [s].[Id] = [s0].[AssignmentId]
+      ORDER BY [s].[Id], [s].[Id0], [s0].[Id]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@courseId='?' (DbType = Guid), @userId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT CASE
+          WHEN EXISTS (
+              SELECT 1
+              FROM [CourseStudent] AS [c]
+              WHERE [c].[CourseId] = @courseId AND [c].[UserId] = @userId) THEN CAST(1 AS bit)
+          ELSE CAST(0 AS bit)
+      END
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@courseId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT [s].[Id], [s].[Code], [s].[CreatedAt], [s].[Description], [s].[InstructorId], [s].[IsActive], [s].[Title], [s].[Id0], [s].[Email], [s].[EmailConfirmed], [s].[EmailVerificationCode], [s].[EmailVerificationExpiresAt], [s].[FirstName], [s].[IsActive0], [s].[LastName], [s].[PasswordHash], [s].[PasswordSalt], [c0].[Id], [c0].[CourseId], [c0].[EnrolledAt], [c0].[UserId]
+      FROM (
+          SELECT TOP(1) [c].[Id], [c].[Code], [c].[CreatedAt], [c].[Description], [c].[InstructorId], [c].[IsActive], [c].[Title], [u].[Id] AS [Id0], [u].[Email], [u].[EmailConfirmed], [u].[EmailVerificationCode], [u].[EmailVerificationExpiresAt], [u].[FirstName], [u].[IsActive] AS [IsActive0], [u].[LastName], [u].[PasswordHash], [u].[PasswordSalt]
+          FROM [Courses] AS [c]
+          INNER JOIN [Users] AS [u] ON [c].[InstructorId] = [u].[Id]
+          WHERE [c].[Id] = @courseId
+      ) AS [s]
+      LEFT JOIN [CourseStudent] AS [c0] ON [s].[Id] = [c0].[CourseId]
+      ORDER BY [s].[Id], [s].[Id0]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@assignmentId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT [s].[Id], [s].[CourseId], [s].[CreatedAt], [s].[CreatedById], [s].[DueDate], [s].[Instructions], [s].[MaxPoints], [s].[Title], [s].[Id0], [s].[Code], [s].[CreatedAt0], [s].[Description], [s].[InstructorId], [s].[IsActive], [s].[Title0], [s0].[Id], [s0].[AssignmentId], [s0].[AttachmentUrl], [s0].[Feedback], [s0].[Grade], [s0].[GradedAt], [s0].[StudentId], [s0].[SubmittedAt], [s0].[Text], [s0].[Id0], [s0].[Email], [s0].[EmailConfirmed], [s0].[EmailVerificationCode], [s0].[EmailVerificationExpiresAt], [s0].[FirstName], [s0].[IsActive], [s0].[LastName], [s0].[PasswordHash], [s0].[PasswordSalt]
+      FROM (
+          SELECT TOP(1) [a].[Id], [a].[CourseId], [a].[CreatedAt], [a].[CreatedById], [a].[DueDate], [a].[Instructions], [a].[MaxPoints], [a].[Title], [c].[Id] AS [Id0], [c].[Code], [c].[CreatedAt] AS [CreatedAt0], [c].[Description], [c].[InstructorId], [c].[IsActive], [c].[Title] AS [Title0]
+          FROM [Assignments] AS [a]
+          INNER JOIN [Courses] AS [c] ON [a].[CourseId] = [c].[Id]
+          WHERE [a].[Id] = @assignmentId
+      ) AS [s]
+      LEFT JOIN (
+          SELECT [a0].[Id], [a0].[AssignmentId], [a0].[AttachmentUrl], [a0].[Feedback], [a0].[Grade], [a0].[GradedAt], [a0].[StudentId], [a0].[SubmittedAt], [a0].[Text], [u].[Id] AS [Id0], [u].[Email], [u].[EmailConfirmed], [u].[EmailVerificationCode], [u].[EmailVerificationExpiresAt], [u].[FirstName], [u].[IsActive], [u].[LastName], [u].[PasswordHash], [u].[PasswordSalt]
+          FROM [AssignmentSubmissions] AS [a0]
+          INNER JOIN [Users] AS [u] ON [a0].[StudentId] = [u].[Id]
+      ) AS [s0] ON [s].[Id] = [s0].[AssignmentId]
+      ORDER BY [s].[Id], [s].[Id0], [s0].[Id]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@courseId='?' (DbType = Guid), @userId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT CASE
+          WHEN EXISTS (
+              SELECT 1
+              FROM [CourseStudent] AS [c]
+              WHERE [c].[CourseId] = @courseId AND [c].[UserId] = @userId) THEN CAST(1 AS bit)
+          ELSE CAST(0 AS bit)
+      END
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@courseId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT [s].[Id], [s].[Code], [s].[CreatedAt], [s].[Description], [s].[InstructorId], [s].[IsActive], [s].[Title], [s].[Id0], [s].[Email], [s].[EmailConfirmed], [s].[EmailVerificationCode], [s].[EmailVerificationExpiresAt], [s].[FirstName], [s].[IsActive0], [s].[LastName], [s].[PasswordHash], [s].[PasswordSalt], [c0].[Id], [c0].[CourseId], [c0].[EnrolledAt], [c0].[UserId]
+      FROM (
+          SELECT TOP(1) [c].[Id], [c].[Code], [c].[CreatedAt], [c].[Description], [c].[InstructorId], [c].[IsActive], [c].[Title], [u].[Id] AS [Id0], [u].[Email], [u].[EmailConfirmed], [u].[EmailVerificationCode], [u].[EmailVerificationExpiresAt], [u].[FirstName], [u].[IsActive] AS [IsActive0], [u].[LastName], [u].[PasswordHash], [u].[PasswordSalt]
+          FROM [Courses] AS [c]
+          INNER JOIN [Users] AS [u] ON [c].[InstructorId] = [u].[Id]
+          WHERE [c].[Id] = @courseId
+      ) AS [s]
+      LEFT JOIN [CourseStudent] AS [c0] ON [s].[Id] = [c0].[CourseId]
+      ORDER BY [s].[Id], [s].[Id0]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@courseId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT [s].[Id], [s].[Code], [s].[CreatedAt], [s].[Description], [s].[InstructorId], [s].[IsActive], [s].[Title], [s].[Id0], [s].[Email], [s].[EmailConfirmed], [s].[EmailVerificationCode], [s].[EmailVerificationExpiresAt], [s].[FirstName], [s].[IsActive0], [s].[LastName], [s].[PasswordHash], [s].[PasswordSalt], [c0].[Id], [c0].[CourseId], [c0].[EnrolledAt], [c0].[UserId]
+      FROM (
+          SELECT TOP(1) [c].[Id], [c].[Code], [c].[CreatedAt], [c].[Description], [c].[InstructorId], [c].[IsActive], [c].[Title], [u].[Id] AS [Id0], [u].[Email], [u].[EmailConfirmed], [u].[EmailVerificationCode], [u].[EmailVerificationExpiresAt], [u].[FirstName], [u].[IsActive] AS [IsActive0], [u].[LastName], [u].[PasswordHash], [u].[PasswordSalt]
+          FROM [Courses] AS [c]
+          INNER JOIN [Users] AS [u] ON [c].[InstructorId] = [u].[Id]
+          WHERE [c].[Id] = @courseId
+      ) AS [s]
+      LEFT JOIN [CourseStudent] AS [c0] ON [s].[Id] = [c0].[CourseId]
+      ORDER BY [s].[Id], [s].[Id0]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@_8__locals1_courseId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [c].[Id], [c].[Code], [c].[CreatedAt], [c].[Description], [c].[InstructorId], [c].[IsActive], [c].[Title]
+      FROM [Courses] AS [c]
+      WHERE [c].[Id] = @_8__locals1_courseId
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@courseId='?' (DbType = Guid), @userId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT CASE
+          WHEN EXISTS (
+              SELECT 1
+              FROM [CourseStudent] AS [c]
+              WHERE [c].[CourseId] = @courseId AND [c].[UserId] = @userId) THEN CAST(1 AS bit)
+          ELSE CAST(0 AS bit)
+      END
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@_8__locals1_courseId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT [a].[Id], [a].[CourseId], [a].[CreatedAt], [a].[CreatedById], [a].[DueDate], [a].[Instructions], [a].[MaxPoints], [a].[Title], [a0].[Id], [a0].[AssignmentId], [a0].[AttachmentUrl], [a0].[Feedback], [a0].[Grade], [a0].[GradedAt], [a0].[StudentId], [a0].[SubmittedAt], [a0].[Text]
+      FROM [Assignments] AS [a]
+      LEFT JOIN [AssignmentSubmissions] AS [a0] ON [a].[Id] = [a0].[AssignmentId]
+      WHERE [a].[CourseId] = @_8__locals1_courseId
+      ORDER BY [a].[DueDate], [a].[Id]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@email='?' (Size = 100)], CommandType='Text', CommandTimeout='30']
+      SELECT [u1].[Id], [u1].[Email], [u1].[EmailConfirmed], [u1].[EmailVerificationCode], [u1].[EmailVerificationExpiresAt], [u1].[FirstName], [u1].[IsActive], [u1].[LastName], [u1].[PasswordHash], [u1].[PasswordSalt], [s].[Id], [s].[RoleId], [s].[UserId], [s].[Id0], [s].[Name]
+      FROM (
+          SELECT TOP(1) [u].[Id], [u].[Email], [u].[EmailConfirmed], [u].[EmailVerificationCode], [u].[EmailVerificationExpiresAt], [u].[FirstName], [u].[IsActive], [u].[LastName], [u].[PasswordHash], [u].[PasswordSalt]
+          FROM [Users] AS [u]
+          WHERE [u].[Email] = @email
+      ) AS [u1]
+      LEFT JOIN (
+          SELECT [u0].[Id], [u0].[RoleId], [u0].[UserId], [r].[Id] AS [Id0], [r].[Name]
+          FROM [UserRoles] AS [u0]
+          INNER JOIN [Roles] AS [r] ON [u0].[RoleId] = [r].[Id]
+      ) AS [s] ON [u1].[Id] = [s].[UserId]
+      ORDER BY [u1].[Id], [s].[Id]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@userId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT [c].[Id], [c].[Code], [c].[CreatedAt], [c].[Description], [c].[InstructorId], [c].[IsActive], [c].[Title], [u].[Id], [u].[Email], [u].[EmailConfirmed], [u].[EmailVerificationCode], [u].[EmailVerificationExpiresAt], [u].[FirstName], [u].[IsActive], [u].[LastName], [u].[PasswordHash], [u].[PasswordSalt], [c0].[Id], [c0].[CourseId], [c0].[EnrolledAt], [c0].[UserId]
+      FROM [Courses] AS [c]
+      INNER JOIN [Users] AS [u] ON [c].[InstructorId] = [u].[Id]
+      LEFT JOIN [CourseStudent] AS [c0] ON [c].[Id] = [c0].[CourseId]
+      WHERE [c].[InstructorId] = @userId
+      ORDER BY [c].[Id], [u].[Id]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@userId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT [c].[Id], [c].[Code], [c].[CreatedAt], [c].[Description], [c].[InstructorId], [c].[IsActive], [c].[Title], [u].[Id], [u].[Email], [u].[EmailConfirmed], [u].[EmailVerificationCode], [u].[EmailVerificationExpiresAt], [u].[FirstName], [u].[IsActive], [u].[LastName], [u].[PasswordHash], [u].[PasswordSalt], [c1].[Id], [c1].[CourseId], [c1].[EnrolledAt], [c1].[UserId]
+      FROM [Courses] AS [c]
+      INNER JOIN [Users] AS [u] ON [c].[InstructorId] = [u].[Id]
+      LEFT JOIN [CourseStudent] AS [c1] ON [c].[Id] = [c1].[CourseId]
+      WHERE EXISTS (
+          SELECT 1
+          FROM [CourseStudent] AS [c0]
+          WHERE [c].[Id] = [c0].[CourseId] AND [c0].[UserId] = @userId)
+      ORDER BY [c].[Id], [u].[Id]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@userId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT [c].[Id], [c].[Code], [c].[CreatedAt], [c].[Description], [c].[InstructorId], [c].[IsActive], [c].[Title], [u].[Id], [u].[Email], [u].[EmailConfirmed], [u].[EmailVerificationCode], [u].[EmailVerificationExpiresAt], [u].[FirstName], [u].[IsActive], [u].[LastName], [u].[PasswordHash], [u].[PasswordSalt], [c0].[Id], [c0].[CourseId], [c0].[EnrolledAt], [c0].[UserId]
+      FROM [Courses] AS [c]
+      INNER JOIN [Users] AS [u] ON [c].[InstructorId] = [u].[Id]
+      LEFT JOIN [CourseStudent] AS [c0] ON [c].[Id] = [c0].[CourseId]
+      WHERE [c].[InstructorId] = @userId
+      ORDER BY [c].[Id], [u].[Id]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@userId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT [c].[Id], [c].[Code], [c].[CreatedAt], [c].[Description], [c].[InstructorId], [c].[IsActive], [c].[Title], [u].[Id], [u].[Email], [u].[EmailConfirmed], [u].[EmailVerificationCode], [u].[EmailVerificationExpiresAt], [u].[FirstName], [u].[IsActive], [u].[LastName], [u].[PasswordHash], [u].[PasswordSalt], [c1].[Id], [c1].[CourseId], [c1].[EnrolledAt], [c1].[UserId]
+      FROM [Courses] AS [c]
+      INNER JOIN [Users] AS [u] ON [c].[InstructorId] = [u].[Id]
+      LEFT JOIN [CourseStudent] AS [c1] ON [c].[Id] = [c1].[CourseId]
+      WHERE EXISTS (
+          SELECT 1
+          FROM [CourseStudent] AS [c0]
+          WHERE [c].[Id] = [c0].[CourseId] AND [c0].[UserId] = @userId)
+      ORDER BY [c].[Id], [u].[Id]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@courseId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT [s].[Id], [s].[Code], [s].[CreatedAt], [s].[Description], [s].[InstructorId], [s].[IsActive], [s].[Title], [s].[Id0], [s].[Email], [s].[EmailConfirmed], [s].[EmailVerificationCode], [s].[EmailVerificationExpiresAt], [s].[FirstName], [s].[IsActive0], [s].[LastName], [s].[PasswordHash], [s].[PasswordSalt], [c0].[Id], [c0].[CourseId], [c0].[EnrolledAt], [c0].[UserId]
+      FROM (
+          SELECT TOP(1) [c].[Id], [c].[Code], [c].[CreatedAt], [c].[Description], [c].[InstructorId], [c].[IsActive], [c].[Title], [u].[Id] AS [Id0], [u].[Email], [u].[EmailConfirmed], [u].[EmailVerificationCode], [u].[EmailVerificationExpiresAt], [u].[FirstName], [u].[IsActive] AS [IsActive0], [u].[LastName], [u].[PasswordHash], [u].[PasswordSalt]
+          FROM [Courses] AS [c]
+          INNER JOIN [Users] AS [u] ON [c].[InstructorId] = [u].[Id]
+          WHERE [c].[Id] = @courseId
+      ) AS [s]
+      LEFT JOIN [CourseStudent] AS [c0] ON [s].[Id] = [c0].[CourseId]
+      ORDER BY [s].[Id], [s].[Id0]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@courseId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT [s].[Id], [s].[Content], [s].[CourseId], [s].[Date], [s].[InstructorId], [s].[Title], [s].[Type], [c].[Id], [c].[Code], [c].[CreatedAt], [c].[Description], [c].[InstructorId], [c].[IsActive], [c].[Title], [u].[Id], [u].[Email], [u].[EmailConfirmed], [u].[EmailVerificationCode], [u].[EmailVerificationExpiresAt], [u].[FirstName], [u].[IsActive], [u].[LastName], [u].[PasswordHash], [u].[PasswordSalt]
+      FROM [StreamPosts] AS [s]
+      INNER JOIN [Courses] AS [c] ON [s].[CourseId] = [c].[Id]
+      INNER JOIN [Users] AS [u] ON [c].[InstructorId] = [u].[Id]
+      WHERE [s].[CourseId] = @courseId
+      ORDER BY [s].[Date] DESC
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@courseId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT [s].[Id], [s].[Code], [s].[CreatedAt], [s].[Description], [s].[InstructorId], [s].[IsActive], [s].[Title], [s].[Id0], [s].[Email], [s].[EmailConfirmed], [s].[EmailVerificationCode], [s].[EmailVerificationExpiresAt], [s].[FirstName], [s].[IsActive0], [s].[LastName], [s].[PasswordHash], [s].[PasswordSalt], [c0].[Id], [c0].[CourseId], [c0].[EnrolledAt], [c0].[UserId]
+      FROM (
+          SELECT TOP(1) [c].[Id], [c].[Code], [c].[CreatedAt], [c].[Description], [c].[InstructorId], [c].[IsActive], [c].[Title], [u].[Id] AS [Id0], [u].[Email], [u].[EmailConfirmed], [u].[EmailVerificationCode], [u].[EmailVerificationExpiresAt], [u].[FirstName], [u].[IsActive] AS [IsActive0], [u].[LastName], [u].[PasswordHash], [u].[PasswordSalt]
+          FROM [Courses] AS [c]
+          INNER JOIN [Users] AS [u] ON [c].[InstructorId] = [u].[Id]
+          WHERE [c].[Id] = @courseId
+      ) AS [s]
+      LEFT JOIN [CourseStudent] AS [c0] ON [s].[Id] = [c0].[CourseId]
+      ORDER BY [s].[Id], [s].[Id0]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@courseId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [c].[Id], [c].[Code], [c].[CreatedAt], [c].[Description], [c].[InstructorId], [c].[IsActive], [c].[Title]
+      FROM [Courses] AS [c]
+      WHERE [c].[Id] = @courseId
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (3ms) [Parameters=[@courseId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT [c].[Id], [c].[CourseId], [c].[Date], [c].[Description], [c].[Title], [c].[Type], [c].[Url]
+      FROM [CourseMaterials] AS [c]
+      WHERE [c].[CourseId] = @courseId
+      ORDER BY [c].[Date] DESC
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@courseId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT [s].[Id], [s].[Code], [s].[CreatedAt], [s].[Description], [s].[InstructorId], [s].[IsActive], [s].[Title], [s].[Id0], [s].[Email], [s].[EmailConfirmed], [s].[EmailVerificationCode], [s].[EmailVerificationExpiresAt], [s].[FirstName], [s].[IsActive0], [s].[LastName], [s].[PasswordHash], [s].[PasswordSalt], [c0].[Id], [c0].[CourseId], [c0].[EnrolledAt], [c0].[UserId]
+      FROM (
+          SELECT TOP(1) [c].[Id], [c].[Code], [c].[CreatedAt], [c].[Description], [c].[InstructorId], [c].[IsActive], [c].[Title], [u].[Id] AS [Id0], [u].[Email], [u].[EmailConfirmed], [u].[EmailVerificationCode], [u].[EmailVerificationExpiresAt], [u].[FirstName], [u].[IsActive] AS [IsActive0], [u].[LastName], [u].[PasswordHash], [u].[PasswordSalt]
+          FROM [Courses] AS [c]
+          INNER JOIN [Users] AS [u] ON [c].[InstructorId] = [u].[Id]
+          WHERE [c].[Id] = @courseId
+      ) AS [s]
+      LEFT JOIN [CourseStudent] AS [c0] ON [s].[Id] = [c0].[CourseId]
+      ORDER BY [s].[Id], [s].[Id0]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (4ms) [Parameters=[@courseId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT [c1].[Id], [c1].[Code], [c1].[CreatedAt], [c1].[Description], [c1].[InstructorId], [c1].[IsActive], [c1].[Title], [s].[Id], [s].[CourseId], [s].[EnrolledAt], [s].[UserId], [s].[Id0], [s].[Email], [s].[EmailConfirmed], [s].[EmailVerificationCode], [s].[EmailVerificationExpiresAt], [s].[FirstName], [s].[IsActive], [s].[LastName], [s].[PasswordHash], [s].[PasswordSalt]
+      FROM (
+          SELECT TOP(1) [c].[Id], [c].[Code], [c].[CreatedAt], [c].[Description], [c].[InstructorId], [c].[IsActive], [c].[Title]
+          FROM [Courses] AS [c]
+          WHERE [c].[Id] = @courseId
+      ) AS [c1]
+      LEFT JOIN (
+          SELECT [c0].[Id], [c0].[CourseId], [c0].[EnrolledAt], [c0].[UserId], [u].[Id] AS [Id0], [u].[Email], [u].[EmailConfirmed], [u].[EmailVerificationCode], [u].[EmailVerificationExpiresAt], [u].[FirstName], [u].[IsActive], [u].[LastName], [u].[PasswordHash], [u].[PasswordSalt]
+          FROM [CourseStudent] AS [c0]
+          INNER JOIN [Users] AS [u] ON [c0].[UserId] = [u].[Id]
+      ) AS [s] ON [c1].[Id] = [s].[CourseId]
+      ORDER BY [c1].[Id], [s].[Id]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[@courseId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT [a].[Id], [a].[CourseId], [a].[CreatedAt], [a].[CreatedById], [a].[DueDate], [a].[Instructions], [a].[MaxPoints], [a].[Title], [a0].[Id], [a0].[AssignmentId], [a0].[AttachmentUrl], [a0].[Feedback], [a0].[Grade], [a0].[GradedAt], [a0].[StudentId], [a0].[SubmittedAt], [a0].[Text]
+      FROM [Assignments] AS [a]
+      LEFT JOIN [AssignmentSubmissions] AS [a0] ON [a].[Id] = [a0].[AssignmentId]
+      WHERE [a].[CourseId] = @courseId
+      ORDER BY [a].[Id]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@courseId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT [s].[Id], [s].[Code], [s].[CreatedAt], [s].[Description], [s].[InstructorId], [s].[IsActive], [s].[Title], [s].[Id0], [s].[Email], [s].[EmailConfirmed], [s].[EmailVerificationCode], [s].[EmailVerificationExpiresAt], [s].[FirstName], [s].[IsActive0], [s].[LastName], [s].[PasswordHash], [s].[PasswordSalt], [c0].[Id], [c0].[CourseId], [c0].[EnrolledAt], [c0].[UserId]
+      FROM (
+          SELECT TOP(1) [c].[Id], [c].[Code], [c].[CreatedAt], [c].[Description], [c].[InstructorId], [c].[IsActive], [c].[Title], [u].[Id] AS [Id0], [u].[Email], [u].[EmailConfirmed], [u].[EmailVerificationCode], [u].[EmailVerificationExpiresAt], [u].[FirstName], [u].[IsActive] AS [IsActive0], [u].[LastName], [u].[PasswordHash], [u].[PasswordSalt]
+          FROM [Courses] AS [c]
+          INNER JOIN [Users] AS [u] ON [c].[InstructorId] = [u].[Id]
+          WHERE [c].[Id] = @courseId
+      ) AS [s]
+      LEFT JOIN [CourseStudent] AS [c0] ON [s].[Id] = [c0].[CourseId]
+      ORDER BY [s].[Id], [s].[Id0]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@_8__locals1_courseId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [c].[Id], [c].[Code], [c].[CreatedAt], [c].[Description], [c].[InstructorId], [c].[IsActive], [c].[Title]
+      FROM [Courses] AS [c]
+      WHERE [c].[Id] = @_8__locals1_courseId
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@courseId='?' (DbType = Guid), @userId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT CASE
+          WHEN EXISTS (
+              SELECT 1
+              FROM [CourseStudent] AS [c]
+              WHERE [c].[CourseId] = @courseId AND [c].[UserId] = @userId) THEN CAST(1 AS bit)
+          ELSE CAST(0 AS bit)
+      END
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@_8__locals1_courseId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT [a].[Id], [a].[CourseId], [a].[CreatedAt], [a].[CreatedById], [a].[DueDate], [a].[Instructions], [a].[MaxPoints], [a].[Title], [a0].[Id], [a0].[AssignmentId], [a0].[AttachmentUrl], [a0].[Feedback], [a0].[Grade], [a0].[GradedAt], [a0].[StudentId], [a0].[SubmittedAt], [a0].[Text]
+      FROM [Assignments] AS [a]
+      LEFT JOIN [AssignmentSubmissions] AS [a0] ON [a].[Id] = [a0].[AssignmentId]
+      WHERE [a].[CourseId] = @_8__locals1_courseId
+      ORDER BY [a].[DueDate], [a].[Id]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@courseId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT [s].[Id], [s].[Code], [s].[CreatedAt], [s].[Description], [s].[InstructorId], [s].[IsActive], [s].[Title], [s].[Id0], [s].[Email], [s].[EmailConfirmed], [s].[EmailVerificationCode], [s].[EmailVerificationExpiresAt], [s].[FirstName], [s].[IsActive0], [s].[LastName], [s].[PasswordHash], [s].[PasswordSalt], [c0].[Id], [c0].[CourseId], [c0].[EnrolledAt], [c0].[UserId]
+      FROM (
+          SELECT TOP(1) [c].[Id], [c].[Code], [c].[CreatedAt], [c].[Description], [c].[InstructorId], [c].[IsActive], [c].[Title], [u].[Id] AS [Id0], [u].[Email], [u].[EmailConfirmed], [u].[EmailVerificationCode], [u].[EmailVerificationExpiresAt], [u].[FirstName], [u].[IsActive] AS [IsActive0], [u].[LastName], [u].[PasswordHash], [u].[PasswordSalt]
+          FROM [Courses] AS [c]
+          INNER JOIN [Users] AS [u] ON [c].[InstructorId] = [u].[Id]
+          WHERE [c].[Id] = @courseId
+      ) AS [s]
+      LEFT JOIN [CourseStudent] AS [c0] ON [s].[Id] = [c0].[CourseId]
+      ORDER BY [s].[Id], [s].[Id0]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@courseId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT [s].[Id], [s].[Code], [s].[CreatedAt], [s].[Description], [s].[InstructorId], [s].[IsActive], [s].[Title], [s].[Id0], [s].[Email], [s].[EmailConfirmed], [s].[EmailVerificationCode], [s].[EmailVerificationExpiresAt], [s].[FirstName], [s].[IsActive0], [s].[LastName], [s].[PasswordHash], [s].[PasswordSalt], [c0].[Id], [c0].[CourseId], [c0].[EnrolledAt], [c0].[UserId]
+      FROM (
+          SELECT TOP(1) [c].[Id], [c].[Code], [c].[CreatedAt], [c].[Description], [c].[InstructorId], [c].[IsActive], [c].[Title], [u].[Id] AS [Id0], [u].[Email], [u].[EmailConfirmed], [u].[EmailVerificationCode], [u].[EmailVerificationExpiresAt], [u].[FirstName], [u].[IsActive] AS [IsActive0], [u].[LastName], [u].[PasswordHash], [u].[PasswordSalt]
+          FROM [Courses] AS [c]
+          INNER JOIN [Users] AS [u] ON [c].[InstructorId] = [u].[Id]
+          WHERE [c].[Id] = @courseId
+      ) AS [s]
+      LEFT JOIN [CourseStudent] AS [c0] ON [s].[Id] = [c0].[CourseId]
+      ORDER BY [s].[Id], [s].[Id0]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@userId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT [c].[Id], [c].[Code], [c].[CreatedAt], [c].[Description], [c].[InstructorId], [c].[IsActive], [c].[Title], [u].[Id], [u].[Email], [u].[EmailConfirmed], [u].[EmailVerificationCode], [u].[EmailVerificationExpiresAt], [u].[FirstName], [u].[IsActive], [u].[LastName], [u].[PasswordHash], [u].[PasswordSalt], [c0].[Id], [c0].[CourseId], [c0].[EnrolledAt], [c0].[UserId]
+      FROM [Courses] AS [c]
+      INNER JOIN [Users] AS [u] ON [c].[InstructorId] = [u].[Id]
+      LEFT JOIN [CourseStudent] AS [c0] ON [c].[Id] = [c0].[CourseId]
+      WHERE [c].[InstructorId] = @userId
+      ORDER BY [c].[Id], [u].[Id]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@userId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT [c].[Id], [c].[Code], [c].[CreatedAt], [c].[Description], [c].[InstructorId], [c].[IsActive], [c].[Title], [u].[Id], [u].[Email], [u].[EmailConfirmed], [u].[EmailVerificationCode], [u].[EmailVerificationExpiresAt], [u].[FirstName], [u].[IsActive], [u].[LastName], [u].[PasswordHash], [u].[PasswordSalt], [c1].[Id], [c1].[CourseId], [c1].[EnrolledAt], [c1].[UserId]
+      FROM [Courses] AS [c]
+      INNER JOIN [Users] AS [u] ON [c].[InstructorId] = [u].[Id]
+      LEFT JOIN [CourseStudent] AS [c1] ON [c].[Id] = [c1].[CourseId]
+      WHERE EXISTS (
+          SELECT 1
+          FROM [CourseStudent] AS [c0]
+          WHERE [c].[Id] = [c0].[CourseId] AND [c0].[UserId] = @userId)
+      ORDER BY [c].[Id], [u].[Id]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@email='?' (Size = 100)], CommandType='Text', CommandTimeout='30']
+      SELECT [u1].[Id], [u1].[Email], [u1].[EmailConfirmed], [u1].[EmailVerificationCode], [u1].[EmailVerificationExpiresAt], [u1].[FirstName], [u1].[IsActive], [u1].[LastName], [u1].[PasswordHash], [u1].[PasswordSalt], [s].[Id], [s].[RoleId], [s].[UserId], [s].[Id0], [s].[Name]
+      FROM (
+          SELECT TOP(1) [u].[Id], [u].[Email], [u].[EmailConfirmed], [u].[EmailVerificationCode], [u].[EmailVerificationExpiresAt], [u].[FirstName], [u].[IsActive], [u].[LastName], [u].[PasswordHash], [u].[PasswordSalt]
+          FROM [Users] AS [u]
+          WHERE [u].[Email] = @email
+      ) AS [u1]
+      LEFT JOIN (
+          SELECT [u0].[Id], [u0].[RoleId], [u0].[UserId], [r].[Id] AS [Id0], [r].[Name]
+          FROM [UserRoles] AS [u0]
+          INNER JOIN [Roles] AS [r] ON [u0].[RoleId] = [r].[Id]
+      ) AS [s] ON [u1].[Id] = [s].[UserId]
+      ORDER BY [u1].[Id], [s].[Id]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@userId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT [c].[Id], [c].[Code], [c].[CreatedAt], [c].[Description], [c].[InstructorId], [c].[IsActive], [c].[Title], [u].[Id], [u].[Email], [u].[EmailConfirmed], [u].[EmailVerificationCode], [u].[EmailVerificationExpiresAt], [u].[FirstName], [u].[IsActive], [u].[LastName], [u].[PasswordHash], [u].[PasswordSalt], [c0].[Id], [c0].[CourseId], [c0].[EnrolledAt], [c0].[UserId]
+      FROM [Courses] AS [c]
+      INNER JOIN [Users] AS [u] ON [c].[InstructorId] = [u].[Id]
+      LEFT JOIN [CourseStudent] AS [c0] ON [c].[Id] = [c0].[CourseId]
+      WHERE [c].[InstructorId] = @userId
+      ORDER BY [c].[Id], [u].[Id]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@userId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT [c].[Id], [c].[Code], [c].[CreatedAt], [c].[Description], [c].[InstructorId], [c].[IsActive], [c].[Title], [u].[Id], [u].[Email], [u].[EmailConfirmed], [u].[EmailVerificationCode], [u].[EmailVerificationExpiresAt], [u].[FirstName], [u].[IsActive], [u].[LastName], [u].[PasswordHash], [u].[PasswordSalt], [c1].[Id], [c1].[CourseId], [c1].[EnrolledAt], [c1].[UserId]
+      FROM [Courses] AS [c]
+      INNER JOIN [Users] AS [u] ON [c].[InstructorId] = [u].[Id]
+      LEFT JOIN [CourseStudent] AS [c1] ON [c].[Id] = [c1].[CourseId]
+      WHERE EXISTS (
+          SELECT 1
+          FROM [CourseStudent] AS [c0]
+          WHERE [c].[Id] = [c0].[CourseId] AND [c0].[UserId] = @userId)
+      ORDER BY [c].[Id], [u].[Id]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@userId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT [c].[Id], [c].[Code], [c].[CreatedAt], [c].[Description], [c].[InstructorId], [c].[IsActive], [c].[Title], [u].[Id], [u].[Email], [u].[EmailConfirmed], [u].[EmailVerificationCode], [u].[EmailVerificationExpiresAt], [u].[FirstName], [u].[IsActive], [u].[LastName], [u].[PasswordHash], [u].[PasswordSalt], [c0].[Id], [c0].[CourseId], [c0].[EnrolledAt], [c0].[UserId]
+      FROM [Courses] AS [c]
+      INNER JOIN [Users] AS [u] ON [c].[InstructorId] = [u].[Id]
+      LEFT JOIN [CourseStudent] AS [c0] ON [c].[Id] = [c0].[CourseId]
+      WHERE [c].[InstructorId] = @userId
+      ORDER BY [c].[Id], [u].[Id]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@userId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT [c].[Id], [c].[Code], [c].[CreatedAt], [c].[Description], [c].[InstructorId], [c].[IsActive], [c].[Title], [u].[Id], [u].[Email], [u].[EmailConfirmed], [u].[EmailVerificationCode], [u].[EmailVerificationExpiresAt], [u].[FirstName], [u].[IsActive], [u].[LastName], [u].[PasswordHash], [u].[PasswordSalt], [c1].[Id], [c1].[CourseId], [c1].[EnrolledAt], [c1].[UserId]
+      FROM [Courses] AS [c]
+      INNER JOIN [Users] AS [u] ON [c].[InstructorId] = [u].[Id]
+      LEFT JOIN [CourseStudent] AS [c1] ON [c].[Id] = [c1].[CourseId]
+      WHERE EXISTS (
+          SELECT 1
+          FROM [CourseStudent] AS [c0]
+          WHERE [c].[Id] = [c0].[CourseId] AND [c0].[UserId] = @userId)
+      ORDER BY [c].[Id], [u].[Id]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@courseId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT [s].[Id], [s].[Code], [s].[CreatedAt], [s].[Description], [s].[InstructorId], [s].[IsActive], [s].[Title], [s].[Id0], [s].[Email], [s].[EmailConfirmed], [s].[EmailVerificationCode], [s].[EmailVerificationExpiresAt], [s].[FirstName], [s].[IsActive0], [s].[LastName], [s].[PasswordHash], [s].[PasswordSalt], [c0].[Id], [c0].[CourseId], [c0].[EnrolledAt], [c0].[UserId]
+      FROM (
+          SELECT TOP(1) [c].[Id], [c].[Code], [c].[CreatedAt], [c].[Description], [c].[InstructorId], [c].[IsActive], [c].[Title], [u].[Id] AS [Id0], [u].[Email], [u].[EmailConfirmed], [u].[EmailVerificationCode], [u].[EmailVerificationExpiresAt], [u].[FirstName], [u].[IsActive] AS [IsActive0], [u].[LastName], [u].[PasswordHash], [u].[PasswordSalt]
+          FROM [Courses] AS [c]
+          INNER JOIN [Users] AS [u] ON [c].[InstructorId] = [u].[Id]
+          WHERE [c].[Id] = @courseId
+      ) AS [s]
+      LEFT JOIN [CourseStudent] AS [c0] ON [s].[Id] = [c0].[CourseId]
+      ORDER BY [s].[Id], [s].[Id0]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@courseId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT [s].[Id], [s].[Content], [s].[CourseId], [s].[Date], [s].[InstructorId], [s].[Title], [s].[Type], [c].[Id], [c].[Code], [c].[CreatedAt], [c].[Description], [c].[InstructorId], [c].[IsActive], [c].[Title], [u].[Id], [u].[Email], [u].[EmailConfirmed], [u].[EmailVerificationCode], [u].[EmailVerificationExpiresAt], [u].[FirstName], [u].[IsActive], [u].[LastName], [u].[PasswordHash], [u].[PasswordSalt]
+      FROM [StreamPosts] AS [s]
+      INNER JOIN [Courses] AS [c] ON [s].[CourseId] = [c].[Id]
+      INNER JOIN [Users] AS [u] ON [c].[InstructorId] = [u].[Id]
+      WHERE [s].[CourseId] = @courseId
+      ORDER BY [s].[Date] DESC
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@courseId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT [s].[Id], [s].[Code], [s].[CreatedAt], [s].[Description], [s].[InstructorId], [s].[IsActive], [s].[Title], [s].[Id0], [s].[Email], [s].[EmailConfirmed], [s].[EmailVerificationCode], [s].[EmailVerificationExpiresAt], [s].[FirstName], [s].[IsActive0], [s].[LastName], [s].[PasswordHash], [s].[PasswordSalt], [c0].[Id], [c0].[CourseId], [c0].[EnrolledAt], [c0].[UserId]
+      FROM (
+          SELECT TOP(1) [c].[Id], [c].[Code], [c].[CreatedAt], [c].[Description], [c].[InstructorId], [c].[IsActive], [c].[Title], [u].[Id] AS [Id0], [u].[Email], [u].[EmailConfirmed], [u].[EmailVerificationCode], [u].[EmailVerificationExpiresAt], [u].[FirstName], [u].[IsActive] AS [IsActive0], [u].[LastName], [u].[PasswordHash], [u].[PasswordSalt]
+          FROM [Courses] AS [c]
+          INNER JOIN [Users] AS [u] ON [c].[InstructorId] = [u].[Id]
+          WHERE [c].[Id] = @courseId
+      ) AS [s]
+      LEFT JOIN [CourseStudent] AS [c0] ON [s].[Id] = [c0].[CourseId]
+      ORDER BY [s].[Id], [s].[Id0]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@courseId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [c].[Id], [c].[Code], [c].[CreatedAt], [c].[Description], [c].[InstructorId], [c].[IsActive], [c].[Title]
+      FROM [Courses] AS [c]
+      WHERE [c].[Id] = @courseId
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@courseId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT [c].[Id], [c].[CourseId], [c].[Date], [c].[Description], [c].[Title], [c].[Type], [c].[Url]
+      FROM [CourseMaterials] AS [c]
+      WHERE [c].[CourseId] = @courseId
+      ORDER BY [c].[Date] DESC
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@courseId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT [s].[Id], [s].[Code], [s].[CreatedAt], [s].[Description], [s].[InstructorId], [s].[IsActive], [s].[Title], [s].[Id0], [s].[Email], [s].[EmailConfirmed], [s].[EmailVerificationCode], [s].[EmailVerificationExpiresAt], [s].[FirstName], [s].[IsActive0], [s].[LastName], [s].[PasswordHash], [s].[PasswordSalt], [c0].[Id], [c0].[CourseId], [c0].[EnrolledAt], [c0].[UserId]
+      FROM (
+          SELECT TOP(1) [c].[Id], [c].[Code], [c].[CreatedAt], [c].[Description], [c].[InstructorId], [c].[IsActive], [c].[Title], [u].[Id] AS [Id0], [u].[Email], [u].[EmailConfirmed], [u].[EmailVerificationCode], [u].[EmailVerificationExpiresAt], [u].[FirstName], [u].[IsActive] AS [IsActive0], [u].[LastName], [u].[PasswordHash], [u].[PasswordSalt]
+          FROM [Courses] AS [c]
+          INNER JOIN [Users] AS [u] ON [c].[InstructorId] = [u].[Id]
+          WHERE [c].[Id] = @courseId
+      ) AS [s]
+      LEFT JOIN [CourseStudent] AS [c0] ON [s].[Id] = [c0].[CourseId]
+      ORDER BY [s].[Id], [s].[Id0]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@courseId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT [c1].[Id], [c1].[Code], [c1].[CreatedAt], [c1].[Description], [c1].[InstructorId], [c1].[IsActive], [c1].[Title], [s].[Id], [s].[CourseId], [s].[EnrolledAt], [s].[UserId], [s].[Id0], [s].[Email], [s].[EmailConfirmed], [s].[EmailVerificationCode], [s].[EmailVerificationExpiresAt], [s].[FirstName], [s].[IsActive], [s].[LastName], [s].[PasswordHash], [s].[PasswordSalt]
+      FROM (
+          SELECT TOP(1) [c].[Id], [c].[Code], [c].[CreatedAt], [c].[Description], [c].[InstructorId], [c].[IsActive], [c].[Title]
+          FROM [Courses] AS [c]
+          WHERE [c].[Id] = @courseId
+      ) AS [c1]
+      LEFT JOIN (
+          SELECT [c0].[Id], [c0].[CourseId], [c0].[EnrolledAt], [c0].[UserId], [u].[Id] AS [Id0], [u].[Email], [u].[EmailConfirmed], [u].[EmailVerificationCode], [u].[EmailVerificationExpiresAt], [u].[FirstName], [u].[IsActive], [u].[LastName], [u].[PasswordHash], [u].[PasswordSalt]
+          FROM [CourseStudent] AS [c0]
+          INNER JOIN [Users] AS [u] ON [c0].[UserId] = [u].[Id]
+      ) AS [s] ON [c1].[Id] = [s].[CourseId]
+      ORDER BY [c1].[Id], [s].[Id]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@courseId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT [a].[Id], [a].[CourseId], [a].[CreatedAt], [a].[CreatedById], [a].[DueDate], [a].[Instructions], [a].[MaxPoints], [a].[Title], [a0].[Id], [a0].[AssignmentId], [a0].[AttachmentUrl], [a0].[Feedback], [a0].[Grade], [a0].[GradedAt], [a0].[StudentId], [a0].[SubmittedAt], [a0].[Text]
+      FROM [Assignments] AS [a]
+      LEFT JOIN [AssignmentSubmissions] AS [a0] ON [a].[Id] = [a0].[AssignmentId]
+      WHERE [a].[CourseId] = @courseId
+      ORDER BY [a].[Id]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@courseId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT [s].[Id], [s].[Code], [s].[CreatedAt], [s].[Description], [s].[InstructorId], [s].[IsActive], [s].[Title], [s].[Id0], [s].[Email], [s].[EmailConfirmed], [s].[EmailVerificationCode], [s].[EmailVerificationExpiresAt], [s].[FirstName], [s].[IsActive0], [s].[LastName], [s].[PasswordHash], [s].[PasswordSalt], [c0].[Id], [c0].[CourseId], [c0].[EnrolledAt], [c0].[UserId]
+      FROM (
+          SELECT TOP(1) [c].[Id], [c].[Code], [c].[CreatedAt], [c].[Description], [c].[InstructorId], [c].[IsActive], [c].[Title], [u].[Id] AS [Id0], [u].[Email], [u].[EmailConfirmed], [u].[EmailVerificationCode], [u].[EmailVerificationExpiresAt], [u].[FirstName], [u].[IsActive] AS [IsActive0], [u].[LastName], [u].[PasswordHash], [u].[PasswordSalt]
+          FROM [Courses] AS [c]
+          INNER JOIN [Users] AS [u] ON [c].[InstructorId] = [u].[Id]
+          WHERE [c].[Id] = @courseId
+      ) AS [s]
+      LEFT JOIN [CourseStudent] AS [c0] ON [s].[Id] = [c0].[CourseId]
+      ORDER BY [s].[Id], [s].[Id0]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@_8__locals1_courseId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [c].[Id], [c].[Code], [c].[CreatedAt], [c].[Description], [c].[InstructorId], [c].[IsActive], [c].[Title]
+      FROM [Courses] AS [c]
+      WHERE [c].[Id] = @_8__locals1_courseId
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@courseId='?' (DbType = Guid), @userId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT CASE
+          WHEN EXISTS (
+              SELECT 1
+              FROM [CourseStudent] AS [c]
+              WHERE [c].[CourseId] = @courseId AND [c].[UserId] = @userId) THEN CAST(1 AS bit)
+          ELSE CAST(0 AS bit)
+      END
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@_8__locals1_courseId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT [a].[Id], [a].[CourseId], [a].[CreatedAt], [a].[CreatedById], [a].[DueDate], [a].[Instructions], [a].[MaxPoints], [a].[Title], [a0].[Id], [a0].[AssignmentId], [a0].[AttachmentUrl], [a0].[Feedback], [a0].[Grade], [a0].[GradedAt], [a0].[StudentId], [a0].[SubmittedAt], [a0].[Text]
+      FROM [Assignments] AS [a]
+      LEFT JOIN [AssignmentSubmissions] AS [a0] ON [a].[Id] = [a0].[AssignmentId]
+      WHERE [a].[CourseId] = @_8__locals1_courseId
+      ORDER BY [a].[DueDate], [a].[Id]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@courseId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT [s].[Id], [s].[Code], [s].[CreatedAt], [s].[Description], [s].[InstructorId], [s].[IsActive], [s].[Title], [s].[Id0], [s].[Email], [s].[EmailConfirmed], [s].[EmailVerificationCode], [s].[EmailVerificationExpiresAt], [s].[FirstName], [s].[IsActive0], [s].[LastName], [s].[PasswordHash], [s].[PasswordSalt], [c0].[Id], [c0].[CourseId], [c0].[EnrolledAt], [c0].[UserId]
+      FROM (
+          SELECT TOP(1) [c].[Id], [c].[Code], [c].[CreatedAt], [c].[Description], [c].[InstructorId], [c].[IsActive], [c].[Title], [u].[Id] AS [Id0], [u].[Email], [u].[EmailConfirmed], [u].[EmailVerificationCode], [u].[EmailVerificationExpiresAt], [u].[FirstName], [u].[IsActive] AS [IsActive0], [u].[LastName], [u].[PasswordHash], [u].[PasswordSalt]
+          FROM [Courses] AS [c]
+          INNER JOIN [Users] AS [u] ON [c].[InstructorId] = [u].[Id]
+          WHERE [c].[Id] = @courseId
+      ) AS [s]
+      LEFT JOIN [CourseStudent] AS [c0] ON [s].[Id] = [c0].[CourseId]
+      ORDER BY [s].[Id], [s].[Id0]
