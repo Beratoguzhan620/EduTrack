@@ -1,5 +1,6 @@
 @using EduTrack.Application.DTOs.Auth
 @model LoginRequest
+@inject Microsoft.Extensions.Configuration.IConfiguration Configuration
 @{
     Layout = "_AuthLayout";
     ViewData["Title"] = "Giriş yap";
@@ -42,6 +43,10 @@
 <p class="auth-switch">
     Hesabınız yok mu? <a asp-action="Register" asp-controller="Auth">Kayıt olun</a>
 </p>
+@if (Configuration["Demo:LoginHint"] is { Length: > 0 } demoHint)
+{
+    <p class="text-muted small mt-3 mb-0">@demoHint</p>
+}
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />

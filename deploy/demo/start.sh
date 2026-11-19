@@ -14,6 +14,7 @@ ASPNETCORE_HTTP_PORTS=8081 \
 Database__Provider=Sqlite ConnectionStrings__DefaultConnection="Data Source=/tmp/edutrack.db" \
 FileApi__BaseUrl=http://127.0.0.1:8082/ FileApi__ApiKey="$FILE_API_KEY" \
 DataProtection__KeysPath=/tmp/keys \
+Demo__LoginHint="Demo: eğitmen ogretmen@example.com, öğrenci zeynep@example.com, yönetici admin@example.com · şifre Demo123!" \
   dotnet EduTrack.Web.dll &
 web=$!
 
