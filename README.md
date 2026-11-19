@@ -12,6 +12,8 @@ A classroom app for teachers and students: courses you join with a code, a cours
 
 ## Demo accounts
 
+**Live demo:** [edutrack-demo.onrender.com](https://edutrack-demo.onrender.com). Sign in with the accounts below. E-mail is not set up there, so a new account cannot verify its address. It runs on a free server with SQLite inside the container, so every restart starts again from the same data; after a quiet spell the first visit can take about a minute.
+
 Start the app with demo content (see [Running locally](#running-locally)) and sign in with:
 
 | Role | E-mail | Password |
